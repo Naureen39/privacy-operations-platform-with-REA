@@ -1,0 +1,25 @@
+name: privacy-operations-platform-rea
+
+# Phase 1 provides the database service only. The remaining services
+# (api, worker, redis, rea-offline, rea-browser, frontend) are added by Phase 0
+# and later phases.
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: processledger-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-processledger}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-processledger_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-processledger}
+    ports:
+      - "127.0.0.1:${DB_HOST_PORT:-5545}:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-processledger} -d ${POSTGRES_DB:-processledger}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  db_data:
