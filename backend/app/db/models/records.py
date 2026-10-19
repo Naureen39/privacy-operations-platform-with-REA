@@ -17,7 +17,14 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base, TenantMixin, TimestampMixin, UuidPkMixin, enum_type, jsonb_default
+from app.db.base import (
+    Base,
+    TenantMixin,
+    TimestampMixin,
+    UuidPkMixin,
+    enum_type,
+    jsonb_default,
+)
 from app.db.enums import ActivityStatus, DpiaStatus
 
 
@@ -51,7 +58,9 @@ class ProcessingActivity(UuidPkMixin, TimestampMixin, TenantMixin, Base):
         ForeignKey("users.id", ondelete="SET NULL"), index=True
     )
     status: Mapped[ActivityStatus] = mapped_column(
-        enum_type(ActivityStatus), nullable=False, server_default=ActivityStatus.DRAFT.value
+        enum_type(ActivityStatus),
+        nullable=False,
+        server_default=ActivityStatus.DRAFT.value,
     )
     current_version: Mapped[int] = mapped_column(Integer, nullable=False, server_default="1")
     next_review_date: Mapped[date | None] = mapped_column(Date)
@@ -61,7 +70,9 @@ class ActivityVersion(UuidPkMixin, TenantMixin, Base):
     __tablename__ = "activity_versions"
 
     activity_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("processing_activities.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("processing_activities.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     version: Mapped[int] = mapped_column(Integer, nullable=False)
     snapshot: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
@@ -96,7 +107,9 @@ class Dpia(UuidPkMixin, TimestampMixin, TenantMixin, Base):
     __tablename__ = "dpias"
 
     activity_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("processing_activities.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("processing_activities.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     status: Mapped[DpiaStatus] = mapped_column(
         enum_type(DpiaStatus), nullable=False, server_default=DpiaStatus.DRAFT.value

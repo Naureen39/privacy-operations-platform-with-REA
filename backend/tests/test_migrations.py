@@ -23,7 +23,7 @@ def test_upgrade_downgrade_upgrade(admin_url: URL) -> None:
     command.upgrade(config, "head")
     assert _tables(url) == expected
 
-    command.downgrade(config, "0001")  # removes only security objects
+    command.downgrade(config, "0001")  # removes the security objects and auth columns
     assert _tables(url) == expected
     engine = create_engine(url)
     with engine.connect() as conn:

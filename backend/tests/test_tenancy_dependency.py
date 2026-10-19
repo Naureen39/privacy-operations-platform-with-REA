@@ -40,7 +40,8 @@ def build_app(factory: sessionmaker[TenantSession]) -> FastAPI:
 
 @pytest.mark.anyio
 async def test_dependency_scopes_each_request_to_its_tenant(
-    session_factory: sessionmaker[TenantSession], two_orgs: tuple[OrgFixture, OrgFixture]
+    session_factory: sessionmaker[TenantSession],
+    two_orgs: tuple[OrgFixture, OrgFixture],
 ) -> None:
     org_a, org_b = two_orgs
     transport = httpx.ASGITransport(app=build_app(session_factory))

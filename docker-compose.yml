@@ -1,8 +1,7 @@
 name: privacy-operations-platform-rea
 
-# Phase 1 provides the database service only. The remaining services
-# (api, worker, redis, rea-offline, rea-browser, frontend) are added by Phase 0
-# and later phases.
+# Services present so far: db (Phase 1), rea-offline and rea-browser (Phase 2 isolation
+# settings). api, worker, redis and frontend are added by later phases.
 services:
   db:
     image: pgvector/pgvector:pg16
@@ -21,5 +20,56 @@ services:
       timeout: 3s
       retries: 10
 
+  # Static analysis of uploaded evidence. No network at all, evidence mounted read only,
+  # unprivileged user, read only root file system, bounded CPU, memory and process count.
+  rea-offline:
+    build:
+      context: ./rea-runner
+      dockerfile: Dockerfile.offline
+    container_name: processledger-rea-offline
+    user: "10001:10001"
+    network_mode: none
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 1g
+    memswap_limit: 1g
+    cpus: 1.0
+    pids_limit: 128
+    tmpfs:
+      - /tmp:size=128m,noexec,nosuid
+      - /work:size=256m,noexec,nosuid,uid=10001,gid=10001
+    volumes:
+      - evidence_data:/input:ro
+    profiles: ["runners"]
+
+  # Website observation. Attached only to the internal demo estate network (no route to
+  # the internet or to the host), with a hard timeout enforced by the wrapper.
+  rea-browser:
+    build:
+      context: ./rea-runner
+      dockerfile: Dockerfile.browser
+    container_name: processledger-rea-browser
+    user: "10002:10002"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 2g
+    memswap_limit: 2g
+    cpus: 1.5
+    pids_limit: 256
+    environment:
+      REA_BROWSER_TIMEOUT_SECONDS: ${REA_BROWSER_TIMEOUT_SECONDS:-60}
+    tmpfs:
+      - /tmp:size=256m,noexec,nosuid
+      - /work:size=256m,noexec,nosuid,uid=10002,gid=10002
+    networks: [estate]
+    profiles: ["runners"]
+
+networks:
+  estate:
+    internal: true
+
 volumes:
   db_data:
+  evidence_data:

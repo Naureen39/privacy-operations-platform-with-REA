@@ -19,7 +19,14 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base, TenantMixin, TimestampMixin, UuidPkMixin, enum_type, jsonb_default
+from app.db.base import (
+    Base,
+    TenantMixin,
+    TimestampMixin,
+    UuidPkMixin,
+    enum_type,
+    jsonb_default,
+)
 from app.db.enums import InvoiceLineKind, InvoiceStatus, SubscriptionStatus, UsageKind
 
 
@@ -86,7 +93,9 @@ class Invoice(UuidPkMixin, TimestampMixin, TenantMixin, Base):
     period_start: Mapped[date] = mapped_column(Date, nullable=False)
     period_end: Mapped[date] = mapped_column(Date, nullable=False)
     status: Mapped[InvoiceStatus] = mapped_column(
-        enum_type(InvoiceStatus), nullable=False, server_default=InvoiceStatus.OPEN.value
+        enum_type(InvoiceStatus),
+        nullable=False,
+        server_default=InvoiceStatus.OPEN.value,
     )
     total_cents: Mapped[int] = mapped_column(BigInteger, nullable=False)
     paid_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

@@ -40,7 +40,12 @@ def upgrade() -> None:
         ),
         sa.Column("failovers", sa.Integer(), server_default="0", nullable=False),
         sa.Column("cache_hits", sa.Integer(), server_default="0", nullable=False),
-        sa.Column("is_simulated", sa.Boolean(), server_default=sa.text("false"), nullable=False),
+        sa.Column(
+            "is_simulated",
+            sa.Boolean(),
+            server_default=sa.text("false"),
+            nullable=False,
+        ),
         sa.PrimaryKeyConstraint("metric_date", name=op.f("pk_daily_metrics")),
     )
     op.create_table(
@@ -49,7 +54,12 @@ def upgrade() -> None:
         sa.Column("slug", sa.String(length=80), nullable=False),
         sa.Column("industry", sa.String(length=80), nullable=True),
         sa.Column("region", sa.String(length=80), nullable=True),
-        sa.Column("is_simulated", sa.Boolean(), server_default=sa.text("false"), nullable=False),
+        sa.Column(
+            "is_simulated",
+            sa.Boolean(),
+            server_default=sa.text("false"),
+            nullable=False,
+        ),
         sa.Column("id", sa.Uuid(), server_default=sa.text("gen_random_uuid()"), nullable=False),
         sa.Column(
             "created_at",
@@ -99,7 +109,10 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id", name=op.f("pk_regulation_chunks")),
     )
     op.create_index(
-        op.f("ix_regulation_chunks_article"), "regulation_chunks", ["article"], unique=False
+        op.f("ix_regulation_chunks_article"),
+        "regulation_chunks",
+        ["article"],
+        unique=False,
     )
     op.create_index(
         "ix_regulation_chunks_embedding_hnsw",
@@ -142,7 +155,10 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id", name=op.f("pk_users")),
     )
     op.create_index(
-        "uq_users_email_lower", "users", [sa.literal_column("lower(email)")], unique=True
+        "uq_users_email_lower",
+        "users",
+        [sa.literal_column("lower(email)")],
+        unique=True,
     )
     op.create_table(
         "access_requests",
@@ -153,7 +169,10 @@ def upgrade() -> None:
         sa.Column("extension_months", sa.Integer(), server_default="0", nullable=False),
         sa.Column("extension_reason", sa.Text(), nullable=True),
         sa.Column(
-            "identity_verified", sa.Boolean(), server_default=sa.text("false"), nullable=False
+            "identity_verified",
+            sa.Boolean(),
+            server_default=sa.text("false"),
+            nullable=False,
         ),
         sa.Column(
             "status",
@@ -215,7 +234,10 @@ def upgrade() -> None:
     )
     op.create_index(op.f("ix_access_requests_org_id"), "access_requests", ["org_id"], unique=False)
     op.create_index(
-        op.f("ix_access_requests_subject_hash"), "access_requests", ["subject_hash"], unique=False
+        op.f("ix_access_requests_subject_hash"),
+        "access_requests",
+        ["subject_hash"],
+        unique=False,
     )
     op.create_table(
         "approvals",
@@ -321,7 +343,10 @@ def upgrade() -> None:
     op.create_index("ix_audit_log_action", "audit_log", ["action"], unique=False)
     op.create_index(op.f("ix_audit_log_org_id"), "audit_log", ["org_id"], unique=False)
     op.create_index(
-        "ix_audit_log_org_id_created_at", "audit_log", ["org_id", "created_at"], unique=False
+        "ix_audit_log_org_id_created_at",
+        "audit_log",
+        ["org_id", "created_at"],
+        unique=False,
     )
     op.create_table(
         "comments",
@@ -379,7 +404,12 @@ def upgrade() -> None:
         sa.Column("requests_overdue", sa.Integer(), server_default="0", nullable=False),
         sa.Column("discovery_confidence_avg", sa.Numeric(precision=4, scale=3), nullable=True),
         sa.Column("rea_run_duration_ms_avg", sa.Integer(), nullable=True),
-        sa.Column("is_simulated", sa.Boolean(), server_default=sa.text("false"), nullable=False),
+        sa.Column(
+            "is_simulated",
+            sa.Boolean(),
+            server_default=sa.text("false"),
+            nullable=False,
+        ),
         sa.Column("id", sa.Uuid(), server_default=sa.text("gen_random_uuid()"), nullable=False),
         sa.Column(
             "org_id",
@@ -395,7 +425,9 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_compliance_daily_metrics")),
         sa.UniqueConstraint(
-            "org_id", "metric_date", name=op.f("uq_compliance_daily_metrics_org_id_metric_date")
+            "org_id",
+            "metric_date",
+            name=op.f("uq_compliance_daily_metrics_org_id_metric_date"),
         ),
     )
     op.create_index(
@@ -523,7 +555,10 @@ def upgrade() -> None:
             ondelete="CASCADE",
         ),
         sa.ForeignKeyConstraint(
-            ["user_id"], ["users.id"], name=op.f("fk_memberships_user_id_users"), ondelete="CASCADE"
+            ["user_id"],
+            ["users.id"],
+            name=op.f("fk_memberships_user_id_users"),
+            ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_memberships")),
         sa.UniqueConstraint("org_id", "user_id", name=op.f("uq_memberships_org_id_user_id")),
@@ -534,7 +569,10 @@ def upgrade() -> None:
         "processing_activities",
         sa.Column("name", sa.String(length=300), nullable=False),
         sa.Column(
-            "purposes", postgresql.ARRAY(sa.Text()), server_default=sa.text("'{}'"), nullable=False
+            "purposes",
+            postgresql.ARRAY(sa.Text()),
+            server_default=sa.text("'{}'"),
+            nullable=False,
         ),
         sa.Column(
             "data_subjects",
@@ -627,7 +665,10 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id", name=op.f("pk_processing_activities")),
     )
     op.create_index(
-        op.f("ix_processing_activities_org_id"), "processing_activities", ["org_id"], unique=False
+        op.f("ix_processing_activities_org_id"),
+        "processing_activities",
+        ["org_id"],
+        unique=False,
     )
     op.create_index(
         op.f("ix_processing_activities_owner_user_id"),
@@ -659,7 +700,10 @@ def upgrade() -> None:
         sa.UniqueConstraint("token_hash", name=op.f("uq_refresh_tokens_token_hash")),
     )
     op.create_index(
-        op.f("ix_refresh_tokens_family_id"), "refresh_tokens", ["family_id"], unique=False
+        op.f("ix_refresh_tokens_family_id"),
+        "refresh_tokens",
+        ["family_id"],
+        unique=False,
     )
     op.create_index(op.f("ix_refresh_tokens_user_id"), "refresh_tokens", ["user_id"], unique=False)
     op.create_table(
@@ -681,7 +725,12 @@ def upgrade() -> None:
         sa.Column("base_fee_cents", sa.Integer(), nullable=False),
         sa.Column("started_at", sa.Date(), nullable=False),
         sa.Column("ended_at", sa.Date(), nullable=True),
-        sa.Column("is_simulated", sa.Boolean(), server_default=sa.text("false"), nullable=False),
+        sa.Column(
+            "is_simulated",
+            sa.Boolean(),
+            server_default=sa.text("false"),
+            nullable=False,
+        ),
         sa.Column("id", sa.Uuid(), server_default=sa.text("gen_random_uuid()"), nullable=False),
         sa.Column(
             "created_at",
@@ -702,7 +751,8 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.CheckConstraint(
-            "status IN ('active', 'canceled')", name=op.f("ck_subscriptions_subscriptionstatus")
+            "status IN ('active', 'canceled')",
+            name=op.f("ck_subscriptions_subscriptionstatus"),
         ),
         sa.ForeignKeyConstraint(
             ["org_id"],
@@ -822,7 +872,10 @@ def upgrade() -> None:
         op.f("ix_activity_systems_org_id"), "activity_systems", ["org_id"], unique=False
     )
     op.create_index(
-        op.f("ix_activity_systems_system_id"), "activity_systems", ["system_id"], unique=False
+        op.f("ix_activity_systems_system_id"),
+        "activity_systems",
+        ["system_id"],
+        unique=False,
     )
     op.create_table(
         "activity_versions",
@@ -871,14 +924,22 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_activity_versions")),
         sa.UniqueConstraint(
-            "activity_id", "version", name=op.f("uq_activity_versions_activity_id_version")
+            "activity_id",
+            "version",
+            name=op.f("uq_activity_versions_activity_id_version"),
         ),
     )
     op.create_index(
-        op.f("ix_activity_versions_activity_id"), "activity_versions", ["activity_id"], unique=False
+        op.f("ix_activity_versions_activity_id"),
+        "activity_versions",
+        ["activity_id"],
+        unique=False,
     )
     op.create_index(
-        op.f("ix_activity_versions_org_id"), "activity_versions", ["org_id"], unique=False
+        op.f("ix_activity_versions_org_id"),
+        "activity_versions",
+        ["org_id"],
+        unique=False,
     )
     op.create_table(
         "discovery_runs",
@@ -947,7 +1008,10 @@ def upgrade() -> None:
     )
     op.create_index(op.f("ix_discovery_runs_org_id"), "discovery_runs", ["org_id"], unique=False)
     op.create_index(
-        op.f("ix_discovery_runs_system_id"), "discovery_runs", ["system_id"], unique=False
+        op.f("ix_discovery_runs_system_id"),
+        "discovery_runs",
+        ["system_id"],
+        unique=False,
     )
     op.create_table(
         "documents",
@@ -1136,7 +1200,8 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.CheckConstraint(
-            "extractor IN ('rea', 'fallback', 'document')", name=op.f("ck_evidence_items_extractor")
+            "extractor IN ('rea', 'fallback', 'document')",
+            name=op.f("ck_evidence_items_extractor"),
         ),
         sa.CheckConstraint(
             "kind IN ('har', 'website', 'javascript_bundle', 'sqlite_snapshot', 'questionnaire', 'privacy_policy', 'vendor_agreement')",
@@ -1164,7 +1229,10 @@ def upgrade() -> None:
     )
     op.create_index(op.f("ix_evidence_items_org_id"), "evidence_items", ["org_id"], unique=False)
     op.create_index(
-        op.f("ix_evidence_items_system_id"), "evidence_items", ["system_id"], unique=False
+        op.f("ix_evidence_items_system_id"),
+        "evidence_items",
+        ["system_id"],
+        unique=False,
     )
     op.create_table(
         "findings",
@@ -1291,7 +1359,12 @@ def upgrade() -> None:
         ),
         sa.Column("total_cents", sa.BigInteger(), nullable=False),
         sa.Column("paid_at", sa.DateTime(timezone=True), nullable=True),
-        sa.Column("is_simulated", sa.Boolean(), server_default=sa.text("false"), nullable=False),
+        sa.Column(
+            "is_simulated",
+            sa.Boolean(),
+            server_default=sa.text("false"),
+            nullable=False,
+        ),
         sa.Column("id", sa.Uuid(), server_default=sa.text("gen_random_uuid()"), nullable=False),
         sa.Column(
             "created_at",
@@ -1312,7 +1385,8 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.CheckConstraint(
-            "status IN ('paid', 'open', 'overdue', 'void')", name=op.f("ck_invoices_invoicestatus")
+            "status IN ('paid', 'open', 'overdue', 'void')",
+            name=op.f("ck_invoices_invoicestatus"),
         ),
         sa.ForeignKeyConstraint(
             ["org_id"],
@@ -1331,7 +1405,10 @@ def upgrade() -> None:
     )
     op.create_index(op.f("ix_invoices_org_id"), "invoices", ["org_id"], unique=False)
     op.create_index(
-        op.f("ix_invoices_subscription_id"), "invoices", ["subscription_id"], unique=False
+        op.f("ix_invoices_subscription_id"),
+        "invoices",
+        ["subscription_id"],
+        unique=False,
     )
     op.create_table(
         "request_responses",
@@ -1397,14 +1474,22 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_request_responses")),
         sa.UniqueConstraint(
-            "request_id", "version", name=op.f("uq_request_responses_request_id_version")
+            "request_id",
+            "version",
+            name=op.f("uq_request_responses_request_id_version"),
         ),
     )
     op.create_index(
-        op.f("ix_request_responses_org_id"), "request_responses", ["org_id"], unique=False
+        op.f("ix_request_responses_org_id"),
+        "request_responses",
+        ["org_id"],
+        unique=False,
     )
     op.create_index(
-        op.f("ix_request_responses_request_id"), "request_responses", ["request_id"], unique=False
+        op.f("ix_request_responses_request_id"),
+        "request_responses",
+        ["request_id"],
+        unique=False,
     )
     op.create_table(
         "request_results",
@@ -1415,7 +1500,10 @@ def upgrade() -> None:
         sa.Column("category", sa.String(length=120), nullable=True),
         sa.Column("match_count", sa.Integer(), nullable=False),
         sa.Column(
-            "disclosure_approved", sa.Boolean(), server_default=sa.text("false"), nullable=False
+            "disclosure_approved",
+            sa.Boolean(),
+            server_default=sa.text("false"),
+            nullable=False,
         ),
         sa.Column(
             "created_at",
@@ -1452,7 +1540,10 @@ def upgrade() -> None:
     )
     op.create_index(op.f("ix_request_results_org_id"), "request_results", ["org_id"], unique=False)
     op.create_index(
-        op.f("ix_request_results_request_id"), "request_results", ["request_id"], unique=False
+        op.f("ix_request_results_request_id"),
+        "request_results",
+        ["request_id"],
+        unique=False,
     )
     op.create_table(
         "usage_events",
@@ -1474,7 +1565,12 @@ def upgrade() -> None:
         sa.Column("occurred_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("system_id", sa.Uuid(), nullable=True),
         sa.Column("provider", sa.String(length=40), nullable=True),
-        sa.Column("is_simulated", sa.Boolean(), server_default=sa.text("false"), nullable=False),
+        sa.Column(
+            "is_simulated",
+            sa.Boolean(),
+            server_default=sa.text("false"),
+            nullable=False,
+        ),
         sa.Column("id", sa.Uuid(), server_default=sa.text("gen_random_uuid()"), nullable=False),
         sa.Column(
             "org_id",
@@ -1574,10 +1670,16 @@ def upgrade() -> None:
         unique=False,
     )
     op.create_index(
-        op.f("ix_discovery_evidence_org_id"), "discovery_evidence", ["org_id"], unique=False
+        op.f("ix_discovery_evidence_org_id"),
+        "discovery_evidence",
+        ["org_id"],
+        unique=False,
     )
     op.create_index(
-        op.f("ix_discovery_evidence_run_id"), "discovery_evidence", ["run_id"], unique=False
+        op.f("ix_discovery_evidence_run_id"),
+        "discovery_evidence",
+        ["run_id"],
+        unique=False,
     )
     op.create_table(
         "document_chunks",
@@ -1623,7 +1725,10 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id", name=op.f("pk_document_chunks")),
     )
     op.create_index(
-        op.f("ix_document_chunks_document_id"), "document_chunks", ["document_id"], unique=False
+        op.f("ix_document_chunks_document_id"),
+        "document_chunks",
+        ["document_id"],
+        unique=False,
     )
     op.create_index(
         "ix_document_chunks_embedding_hnsw",
@@ -1636,10 +1741,17 @@ def upgrade() -> None:
     )
     op.create_index(op.f("ix_document_chunks_org_id"), "document_chunks", ["org_id"], unique=False)
     op.create_index(
-        op.f("ix_document_chunks_system_id"), "document_chunks", ["system_id"], unique=False
+        op.f("ix_document_chunks_system_id"),
+        "document_chunks",
+        ["system_id"],
+        unique=False,
     )
     op.create_index(
-        "ix_document_chunks_tsv", "document_chunks", ["tsv"], unique=False, postgresql_using="gin"
+        "ix_document_chunks_tsv",
+        "document_chunks",
+        ["tsv"],
+        unique=False,
+        postgresql_using="gin",
     )
     op.create_table(
         "dpia_risks",
@@ -1672,7 +1784,10 @@ def upgrade() -> None:
         ),
         sa.CheckConstraint("severity BETWEEN 1 AND 5", name=op.f("ck_dpia_risks_severity_range")),
         sa.ForeignKeyConstraint(
-            ["dpia_id"], ["dpias.id"], name=op.f("fk_dpia_risks_dpia_id_dpias"), ondelete="CASCADE"
+            ["dpia_id"],
+            ["dpias.id"],
+            name=op.f("fk_dpia_risks_dpia_id_dpias"),
+            ondelete="CASCADE",
         ),
         sa.ForeignKeyConstraint(
             ["org_id"],
@@ -1716,7 +1831,8 @@ def upgrade() -> None:
             name=op.f("ck_invoice_lines_invoicelinekind"),
         ),
         sa.CheckConstraint(
-            "amount_cents = quantity * unit_cents", name=op.f("ck_invoice_lines_amount_matches")
+            "amount_cents = quantity * unit_cents",
+            name=op.f("ck_invoice_lines_amount_matches"),
         ),
         sa.ForeignKeyConstraint(
             ["invoice_id"],
@@ -1733,7 +1849,10 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id", name=op.f("pk_invoice_lines")),
     )
     op.create_index(
-        op.f("ix_invoice_lines_invoice_id"), "invoice_lines", ["invoice_id"], unique=False
+        op.f("ix_invoice_lines_invoice_id"),
+        "invoice_lines",
+        ["invoice_id"],
+        unique=False,
     )
     op.create_index(op.f("ix_invoice_lines_org_id"), "invoice_lines", ["org_id"], unique=False)
     op.create_table(
@@ -1782,7 +1901,10 @@ def upgrade() -> None:
             name=op.f("ck_llm_calls_llmcallstatus"),
         ),
         sa.ForeignKeyConstraint(
-            ["dpia_id"], ["dpias.id"], name=op.f("fk_llm_calls_dpia_id_dpias"), ondelete="SET NULL"
+            ["dpia_id"],
+            ["dpias.id"],
+            name=op.f("fk_llm_calls_dpia_id_dpias"),
+            ondelete="SET NULL",
         ),
         sa.ForeignKeyConstraint(
             ["org_id"],
@@ -1800,7 +1922,10 @@ def upgrade() -> None:
     )
     op.create_index(op.f("ix_llm_calls_org_id"), "llm_calls", ["org_id"], unique=False)
     op.create_index(
-        "ix_llm_calls_org_id_created_at", "llm_calls", ["org_id", "created_at"], unique=False
+        "ix_llm_calls_org_id_created_at",
+        "llm_calls",
+        ["org_id", "created_at"],
+        unique=False,
     )
     op.create_index(op.f("ix_llm_calls_system_id"), "llm_calls", ["system_id"], unique=False)
     op.create_table(
@@ -1887,7 +2012,10 @@ def upgrade() -> None:
         sa.Column("pattern_class", sa.String(length=80), nullable=True),
         sa.Column("category", sa.String(length=120), nullable=True),
         sa.Column(
-            "special_category", sa.Boolean(), server_default=sa.text("false"), nullable=False
+            "special_category",
+            sa.Boolean(),
+            server_default=sa.text("false"),
+            nullable=False,
         ),
         sa.Column("special_category_label", sa.String(length=120), nullable=True),
         sa.Column("confidence", sa.Numeric(precision=4, scale=3), nullable=True),
@@ -1975,7 +2103,10 @@ def upgrade() -> None:
         postgresql_ops={"embedding": "vector_cosine_ops"},
     )
     op.create_index(
-        op.f("ix_data_elements_evidence_id"), "data_elements", ["evidence_id"], unique=False
+        op.f("ix_data_elements_evidence_id"),
+        "data_elements",
+        ["evidence_id"],
+        unique=False,
     )
     op.create_index(op.f("ix_data_elements_org_id"), "data_elements", ["org_id"], unique=False)
     op.create_index(
@@ -2005,7 +2136,10 @@ def upgrade() -> None:
         sa.Column("purpose", sa.Text(), nullable=True),
         sa.Column("category", sa.String(length=120), nullable=True),
         sa.Column(
-            "agreement_on_file", sa.Boolean(), server_default=sa.text("false"), nullable=False
+            "agreement_on_file",
+            sa.Boolean(),
+            server_default=sa.text("false"),
+            nullable=False,
         ),
         sa.Column("safeguard", sa.String(length=200), nullable=True),
         sa.Column("evidence_id", sa.Uuid(), nullable=True),
@@ -2107,7 +2241,10 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id", name=op.f("pk_technologies")),
     )
     op.create_index(
-        op.f("ix_technologies_evidence_id"), "technologies", ["evidence_id"], unique=False
+        op.f("ix_technologies_evidence_id"),
+        "technologies",
+        ["evidence_id"],
+        unique=False,
     )
     op.create_index(op.f("ix_technologies_org_id"), "technologies", ["org_id"], unique=False)
     op.create_index(op.f("ix_technologies_system_id"), "technologies", ["system_id"], unique=False)
@@ -2208,7 +2345,8 @@ def downgrade() -> None:
     op.drop_index(op.f("ix_refresh_tokens_family_id"), table_name="refresh_tokens")
     op.drop_table("refresh_tokens")
     op.drop_index(
-        op.f("ix_processing_activities_owner_user_id"), table_name="processing_activities"
+        op.f("ix_processing_activities_owner_user_id"),
+        table_name="processing_activities",
     )
     op.drop_index(op.f("ix_processing_activities_org_id"), table_name="processing_activities")
     op.drop_table("processing_activities")
@@ -2219,7 +2357,10 @@ def downgrade() -> None:
     op.drop_table("llm_cache")
     op.drop_index(op.f("ix_leads_org_id"), table_name="leads")
     op.drop_table("leads")
-    op.drop_index(op.f("ix_compliance_daily_metrics_org_id"), table_name="compliance_daily_metrics")
+    op.drop_index(
+        op.f("ix_compliance_daily_metrics_org_id"),
+        table_name="compliance_daily_metrics",
+    )
     op.drop_table("compliance_daily_metrics")
     op.drop_index(op.f("ix_comments_org_id"), table_name="comments")
     op.drop_index("ix_comments_entity", table_name="comments")
@@ -2237,7 +2378,9 @@ def downgrade() -> None:
     op.drop_index("uq_users_email_lower", table_name="users")
     op.drop_table("users")
     op.drop_index(
-        "ix_regulation_chunks_tsv", table_name="regulation_chunks", postgresql_using="gin"
+        "ix_regulation_chunks_tsv",
+        table_name="regulation_chunks",
+        postgresql_using="gin",
     )
     op.drop_index(
         "ix_regulation_chunks_embedding_hnsw",

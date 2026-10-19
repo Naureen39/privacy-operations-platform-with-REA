@@ -20,7 +20,7 @@ _TENANT_KEY = "tenant_context"
 
 @dataclass(frozen=True)
 class TenantContext:
-    org_id: uuid.UUID
+    org_id: uuid.UUID | None = None
     user_id: uuid.UUID | None = None
 
 
@@ -33,7 +33,7 @@ def _apply_tenant_settings(
     session: Session, transaction: SessionTransaction, connection: object
 ) -> None:
     context: TenantContext | None = session.info.get(_TENANT_KEY)
-    org = str(context.org_id) if context else ""
+    org = str(context.org_id) if context and context.org_id else ""
     user = str(context.user_id) if context and context.user_id else ""
     connection.execute(  # type: ignore[attr-defined]
         text("SELECT set_config('app.org_id', :org, true), set_config('app.user_id', :usr, true)"),
@@ -59,7 +59,10 @@ def set_tenant(session: Session, context: TenantContext) -> None:
     session.info[_TENANT_KEY] = context
     session.execute(
         text("SELECT set_config('app.org_id', :org, true), set_config('app.user_id', :usr, true)"),
-        {"org": str(context.org_id), "usr": str(context.user_id) if context.user_id else ""},
+        {
+            "org": str(context.org_id) if context.org_id else "",
+            "usr": str(context.user_id) if context.user_id else "",
+        },
     )
 
 

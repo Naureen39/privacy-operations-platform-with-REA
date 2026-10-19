@@ -17,7 +17,14 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base, TenantMixin, TimestampMixin, UuidPkMixin, enum_type, jsonb_default
+from app.db.base import (
+    Base,
+    TenantMixin,
+    TimestampMixin,
+    UuidPkMixin,
+    enum_type,
+    jsonb_default,
+)
 from app.db.enums import (
     ApprovalStatus,
     FindingSeverity,
@@ -46,7 +53,9 @@ class Finding(UuidPkMixin, TimestampMixin, TenantMixin, Base):
     )
     suggested_fix: Mapped[str | None] = mapped_column(Text)
     status: Mapped[FindingStatus] = mapped_column(
-        enum_type(FindingStatus), nullable=False, server_default=FindingStatus.OPEN.value
+        enum_type(FindingStatus),
+        nullable=False,
+        server_default=FindingStatus.OPEN.value,
     )
     dedupe_key: Mapped[str | None] = mapped_column(String(200))
     resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
@@ -89,7 +98,9 @@ class Approval(UuidPkMixin, TenantMixin, Base):
         ForeignKey("users.id", ondelete="SET NULL")
     )
     status: Mapped[ApprovalStatus] = mapped_column(
-        enum_type(ApprovalStatus), nullable=False, server_default=ApprovalStatus.PENDING.value
+        enum_type(ApprovalStatus),
+        nullable=False,
+        server_default=ApprovalStatus.PENDING.value,
     )
     decision_note: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(
@@ -131,7 +142,9 @@ class AccessRequest(UuidPkMixin, TimestampMixin, TenantMixin, Base):
         Boolean, nullable=False, server_default=text("false")
     )
     status: Mapped[RequestStatus] = mapped_column(
-        enum_type(RequestStatus), nullable=False, server_default=RequestStatus.RECEIVED.value
+        enum_type(RequestStatus),
+        nullable=False,
+        server_default=RequestStatus.RECEIVED.value,
     )
     assigned_to: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("users.id", ondelete="SET NULL")
@@ -170,7 +183,9 @@ class RequestResponse(UuidPkMixin, TimestampMixin, TenantMixin, Base):
     body: Mapped[str] = mapped_column(Text, nullable=False)
     cover_note: Mapped[str | None] = mapped_column(Text)
     status: Mapped[ResponseStatus] = mapped_column(
-        enum_type(ResponseStatus), nullable=False, server_default=ResponseStatus.DRAFT.value
+        enum_type(ResponseStatus),
+        nullable=False,
+        server_default=ResponseStatus.DRAFT.value,
     )
     created_by: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("users.id", ondelete="SET NULL")

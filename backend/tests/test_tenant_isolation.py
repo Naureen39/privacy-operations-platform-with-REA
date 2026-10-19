@@ -39,7 +39,13 @@ from app.db.repositories import AuditLogRepository, SystemRepository, UserReposi
 from app.db.session import TenantContext, TenantSession, set_tenant, tenant_session
 from tests.conftest import OrgFixture
 
-NON_TENANT_TABLES = {"users", "refresh_tokens", "plans", "regulation_chunks", "daily_metrics"}
+NON_TENANT_TABLES = {
+    "users",
+    "refresh_tokens",
+    "plans",
+    "regulation_chunks",
+    "daily_metrics",
+}
 VECTOR = [0.1] * 384
 
 
@@ -74,7 +80,11 @@ def populate(factory: sessionmaker[TenantSession], org: OrgFixture, user_id: uui
                     evidence_id=evidence.id,
                     embedding=VECTOR,
                 ),
-                Recipient(system_id=system.id, domain="analytics.example", evidence_id=evidence.id),
+                Recipient(
+                    system_id=system.id,
+                    domain="analytics.example",
+                    evidence_id=evidence.id,
+                ),
                 Finding(
                     system_id=system.id,
                     type="undeclared_recipient",
@@ -108,7 +118,11 @@ def populate(factory: sessionmaker[TenantSession], org: OrgFixture, user_id: uui
         s.add(Lead(kind=LeadKind.CONTACT, name="Sample", email="sample@example.test"))
         s.add(
             LlmCall(
-                provider="groq", model="m", task="t", status=LlmCallStatus.OK, system_id=system.id
+                provider="groq",
+                model="m",
+                task="t",
+                status=LlmCallStatus.OK,
+                system_id=system.id,
             )
         )
         s.add(Membership(user_id=user_id, role=Role.ANALYST))
@@ -292,7 +306,9 @@ def test_cannot_move_a_row_into_another_org(
             s.execute(update(System).values(org_id=org_b.id))
 
 
-def test_insert_without_tenant_fails(session_factory: sessionmaker[TenantSession]) -> None:
+def test_insert_without_tenant_fails(
+    session_factory: sessionmaker[TenantSession],
+) -> None:
     with pytest.raises(DBAPIError):  # noqa: PT012
         with session_factory() as s:
             s.add(System(name="orphan", slug="orphan"))

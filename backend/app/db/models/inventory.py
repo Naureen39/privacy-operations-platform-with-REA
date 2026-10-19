@@ -127,7 +127,9 @@ class DataElement(UuidPkMixin, TimestampMixin, TenantMixin, Base):
     special_category_label: Mapped[str | None] = mapped_column(String(120))
     confidence: Mapped[Decimal | None] = mapped_column(Numeric(4, 3))
     review_status: Mapped[ReviewStatus] = mapped_column(
-        enum_type(ReviewStatus), nullable=False, server_default=ReviewStatus.PENDING.value
+        enum_type(ReviewStatus),
+        nullable=False,
+        server_default=ReviewStatus.PENDING.value,
     )
     evidence_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("discovery_evidence.id", ondelete="SET NULL"), index=True
@@ -161,7 +163,9 @@ class Recipient(UuidPkMixin, TimestampMixin, TenantMixin, Base):
     domain: Mapped[str] = mapped_column(String(255), nullable=False)
     vendor: Mapped[str | None] = mapped_column(String(200))
     role: Mapped[RecipientRole] = mapped_column(
-        enum_type(RecipientRole), nullable=False, server_default=RecipientRole.UNKNOWN.value
+        enum_type(RecipientRole),
+        nullable=False,
+        server_default=RecipientRole.UNKNOWN.value,
     )
     country: Mapped[str | None] = mapped_column(String(80))
     purpose: Mapped[str | None] = mapped_column(Text)
@@ -190,7 +194,9 @@ class Technology(UuidPkMixin, TenantMixin, Base):
     kind: Mapped[str | None] = mapped_column(String(80))
     version: Mapped[str | None] = mapped_column(String(80))
     evidence_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("discovery_evidence.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("discovery_evidence.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=text("now()"), nullable=False

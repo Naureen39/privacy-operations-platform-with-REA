@@ -17,7 +17,14 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base, TenantMixin, TimestampMixin, UuidPkMixin, enum_type, jsonb_default
+from app.db.base import (
+    Base,
+    TenantMixin,
+    TimestampMixin,
+    UuidPkMixin,
+    enum_type,
+    jsonb_default,
+)
 from app.db.enums import LeadKind, Role
 
 
@@ -30,6 +37,9 @@ class Organization(UuidPkMixin, TimestampMixin, Base):
     region: Mapped[str | None] = mapped_column(String(80))
     is_simulated: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default=text("false")
+    )
+    settings: Mapped[dict[str, Any]] = mapped_column(
+        JSONB, nullable=False, server_default=jsonb_default("{}")
     )
 
 
@@ -70,6 +80,9 @@ class RefreshToken(UuidPkMixin, Base):
     )
     token_hash: Mapped[str] = mapped_column(String(128), nullable=False, unique=True)
     family_id: Mapped[uuid.UUID] = mapped_column(nullable=False, index=True)
+    session_org_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False
+    )
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(

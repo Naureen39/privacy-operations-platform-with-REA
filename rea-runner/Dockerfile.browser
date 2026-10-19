@@ -1,0 +1,13 @@
+# Runner for website observation (Phase 4 adds the browser and the REA wrapper).
+# It reaches only the demo estate network. The wrapper validates every URL again
+# (see backend/app/core/urlguard.py) and enforces REA_BROWSER_TIMEOUT_SECONDS.
+FROM node:24-slim
+
+RUN groupadd --gid 10002 observer \
+ && useradd --uid 10002 --gid 10002 --no-create-home --shell /usr/sbin/nologin observer \
+ && mkdir -p /work \
+ && chown observer:observer /work
+
+USER 10002:10002
+WORKDIR /work
+CMD ["node", "-e", "setInterval(() => {}, 1 << 30)"]

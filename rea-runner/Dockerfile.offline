@@ -1,0 +1,14 @@
+# Isolated runner for static analysis of uploaded evidence (Phase 4 adds the REA wrapper).
+# Hardening that does not depend on the wrapper lives here and in docker-compose.yml:
+# non root user, no network, read only evidence mount, CPU and memory limits.
+FROM node:24-slim
+
+RUN groupadd --gid 10001 runner \
+ && useradd --uid 10001 --gid 10001 --no-create-home --shell /usr/sbin/nologin runner \
+ && mkdir -p /work /input \
+ && chown runner:runner /work
+
+USER 10001:10001
+WORKDIR /work
+# Placeholder command: the wrapper service replaces this in Phase 4.
+CMD ["node", "-e", "setInterval(() => {}, 1 << 30)"]
