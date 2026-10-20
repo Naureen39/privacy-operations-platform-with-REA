@@ -38,6 +38,8 @@ uv run ruff check . && uv run black --check . && uv run mypy
 
 Discovery uses the pinned [REA](https://github.com/morluto/rea) release. Install it once with `cd rea-runner && npm ci` (Node 24.15 or newer); without it the backend falls back to built-in parsers and the REA tests are skipped.
 
+Runner tests (Node 24.15 or newer): `cd rea-runner && npm test`. Container images: `make runner-images`.
+
 Use `127.0.0.1` rather than `localhost` in database URLs; `localhost` can resolve to IPv6 first and stall on some machines.
 
 ## Dataset
