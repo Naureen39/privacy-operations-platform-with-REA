@@ -53,3 +53,7 @@ Use `127.0.0.1` rather than `localhost` in database URLs; `localhost` can resolv
 ## Responsible use
 
 The platform performs static or observational analysis of systems the organization owns or is authorized to examine. It never executes uploaded files.
+
+## Project plan
+
+The phase by phase plan is in [PLAN_PRIVACY_OPS.md](PLAN_PRIVACY_OPS.md). Phases 1 to 3 are complete: database and tenancy, authentication and security baseline, and the dataset with the reference estate.
