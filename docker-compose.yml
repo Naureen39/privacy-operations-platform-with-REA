@@ -1,7 +1,7 @@
 name: privacy-operations-platform-rea
 
-# Services present so far: db (Phase 1), rea-offline and rea-browser (Phase 2 isolation
-# settings). api, worker, redis and frontend are added by later phases.
+# Services present so far: db (Phase 1), rea-offline and rea-browser (Phases 2 and 4). api, worker,
+# redis and frontend are added by later phases.
 services:
   db:
     image: pgvector/pgvector:pg16
@@ -20,15 +20,16 @@ services:
       timeout: 3s
       retries: 10
 
-  # Static analysis of uploaded evidence. No network at all, evidence mounted read only,
-  # unprivileged user, read only root file system, bounded CPU, memory and process count.
+  # Static analysis of uploaded evidence with REA. Attached only to the internal runner network (no
+  # route to the internet), evidence mounted read only, unprivileged user, read only root file
+  # system, bounded CPU, memory and process count. The worker calls it over HTTP with a shared token.
   rea-offline:
     build:
       context: ./rea-runner
       dockerfile: Dockerfile.offline
+    image: processledger-rea-offline:6.7.0
     container_name: processledger-rea-offline
     user: "10001:10001"
-    network_mode: none
     read_only: true
     cap_drop: [ALL]
     security_opt: ["no-new-privileges:true"]
@@ -36,19 +37,26 @@ services:
     memswap_limit: 1g
     cpus: 1.0
     pids_limit: 128
+    environment:
+      REA_RUNNER_TOKEN: ${REA_RUNNER_TOKEN:-local-runner-token-change-me}
+      REA_TIMEOUT_SECONDS: ${REA_TIMEOUT_SECONDS:-120}
     tmpfs:
       - /tmp:size=128m,noexec,nosuid
       - /work:size=256m,noexec,nosuid,uid=10001,gid=10001
     volumes:
-      - evidence_data:/input:ro
+      - rea_input:/input:ro
+    networks: [runners]
     profiles: ["runners"]
 
-  # Website observation. Attached only to the internal demo estate network (no route to
-  # the internet or to the host), with a hard timeout enforced by the wrapper.
+  # Website observation with a headless browser. Attached only to the internal runner network and
+  # the internal demo estate network (neither has a route to the internet), with a hard timeout
+  # enforced by the wrapper. Chromium runs without its own sandbox because the container is the
+  # isolation boundary: unprivileged, no capabilities, read only, no egress.
   rea-browser:
     build:
       context: ./rea-runner
       dockerfile: Dockerfile.browser
+    image: processledger-rea-browser:6.7.0
     container_name: processledger-rea-browser
     user: "10002:10002"
     read_only: true
@@ -58,18 +66,29 @@ services:
     memswap_limit: 2g
     cpus: 1.5
     pids_limit: 256
+    shm_size: 256m
     environment:
+      REA_RUNNER_TOKEN: ${REA_RUNNER_TOKEN:-local-runner-token-change-me}
       REA_BROWSER_TIMEOUT_SECONDS: ${REA_BROWSER_TIMEOUT_SECONDS:-60}
+      OBSERVATION_ALLOWED_HOSTS: ${OBSERVATION_ALLOWED_HOSTS:-[]}
+      OBSERVATION_ALLOWED_NETWORKS: ${OBSERVATION_ALLOWED_NETWORKS:-[]}
+      OBSERVATION_ALLOWED_PORTS: ${OBSERVATION_ALLOWED_PORTS:-[80,443]}
     tmpfs:
       - /tmp:size=256m,noexec,nosuid
       - /work:size=256m,noexec,nosuid,uid=10002,gid=10002
-    networks: [estate]
+    volumes:
+      - rea_input:/input:ro
+    networks: [runners, estate]
     profiles: ["runners"]
 
 networks:
+  # Shared by the worker and the runners. Internal: containers on it cannot reach the internet.
+  runners:
+    internal: true
   estate:
     internal: true
 
 volumes:
   db_data:
-  evidence_data:
+  # Decrypted copies of evidence, written by the worker for the duration of one discovery run.
+  rea_input:

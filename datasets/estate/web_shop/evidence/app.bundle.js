@@ -15,11 +15,11 @@
   "./node_modules/axios/index.js": function (module, exports) { /* axios */ },
   "./node_modules/core-js/index.js": function (module, exports) { /* core-js */ },
   "./src/index.js": function (module, exports, __require) {
-  var m0 = __require("./node_modules/react/index.js");
-  var m1 = __require("./node_modules/react-dom/index.js");
-  var m2 = __require("./node_modules/@stripe/stripe-js/index.js");
-  var m3 = __require("./node_modules/axios/index.js");
-  var m4 = __require("./node_modules/core-js/index.js");
+  var react = require("react");
+  var react_dom = require("react-dom");
+  var stripe_js = require("@stripe/stripe-js");
+  var axios = require("axios");
+  var core_js = require("core-js");
   var ROUTES = [
     { path: "/", component: "page" },
     { path: "/shop/", component: "page" },

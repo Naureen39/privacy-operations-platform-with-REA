@@ -1,0 +1,17 @@
+{
+  "name": "processledger-rea-runner",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Thin wrapper around the REA command line, used by the ProcessLedger discovery step",
+  "type": "module",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=24.15.0"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\""
+  },
+  "dependencies": {
+    "rea-agents": "6.7.0"
+  }
+}

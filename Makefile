@@ -2,7 +2,7 @@
 
 UV := cd backend && uv run python
 
-.PHONY: datasets datasets-regulation datasets-estate datasets-verify test lint
+.PHONY: datasets datasets-regulation datasets-estate datasets-verify test lint runner-install runner-test runner-images
 
 # Rebuild the whole dataset. Needs the network only if gdpr_articles.json is missing.
 datasets:
@@ -17,6 +17,17 @@ datasets-estate:
 
 datasets-verify:
 	$(UV) ../datasets/scripts/run.py verify
+
+# The pinned REA release used by discovery (Node 24.15 or newer).
+runner-install:
+	cd rea-runner && npm ci
+
+runner-test:
+	cd rea-runner && npm test
+
+runner-images:
+	docker build -f rea-runner/Dockerfile.offline -t processledger-rea-offline:6.7.0 rea-runner
+	docker build -f rea-runner/Dockerfile.browser -t processledger-rea-browser:6.7.0 rea-runner
 
 test:
 	cd backend && uv run pytest

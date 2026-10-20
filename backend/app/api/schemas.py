@@ -5,7 +5,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from app.db.enums import EvidenceKind, JobState, Role
+from app.db.enums import EvidenceKind, Extractor, JobState, RecipientRole, ReviewStatus, Role
 
 
 class LoginRequest(BaseModel):
@@ -117,3 +117,73 @@ class AuditEntryOut(BaseModel):
 def slugify(name: str) -> str:
     slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")[:70]
     return slug or "system"
+
+
+class DiscoveryRunOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    system_id: uuid.UUID
+    state: JobState
+    started_at: datetime
+    finished_at: datetime | None
+    error: str | None
+    summary: dict[str, Any] | None
+
+
+class DataElementOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    name: str
+    path: str | None
+    data_type: str | None
+    pattern_class: str | None
+    category: str | None
+    special_category: bool
+    confidence: float | None
+    review_status: ReviewStatus
+    evidence_id: uuid.UUID | None
+    source_kind: str | None
+    context: dict[str, Any]
+
+
+class RecipientOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    domain: str
+    vendor: str | None
+    role: RecipientRole
+    country: str | None
+    evidence_id: uuid.UUID | None
+    context: dict[str, Any]
+
+
+class TechnologyOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    name: str
+    kind: str | None
+    version: str | None
+    evidence_id: uuid.UUID
+    context: dict[str, Any]
+
+
+class DiscoveryEvidenceOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    run_id: uuid.UUID
+    evidence_item_id: uuid.UUID | None
+    extractor: Extractor
+    command: str | None
+    rea_version: str | None
+    duration_ms: int | None
+    status: str
+    error: str | None
+    raw_sha256: str | None
+    raw_truncated: bool
+    raw_output: dict[str, Any] | None
+    created_at: datetime

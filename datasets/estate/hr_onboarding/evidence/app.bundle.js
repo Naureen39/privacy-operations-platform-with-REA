@@ -14,10 +14,10 @@
   "./node_modules/axios/index.js": function (module, exports) { /* axios */ },
   "./node_modules/zod/index.js": function (module, exports) { /* zod */ },
   "./src/index.js": function (module, exports, __require) {
-  var m0 = __require("./node_modules/react/index.js");
-  var m1 = __require("./node_modules/react-dom/index.js");
-  var m2 = __require("./node_modules/axios/index.js");
-  var m3 = __require("./node_modules/zod/index.js");
+  var react = require("react");
+  var react_dom = require("react-dom");
+  var axios = require("axios");
+  var zod = require("zod");
   var ROUTES = [
     { path: "/onboarding", component: "page" },
     { path: "/onboarding/submit", component: "page" },

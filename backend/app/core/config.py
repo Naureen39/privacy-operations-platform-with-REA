@@ -1,6 +1,8 @@
 import base64
 import binascii
 from functools import lru_cache
+from pathlib import Path
+from typing import Literal
 
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -53,6 +55,21 @@ class Settings(BaseSettings):
     observation_allowed_hosts: list[str] = []
     observation_allowed_networks: list[str] = []  # the demo network, for example 172.28.0.0/16
     observation_allowed_ports: list[int] = [80, 443]
+
+    # REA discovery (the runner is rea-runner/wrapper.mjs, see docs/architecture.md)
+    rea_enabled: bool = True
+    rea_transport: Literal["local", "http"] = "local"
+    rea_local_command: list[str] = [
+        "node",
+        str(Path(__file__).resolve().parents[3] / "rea-runner" / "wrapper.mjs"),
+    ]
+    rea_offline_url: str = "http://rea-offline:8080"
+    rea_browser_url: str = "http://rea-browser:8080"
+    rea_runner_token: SecretStr | None = None
+    rea_input_dir: str = "./data/rea_input"
+    rea_timeout_seconds: int = 120
+    rea_observation_ms: int = 2500
+    sqlite_row_sample: int = 20
 
     def require_secrets(self) -> None:
         if self.jwt_secret is None or len(self.jwt_secret.get_secret_value()) < 32:

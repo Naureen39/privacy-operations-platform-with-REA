@@ -13,9 +13,9 @@
   "./node_modules/axios/index.js": function (module, exports) { /* axios */ },
   "./node_modules/@chatwoot/sdk/index.js": function (module, exports) { /* @chatwoot/sdk */ },
   "./src/index.js": function (module, exports, __require) {
-  var m0 = __require("./node_modules/vue/index.js");
-  var m1 = __require("./node_modules/axios/index.js");
-  var m2 = __require("./node_modules/@chatwoot/sdk/index.js");
+  var vue = require("vue");
+  var axios = require("axios");
+  var sdk = require("@chatwoot/sdk");
   var ROUTES = [
     { path: "/", component: "page" },
     { path: "/api/v1/widget/conversations", component: "page" },

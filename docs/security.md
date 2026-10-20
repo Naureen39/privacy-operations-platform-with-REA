@@ -49,26 +49,37 @@ The resolved addresses are returned so the runner connects to them without a sec
 
 ## Runner isolation
 
-`docker-compose.yml` (profile `runners`):
+`docker-compose.yml` (profile `runners`). Both runners are called by the worker over HTTP with a shared token (`x-runner-token`, compared in constant time) on the private `runners` network, which is declared `internal: true`.
 
 | Setting | rea-offline | rea-browser |
 |---|---|---|
-| Network | `none` | internal `estate` network only (no internet, no host route) |
+| Networks | `runners` (internal) | `runners` and `estate` (both internal) |
+| Route to the internet | none | none |
 | User | 10001, non root | 10002, non root |
-| Root file system | read only | read only |
-| Evidence | mounted read only | not mounted |
+| Root file system | read only; `/tmp` and `/work` are `noexec` tmpfs | read only; `/tmp` and `/work` are `noexec` tmpfs |
+| Evidence | volume `rea_input`, mounted read only | volume `rea_input`, mounted read only |
 | Capabilities | all dropped, `no-new-privileges` | all dropped, `no-new-privileges` |
 | Limits | 1 CPU, 1 GB, 128 processes | 1.5 CPU, 2 GB, 256 processes |
-| Timeout | wrapper (Phase 4) | `REA_BROWSER_TIMEOUT_SECONDS`, enforced by the wrapper (Phase 4) |
+| Time limit | per call (`REA_TIMEOUT_SECONDS`) | hard timeout `REA_BROWSER_TIMEOUT_SECONDS`, browser killed |
+| Commands | HAR, SQLite, JavaScript | website observation only |
 
-The images are placeholders until Phase 4 adds the REA wrapper; the isolation settings do not depend on it.
+Checked against the built images: the container runs as the unprivileged user, a request for `https://example.com` fails to resolve, writes to `/input` and to the application directory fail with "read only file system", path traversal in a request is refused, and a command that belongs to the other role is refused.
+
+The wrapper (`rea-runner/`) adds its own limits:
+
+- A fixed set of four commands, each with validated options; unknown options are rejected. REA is started without a shell, with a minimal environment.
+- Paths are relative to the input directory and are resolved with symbolic links followed; anything that leaves the directory is refused.
+- Output is capped (256 MiB by default); an oversized result is an error, not a truncation.
+- Website observation: a URL is checked again with the same rules as the API (`urlguard`): http or https, no credentials, allowlisted host, allowed port, every resolved address public or inside the demo network, and the validated address pinned in the browser (`--host-resolver-rules`). For a saved page the browser can resolve nothing except loopback. Chromium runs without its own sandbox (`--no-sandbox`) because the container is the boundary; the profile directory is deleted afterwards and the browser is killed on timeout.
+- Uploaded files are analysed as data. Nothing is executed.
 
 ## Audit log
 
-Written in the same transaction as the action. Currently recorded: login (success and failure, lockout, refresh reuse), logout, system create, update and delete, evidence upload, rejected upload, URL registration and rejection, retention purge, settings changes. Discovery, approval, export and request handling entries are added with those features using the same `write_audit` helper. The table is append only for the application role. Details never contain e-mail addresses or file contents; failed logins record the account id only when the account exists.
+Written in the same transaction as the action. Currently recorded: login (success and failure, lockout, refresh reuse), logout, system create, update and delete, evidence upload, rejected upload, URL registration and rejection, retention purge, settings changes, discovery runs and reads of stored extractor output. Approval, export and request handling entries are added with those features using the same `write_audit` helper. The table is append only for the application role. Details never contain e-mail addresses or file contents; failed logins record the account id only when the account exists.
 
 ## Known limitations
 
+- Stored discovery output keeps no sample values, but names of fields, columns, hosts and paths are kept and can themselves be sensitive in a real estate. Access to the raw output is limited to administrators and analysts and is audited.
 - Rate limit counters are per process until Redis arrives.
 - Access tokens cannot be revoked before they expire (15 minutes), but the database check on every request makes membership and account changes immediate.
 - The JWT secret is symmetric. Rotation requires a restart and signs everyone out.

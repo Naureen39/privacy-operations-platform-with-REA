@@ -14,10 +14,10 @@
   "./node_modules/@bookwell/widget/index.js": function (module, exports) { /* @bookwell/widget */ },
   "./node_modules/axios/index.js": function (module, exports) { /* axios */ },
   "./src/index.js": function (module, exports, __require) {
-  var m0 = __require("./node_modules/react/index.js");
-  var m1 = __require("./node_modules/react-dom/index.js");
-  var m2 = __require("./node_modules/@bookwell/widget/index.js");
-  var m3 = __require("./node_modules/axios/index.js");
+  var react = require("react");
+  var react_dom = require("react-dom");
+  var widget = require("@bookwell/widget");
+  var axios = require("axios");
   var ROUTES = [
     { path: "/", component: "page" },
     { path: "/appointments", component: "page" },

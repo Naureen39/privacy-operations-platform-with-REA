@@ -5,6 +5,7 @@ analysis of a real bundle would find: imported packages, routes, endpoint URLs, 
 initialisation, IPC channels (Electron) and the database schema statements.
 """
 
+import re
 from typing import Any
 
 from estate_apps import create_table_sql
@@ -12,6 +13,19 @@ from estate_apps import create_table_sql
 
 def bundle_filename(spec: dict[str, Any]) -> str:
     return "main.bundle.js" if spec["js"]["kind"] == "electron" else "app.bundle.js"
+
+
+def _identifier(package: str) -> str:
+    return re.sub(r"[^A-Za-z0-9]+", "_", package.split("/")[-1]).strip("_") or "pkg"
+
+
+# How an Electron main process usually binds the packages it uses.
+ELECTRON_BINDINGS = {
+    "electron": "{ app, BrowserWindow, ipcMain, contextBridge, ipcRenderer }",
+    "better-sqlite3": "Database",
+    "electron-store": "Store",
+    "@sentry/electron": "Sentry",
+}
 
 
 def _module_map(modules: list[str]) -> str:
@@ -24,10 +38,7 @@ def _module_map(modules: list[str]) -> str:
 
 def _web_bundle(spec: dict[str, Any]) -> str:
     js = spec["js"]
-    requires = "\n".join(
-        f'  var m{i} = __require("./node_modules/{m}/index.js");'
-        for i, m in enumerate(js["modules"])
-    )
+    requires = "\n".join(f'  var {_identifier(m)} = require("{m}");' for m in js["modules"])
     routes = ",\n".join(f'    {{ path: "{r}", component: "page" }}' for r in js["routes"])
     endpoints = "\n".join(f'  var ENDPOINT_{i} = "{u}";' for i, u in enumerate(js["endpoints"]))
     sends = "\n".join(
@@ -63,8 +74,9 @@ def _web_bundle(spec: dict[str, Any]) -> str:
 def _electron_bundle(spec: dict[str, Any]) -> str:
     js = spec["js"]
     requires = "\n".join(
-        f'const {m.split("/")[-1].replace("-", "_")} = require("{m}");' for m in js["modules"]
+        f'const {ELECTRON_BINDINGS.get(m, _identifier(m))} = require("{m}");' for m in js["modules"]
     )
+    requires += '\nconst path = require("path");'
     handlers = "\n".join(
         f'ipcMain.handle("{channel}", async (event, payload) => {{ /* handler for {channel} */ }});'
         for channel in js["ipc"]
@@ -77,12 +89,17 @@ def _electron_bundle(spec: dict[str, Any]) -> str:
     return f"""/*! {js['title']} - generated for the Northbridge demonstration estate */
 // ==== main process (main.js) ====
 {requires}
-const db = new better_sqlite3("staff-hub.db");
+const db = new Database("staff-hub.db");
 {schema}
 {endpoints}
 {init}
 {handlers}
-app.whenReady().then(() => new BrowserWindow({{ webPreferences: {{ contextIsolation: true }} }}).loadFile("renderer/index.html"));
+app.whenReady().then(() => {{
+  const win = new BrowserWindow({{
+    webPreferences: {{ preload: path.join(__dirname, "preload.js"), contextIsolation: true, nodeIntegration: false }},
+  }});
+  win.loadFile("renderer/index.html");
+}});
 
 // ==== preload (preload.js) ====
 contextBridge.exposeInMainWorld("staffHub", {{ {bridge} }});

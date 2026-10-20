@@ -51,7 +51,7 @@ def _protected_routes(app: FastAPI) -> list[tuple[str, APIRoute]]:
 
 def test_every_route_declares_its_roles(app: FastAPI) -> None:
     protected = _protected_routes(app)
-    assert len(protected) == 12
+    assert len(protected) == 18
     for method, route in protected:
         roles = [
             getattr(call, "allowed_roles", None)
@@ -155,6 +155,27 @@ def _matrix(
             {Role.ADMIN, Role.VIEWER},
         ),
         ("GET", "/auth/me", lambda c: c.get("/api/v1/auth/me"), ALL),
+        (
+            "POST",
+            "/discovery-runs",
+            lambda c: c.post(f"/api/v1/systems/{sys_id}/discovery-runs", headers=csrf(c)),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "GET",
+            "/discovery-runs",
+            lambda c: c.get(f"/api/v1/systems/{sys_id}/discovery-runs"),
+            ALL,
+        ),
+        ("GET", "/data-elements", lambda c: c.get(f"/api/v1/systems/{sys_id}/data-elements"), ALL),
+        ("GET", "/recipients", lambda c: c.get(f"/api/v1/systems/{sys_id}/recipients"), ALL),
+        ("GET", "/technologies", lambda c: c.get(f"/api/v1/systems/{sys_id}/technologies"), ALL),
+        (
+            "GET",
+            "/discovery-evidence/{id}",
+            lambda c: c.get(f"/api/v1/discovery-evidence/{uuid.uuid4()}"),
+            {Role.ADMIN, Role.ANALYST},
+        ),
     ]
 
 

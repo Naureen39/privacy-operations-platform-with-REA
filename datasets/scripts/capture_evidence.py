@@ -114,7 +114,7 @@ class HarRecorder:
                     "redirectURL": "", "headersSize": -1, "bodySize": len(resp_text.encode()),
                 },
                 "cache": {}, "timings": {"send": 1, "wait": wait, "receive": 2},
-                "serverIPAddress": "", "_resourceType": "document" if resp_mime.startswith("text/html") else "xhr",
+                "_resourceType": "document" if resp_mime.startswith("text/html") else "xhr",
             }
         )  # fmt: skip
 
@@ -179,7 +179,7 @@ def _beacon_url_and_body(
     query = {k: resolve(v, person, rng) for k, v in beacon["query"].items()}
     url = f"https://{beacon['host']}{beacon['path']}"
     if query:
-        url += "?" + urlencode({k: str(v) for k, v in query.items()}, quote_via=quote, safe="[]")
+        url += "?" + urlencode({k: str(v) for k, v in query.items()}, quote_via=quote)
     body_values = {k: resolve(v, person, rng) for k, v in beacon["body"].items()}
     if beacon["body_type"] == "form":
         return (

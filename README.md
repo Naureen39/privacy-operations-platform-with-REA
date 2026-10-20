@@ -11,7 +11,8 @@ Generated legal or compliance documents are drafts for review by a qualified pri
 | 1 | Database, migrations, tenant isolation (row level security) | Done |
 | 2 | Authentication, authorization, security baseline | Done |
 | 3 | Dataset and reference estate (`datasets/`) | Done |
-| 4 onwards | Discovery, classification, fusion, assessments, requests, frontend | Planned |
+| 4 | REA integration and evidence extraction (`rea-runner/`, `backend/app/discovery/`) | Done |
+| 5 onwards | Classification, fusion, assessments, requests, frontend | Planned |
 
 ## Quick start (backend)
 
@@ -35,6 +36,8 @@ uv run pytest
 uv run ruff check . && uv run black --check . && uv run mypy
 ```
 
+Discovery uses the pinned [REA](https://github.com/morluto/rea) release. Install it once with `cd rea-runner && npm ci` (Node 24.15 or newer); without it the backend falls back to built-in parsers and the REA tests are skipped.
+
 Use `127.0.0.1` rather than `localhost` in database URLs; `localhost` can resolve to IPv6 first and stall on some machines.
 
 ## Dataset
@@ -43,6 +46,7 @@ Use `127.0.0.1` rather than `localhost` in database URLs; `localhost` can resolv
 
 ## Documentation
 
+- [docs/architecture.md](docs/architecture.md): evidence discovery with REA, the runner, commands and fallbacks.
 - [docs/database.md](docs/database.md): schema, migrations and the tenancy model.
 - [docs/security.md](docs/security.md): authentication, authorization, uploads, request forgery protection and runner isolation.
 

@@ -109,3 +109,9 @@ def client_for(app: FastAPI, user: provisioning.ProvisionedUser) -> TestClient:
     response = login(c, user.email)
     assert response.status_code == 200, response.text
     return c
+
+
+@pytest.fixture
+def app_factory(make_app: Callable[[Settings], FastAPI]) -> Callable[[Settings], FastAPI]:
+    """Build applications with custom settings (shares the test database)."""
+    return make_app

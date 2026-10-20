@@ -1,13 +1,33 @@
-# Runner for website observation (Phase 4 adds the browser and the REA wrapper).
-# It reaches only the demo estate network. The wrapper validates every URL again
-# (see backend/app/core/urlguard.py) and enforces REA_BROWSER_TIMEOUT_SECONDS.
+# Website observation with REA and a headless Chromium. Used by the rea-browser service, which is
+# attached only to the internal demo network, runs as an unprivileged user and enforces a hard
+# timeout (REA_BROWSER_TIMEOUT_SECONDS). The wrapper validates every URL again before connecting.
 FROM node:24-slim
 
-RUN groupadd --gid 10002 observer \
+ENV NODE_ENV=production \
+    REA_RUNNER_ROLE=browser \
+    REA_INPUT_DIR=/input \
+    CHROME_PATH=/usr/bin/chromium \
+    REA_BROWSER_NO_SANDBOX=1 \
+    HOME=/work \
+    TMPDIR=/tmp \
+    PORT=8080
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends chromium fonts-liberation procps \
+ && rm -rf /var/lib/apt/lists/* \
+ && groupadd --gid 10002 observer \
  && useradd --uid 10002 --gid 10002 --no-create-home --shell /usr/sbin/nologin observer \
- && mkdir -p /work \
+ && mkdir -p /opt/rea-runner /input /work \
  && chown observer:observer /work
+
+WORKDIR /opt/rea-runner
+COPY package.json package-lock.json .npmrc ./
+RUN npm ci --omit=dev --ignore-scripts --no-audit --no-fund
+COPY wrapper.mjs ./
+COPY lib ./lib
 
 USER 10002:10002
 WORKDIR /work
-CMD ["node", "-e", "setInterval(() => {}, 1 << 30)"]
+EXPOSE 8080
+HEALTHCHECK --interval=15s --timeout=5s --retries=5 CMD node -e "fetch('http://127.0.0.1:8080/v1/health',{headers:{'x-runner-token':process.env.REA_RUNNER_TOKEN||''}}).then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+CMD ["node", "/opt/rea-runner/wrapper.mjs", "serve"]

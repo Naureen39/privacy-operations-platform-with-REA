@@ -11,7 +11,7 @@
 })({
   "./node_modules/axios/index.js": function (module, exports) { /* axios */ },
   "./src/index.js": function (module, exports, __require) {
-  var m0 = __require("./node_modules/axios/index.js");
+  var axios = require("axios");
   var ROUTES = [
     { path: "/", component: "page" },
     { path: "/subscribe", component: "page" },

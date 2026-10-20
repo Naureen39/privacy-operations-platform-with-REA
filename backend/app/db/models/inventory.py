@@ -20,7 +20,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base, TenantMixin, TimestampMixin, UuidPkMixin, enum_type
+from app.db.base import Base, TenantMixin, TimestampMixin, UuidPkMixin, enum_type, jsonb_default
 from app.db.enums import EvidenceKind, Extractor, JobState, RecipientRole, ReviewStatus
 
 EMBEDDING_DIMENSIONS = 384
@@ -98,10 +98,14 @@ class DiscoveryEvidence(UuidPkMixin, TenantMixin, Base):
     extractor: Mapped[Extractor] = mapped_column(enum_type(Extractor), nullable=False)
     command: Mapped[str | None] = mapped_column(Text)
     rea_version: Mapped[str | None] = mapped_column(String(40))
-    raw_output: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+    raw_output: Mapped[dict[str, Any] | None] = mapped_column(JSONB(none_as_null=True))
     duration_ms: Mapped[int | None] = mapped_column(Integer)
     status: Mapped[str] = mapped_column(String(20), nullable=False, server_default="ok")
     error: Mapped[str | None] = mapped_column(Text)
+    raw_sha256: Mapped[str | None] = mapped_column(String(64))
+    raw_truncated: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("false")
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=text("now()"), nullable=False
     )
@@ -138,9 +142,14 @@ class DataElement(UuidPkMixin, TimestampMixin, TenantMixin, Base):
         ForeignKey("document_chunks.id", ondelete="SET NULL")
     )
     embedding: Mapped[list[float] | None] = mapped_column(Vector(EMBEDDING_DIMENSIONS))
+    source_kind: Mapped[str | None] = mapped_column(String(40))
+    context: Mapped[dict[str, Any]] = mapped_column(
+        JSONB, nullable=False, server_default=jsonb_default("{}")
+    )
 
     __table_args__ = (
         CheckConstraint(_PROVENANCE, name="has_provenance"),
+        Index("ix_data_elements_system_id_name", "system_id", "name"),
         CheckConstraint(
             "confidence IS NULL OR confidence BETWEEN 0 AND 1", name="confidence_range"
         ),
@@ -180,8 +189,14 @@ class Recipient(UuidPkMixin, TimestampMixin, TenantMixin, Base):
     source_chunk_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("document_chunks.id", ondelete="SET NULL")
     )
+    context: Mapped[dict[str, Any]] = mapped_column(
+        JSONB, nullable=False, server_default=jsonb_default("{}")
+    )
 
-    __table_args__ = (CheckConstraint(_PROVENANCE, name="has_provenance"),)
+    __table_args__ = (
+        CheckConstraint(_PROVENANCE, name="has_provenance"),
+        Index("ix_recipients_system_id_domain", "system_id", "domain"),
+    )
 
 
 class Technology(UuidPkMixin, TenantMixin, Base):
@@ -197,6 +212,9 @@ class Technology(UuidPkMixin, TenantMixin, Base):
         ForeignKey("discovery_evidence.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
+    )
+    context: Mapped[dict[str, Any]] = mapped_column(
+        JSONB, nullable=False, server_default=jsonb_default("{}")
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=text("now()"), nullable=False

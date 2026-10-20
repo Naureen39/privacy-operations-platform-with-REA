@@ -11,7 +11,7 @@
 })({
   "./node_modules/matomo-tracker/index.js": function (module, exports) { /* matomo-tracker */ },
   "./src/index.js": function (module, exports, __require) {
-  var m0 = __require("./node_modules/matomo-tracker/index.js");
+  var matomo_tracker = require("matomo-tracker");
   var ROUTES = [
     { path: "/matomo.php", component: "page" },
     { path: "/index.php", component: "page" }

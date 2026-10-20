@@ -13,9 +13,10 @@ from sqlalchemy.orm import sessionmaker
 
 from app.api.deps import CSRF_HEADER
 from app.api.middleware import csrf_protection, security_headers
-from app.api.routes import admin, auth, evidence, systems
+from app.api.routes import admin, auth, discovery, evidence, systems
 from app.core.config import Settings, get_settings
 from app.db.session import TenantSession, make_engine, make_session_factory
+from app.discovery.executor import Executor, build_rea_clients
 from app.services.evidence_store import EvidenceStore
 
 
@@ -43,6 +44,7 @@ def create_app(
     app.state.evidence_store = EvidenceStore(
         Path(settings.upload_dir), settings.encryption_key_bytes()
     )
+    app.state.discovery_executor = Executor(settings, build_rea_clients(settings))
     if session_factory is not None:
         app.state.session_factory = session_factory
 
@@ -74,5 +76,6 @@ def create_app(
     app.include_router(auth.build_router(limiter, settings))
     app.include_router(systems.router)
     app.include_router(evidence.router)
+    app.include_router(discovery.router)
     app.include_router(admin.router)
     return app

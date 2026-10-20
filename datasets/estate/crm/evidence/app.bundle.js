@@ -12,8 +12,8 @@
   "./node_modules/jquery/index.js": function (module, exports) { /* jquery */ },
   "./node_modules/axios/index.js": function (module, exports) { /* axios */ },
   "./src/index.js": function (module, exports, __require) {
-  var m0 = __require("./node_modules/jquery/index.js");
-  var m1 = __require("./node_modules/axios/index.js");
+  var jquery = require("jquery");
+  var axios = require("axios");
   var ROUTES = [
     { path: "/index.php", component: "page" },
     { path: "/index.php?entryPoint=WebToLeadCapture", component: "page" }
