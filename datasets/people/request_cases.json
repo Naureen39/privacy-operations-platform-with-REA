@@ -1,0 +1,503 @@
+{
+  "cases": [
+    {
+      "description": "Person present in the most systems",
+      "expected_locations": [
+        {
+          "column": "customer_email",
+          "rows": 1,
+          "system": "web_shop",
+          "table": "customers"
+        },
+        {
+          "column": "customer_email",
+          "rows": 2,
+          "system": "web_shop",
+          "table": "orders"
+        },
+        {
+          "column": "user_id",
+          "rows": 3,
+          "system": "web_analytics",
+          "table": "visits"
+        },
+        {
+          "column": "email",
+          "rows": 1,
+          "system": "helpdesk",
+          "table": "contacts"
+        },
+        {
+          "column": "contact_email",
+          "rows": 3,
+          "system": "helpdesk",
+          "table": "conversations"
+        },
+        {
+          "column": "sender_email",
+          "rows": 3,
+          "system": "helpdesk",
+          "table": "messages"
+        },
+        {
+          "column": "email1",
+          "rows": 1,
+          "system": "crm",
+          "table": "leads"
+        },
+        {
+          "column": "lead_email",
+          "rows": 2,
+          "system": "crm",
+          "table": "opportunities"
+        },
+        {
+          "column": "email",
+          "rows": 1,
+          "system": "clinic_portal",
+          "table": "patients"
+        },
+        {
+          "column": "patient_email",
+          "rows": 2,
+          "system": "clinic_portal",
+          "table": "appointments"
+        },
+        {
+          "column": "email",
+          "rows": 1,
+          "system": "newsletter",
+          "table": "subscribers"
+        }
+      ],
+      "expected_systems": [
+        "clinic_portal",
+        "crm",
+        "helpdesk",
+        "newsletter",
+        "web_analytics",
+        "web_shop"
+      ],
+      "id": "RC01",
+      "identifier": {
+        "type": "email",
+        "value": "gabriel.macmorrow156@webpost.example"
+      },
+      "subject": {
+        "full_name": "Gabriel MacMorrow",
+        "person_id": "P00156"
+      }
+    },
+    {
+      "description": "Customer who also subscribed to the newsletter",
+      "expected_locations": [
+        {
+          "column": "customer_email",
+          "rows": 1,
+          "system": "web_shop",
+          "table": "customers"
+        },
+        {
+          "column": "customer_email",
+          "rows": 2,
+          "system": "web_shop",
+          "table": "orders"
+        },
+        {
+          "column": "user_id",
+          "rows": 1,
+          "system": "web_analytics",
+          "table": "visits"
+        },
+        {
+          "column": "email",
+          "rows": 1,
+          "system": "newsletter",
+          "table": "subscribers"
+        }
+      ],
+      "expected_systems": [
+        "newsletter",
+        "web_analytics",
+        "web_shop"
+      ],
+      "id": "RC02",
+      "identifier": {
+        "type": "email",
+        "value": "don.bresnehan16@inbox.example"
+      },
+      "subject": {
+        "full_name": "Don Bresnehan",
+        "person_id": "P00016"
+      }
+    },
+    {
+      "description": "Patient who is in no other system",
+      "expected_locations": [
+        {
+          "column": "email",
+          "rows": 1,
+          "system": "clinic_portal",
+          "table": "patients"
+        },
+        {
+          "column": "patient_email",
+          "rows": 3,
+          "system": "clinic_portal",
+          "table": "appointments"
+        }
+      ],
+      "expected_systems": [
+        "clinic_portal"
+      ],
+      "id": "RC03",
+      "identifier": {
+        "type": "email",
+        "value": "darryl.curran6@mail.example"
+      },
+      "subject": {
+        "full_name": "Darryl Curran",
+        "person_id": "P00006"
+      }
+    },
+    {
+      "description": "Patient who is also a shop customer",
+      "expected_locations": [
+        {
+          "column": "customer_email",
+          "rows": 1,
+          "system": "web_shop",
+          "table": "customers"
+        },
+        {
+          "column": "customer_email",
+          "rows": 2,
+          "system": "web_shop",
+          "table": "orders"
+        },
+        {
+          "column": "user_id",
+          "rows": 2,
+          "system": "web_analytics",
+          "table": "visits"
+        },
+        {
+          "column": "email1",
+          "rows": 1,
+          "system": "crm",
+          "table": "leads"
+        },
+        {
+          "column": "email",
+          "rows": 1,
+          "system": "clinic_portal",
+          "table": "patients"
+        },
+        {
+          "column": "patient_email",
+          "rows": 3,
+          "system": "clinic_portal",
+          "table": "appointments"
+        },
+        {
+          "column": "patient_email",
+          "rows": 1,
+          "system": "clinic_portal",
+          "table": "consultation_notes"
+        },
+        {
+          "column": "email",
+          "rows": 1,
+          "system": "newsletter",
+          "table": "subscribers"
+        }
+      ],
+      "expected_systems": [
+        "clinic_portal",
+        "crm",
+        "newsletter",
+        "web_analytics",
+        "web_shop"
+      ],
+      "id": "RC04",
+      "identifier": {
+        "type": "email",
+        "value": "gretchen.trubin8@inbox.example"
+      },
+      "subject": {
+        "full_name": "Gretchen Trubin",
+        "person_id": "P00008"
+      }
+    },
+    {
+      "description": "Employee who is not a customer",
+      "expected_locations": [
+        {
+          "column": "email1",
+          "rows": 1,
+          "system": "crm",
+          "table": "leads"
+        },
+        {
+          "column": "lead_email",
+          "rows": 1,
+          "system": "crm",
+          "table": "opportunities"
+        },
+        {
+          "column": "email",
+          "rows": 1,
+          "system": "newsletter",
+          "table": "subscribers"
+        },
+        {
+          "column": "work_email",
+          "rows": 1,
+          "system": "staff_desktop",
+          "table": "employee_profile"
+        },
+        {
+          "column": "work_email",
+          "rows": 3,
+          "system": "staff_desktop",
+          "table": "timesheets"
+        },
+        {
+          "column": "work_email",
+          "rows": 5,
+          "system": "staff_desktop",
+          "table": "clock_events"
+        },
+        {
+          "column": "email",
+          "rows": 1,
+          "system": "hr_onboarding",
+          "table": "onboarding_records"
+        }
+      ],
+      "expected_systems": [
+        "crm",
+        "hr_onboarding",
+        "newsletter",
+        "staff_desktop"
+      ],
+      "id": "RC05",
+      "identifier": {
+        "type": "email",
+        "value": "paul.jacquot84@inbox.example"
+      },
+      "subject": {
+        "full_name": "Paul Jacquot",
+        "person_id": "P00084"
+      }
+    },
+    {
+      "description": "Employee who is also a shop customer",
+      "expected_locations": [
+        {
+          "column": "customer_email",
+          "rows": 1,
+          "system": "web_shop",
+          "table": "customers"
+        },
+        {
+          "column": "customer_email",
+          "rows": 2,
+          "system": "web_shop",
+          "table": "orders"
+        },
+        {
+          "column": "user_id",
+          "rows": 2,
+          "system": "web_analytics",
+          "table": "visits"
+        },
+        {
+          "column": "email",
+          "rows": 1,
+          "system": "helpdesk",
+          "table": "contacts"
+        },
+        {
+          "column": "contact_email",
+          "rows": 3,
+          "system": "helpdesk",
+          "table": "conversations"
+        },
+        {
+          "column": "sender_email",
+          "rows": 3,
+          "system": "helpdesk",
+          "table": "messages"
+        },
+        {
+          "column": "work_email",
+          "rows": 1,
+          "system": "staff_desktop",
+          "table": "employee_profile"
+        },
+        {
+          "column": "work_email",
+          "rows": 4,
+          "system": "staff_desktop",
+          "table": "timesheets"
+        },
+        {
+          "column": "work_email",
+          "rows": 7,
+          "system": "staff_desktop",
+          "table": "clock_events"
+        },
+        {
+          "column": "email",
+          "rows": 1,
+          "system": "hr_onboarding",
+          "table": "onboarding_records"
+        }
+      ],
+      "expected_systems": [
+        "helpdesk",
+        "hr_onboarding",
+        "staff_desktop",
+        "web_analytics",
+        "web_shop"
+      ],
+      "id": "RC06",
+      "identifier": {
+        "type": "email",
+        "value": "johnathan.kerwick11@letter.example"
+      },
+      "subject": {
+        "full_name": "Johnathan Kerwick",
+        "person_id": "P00011"
+      }
+    },
+    {
+      "description": "Support contact who is also a sales lead",
+      "expected_locations": [
+        {
+          "column": "customer_email",
+          "rows": 1,
+          "system": "web_shop",
+          "table": "customers"
+        },
+        {
+          "column": "customer_email",
+          "rows": 1,
+          "system": "web_shop",
+          "table": "orders"
+        },
+        {
+          "column": "user_id",
+          "rows": 2,
+          "system": "web_analytics",
+          "table": "visits"
+        },
+        {
+          "column": "email",
+          "rows": 1,
+          "system": "helpdesk",
+          "table": "contacts"
+        },
+        {
+          "column": "contact_email",
+          "rows": 1,
+          "system": "helpdesk",
+          "table": "conversations"
+        },
+        {
+          "column": "sender_email",
+          "rows": 4,
+          "system": "helpdesk",
+          "table": "messages"
+        },
+        {
+          "column": "email1",
+          "rows": 1,
+          "system": "crm",
+          "table": "leads"
+        },
+        {
+          "column": "lead_email",
+          "rows": 1,
+          "system": "crm",
+          "table": "opportunities"
+        },
+        {
+          "column": "email",
+          "rows": 1,
+          "system": "newsletter",
+          "table": "subscribers"
+        }
+      ],
+      "expected_systems": [
+        "crm",
+        "helpdesk",
+        "newsletter",
+        "web_analytics",
+        "web_shop"
+      ],
+      "id": "RC07",
+      "identifier": {
+        "type": "email",
+        "value": "theodore.gay4@webpost.example"
+      },
+      "subject": {
+        "full_name": "Théodore Gay",
+        "person_id": "P00004"
+      }
+    },
+    {
+      "description": "Newsletter subscriber who is not a customer",
+      "expected_locations": [
+        {
+          "column": "email",
+          "rows": 1,
+          "system": "newsletter",
+          "table": "subscribers"
+        }
+      ],
+      "expected_systems": [
+        "newsletter"
+      ],
+      "id": "RC08",
+      "identifier": {
+        "type": "email",
+        "value": "mohammed.loffler18@postbox.example"
+      },
+      "subject": {
+        "full_name": "Mohammed Löffler",
+        "person_id": "P00018"
+      }
+    },
+    {
+      "description": "Website visitor known only by a pseudonymous identifier",
+      "expected_locations": [],
+      "expected_systems": [],
+      "id": "RC09",
+      "identifier": {
+        "type": "email",
+        "value": "lynn.harris2@inbox.example"
+      },
+      "subject": {
+        "full_name": "Lynn Harris",
+        "person_id": "P00002"
+      }
+    },
+    {
+      "description": "Person who appears in no system",
+      "expected_locations": [],
+      "expected_systems": [],
+      "id": "RC10",
+      "identifier": {
+        "type": "email",
+        "value": "megan.denning1@inbox.example"
+      },
+      "subject": {
+        "full_name": "Megan Denning",
+        "person_id": "P00001"
+      }
+    }
+  ],
+  "note": "Expected locations are the tables whose e-mail identifier column matches the subject, counted in the committed snapshots. A case with no locations must return an empty result."
+}

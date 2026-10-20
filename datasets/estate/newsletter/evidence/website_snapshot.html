@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Subscribe - Northbridge Newsletter</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body><main><h1>Our newsletter</h1><p>News, offers and events, about twice a month.</p>
+<form id="subscribe" method="post" action="/subscribe">
+<p><label for="f_email">Email address</label> <input type="email" name="email" id="f_email" autocomplete="email" required></p>
+<p><label for="f_first_name">First name</label> <input type="text" name="first_name" id="f_first_name" autocomplete="given-name"></p>
+<p><label for="f_phone">Mobile phone</label> <input type="tel" name="phone" id="f_phone" autocomplete="tel"></p>
+<p><label for="f_postcode">Postcode</label> <input type="text" name="postcode" id="f_postcode" autocomplete="postal-code"></p>
+<p><label for="f_interests">Interests</label> <input type="text" name="interests" id="f_interests"></p>
+<p><label for="f_consent_marketing">Yes, send me marketing e-mails</label> <input type="checkbox" name="consent_marketing" id="f_consent_marketing" checked></p>
+<button type="submit">Subscribe</button></form>
+</main>
+<script src="https://newsletter.northbridge.example/static/subscribe.js"></script>
+<script src="https://track.openpulse.example/pixel.js"></script>
+</body></html>

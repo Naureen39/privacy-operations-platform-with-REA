@@ -1,0 +1,265 @@
+{
+  "contradictions": [
+    "C18"
+  ],
+  "data_elements": [
+    {
+      "category": "geolocation",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your location when you clock in or out",
+      "id": "clock_in_location",
+      "locations": [
+        {
+          "endpoint": "clock",
+          "kind": "request_json_key",
+          "name": "latitude"
+        },
+        {
+          "endpoint": "clock",
+          "kind": "request_json_key",
+          "name": "longitude"
+        },
+        {
+          "column": "latitude",
+          "kind": "db_column",
+          "table": "clock_events"
+        },
+        {
+          "column": "longitude",
+          "kind": "db_column",
+          "table": "clock_events"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "employment_data",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your department and manager",
+      "id": "department",
+      "locations": [
+        {
+          "column": "department",
+          "kind": "db_column",
+          "table": "employee_profile"
+        },
+        {
+          "column": "manager",
+          "kind": "db_column",
+          "table": "employee_profile"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "device_identifier",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "an identifier of your computer",
+      "id": "device_id",
+      "locations": [
+        {
+          "endpoint": "clock",
+          "kind": "request_json_key",
+          "name": "device_id"
+        },
+        {
+          "column": "device_id",
+          "kind": "db_column",
+          "table": "clock_events"
+        },
+        {
+          "host": "o4501.ingest.sentry.io",
+          "kind": "third_party_param",
+          "name": "contexts.device.id"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "employment_data",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your employee number",
+      "id": "employee_id",
+      "locations": [
+        {
+          "endpoint": "clock",
+          "kind": "request_json_key",
+          "name": "employee_id"
+        },
+        {
+          "endpoint": "timesheet",
+          "kind": "request_json_key",
+          "name": "employee_id"
+        },
+        {
+          "endpoint": "profile",
+          "kind": "request_query_param",
+          "name": "employee_id"
+        },
+        {
+          "column": "employee_id",
+          "kind": "db_column",
+          "table": "employee_profile"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "name",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your name",
+      "id": "employee_name",
+      "locations": [
+        {
+          "column": "full_name",
+          "kind": "db_column",
+          "table": "employee_profile"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "employment_data",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your working hours",
+      "id": "hours_worked",
+      "locations": [
+        {
+          "endpoint": "timesheet",
+          "kind": "request_json_key",
+          "name": "hours"
+        },
+        {
+          "column": "hours",
+          "kind": "db_column",
+          "table": "timesheets"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "ip_address",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "the IP address of your last sign in",
+      "id": "last_login_ip",
+      "locations": [
+        {
+          "column": "last_login_ip",
+          "kind": "db_column",
+          "table": "employee_profile"
+        },
+        {
+          "host": "o4501.ingest.sentry.io",
+          "kind": "third_party_param",
+          "name": "user.ip_address"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "contact_phone",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your work telephone number",
+      "id": "phone",
+      "locations": [
+        {
+          "column": "phone",
+          "kind": "db_column",
+          "table": "employee_profile"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "contact_email",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your work e-mail address",
+      "id": "work_email",
+      "locations": [
+        {
+          "column": "work_email",
+          "kind": "db_column",
+          "table": "employee_profile"
+        },
+        {
+          "column": "work_email",
+          "kind": "db_column",
+          "table": "timesheets"
+        },
+        {
+          "column": "work_email",
+          "kind": "db_column",
+          "table": "clock_events"
+        },
+        {
+          "host": "o4501.ingest.sentry.io",
+          "kind": "third_party_param",
+          "name": "user.email"
+        }
+      ],
+      "special_category": false
+    }
+  ],
+  "dpia": {
+    "criteria": [
+      "systematic_monitoring",
+      "vulnerable_subjects"
+    ],
+    "required": true
+  },
+  "last_review_date": "2026-06-30",
+  "modeled_open_source_product": false,
+  "recipients": [
+    {
+      "agreement_on_file": false,
+      "agreement_required": true,
+      "country": "US",
+      "declared_in_policy": false,
+      "declared_in_questionnaire": false,
+      "found_in": [
+        "har",
+        "js"
+      ],
+      "hosts": [
+        "o4501.ingest.sentry.io"
+      ],
+      "id": "sentry",
+      "internal": false,
+      "purpose": "Error monitoring",
+      "role": "processor",
+      "shares_elements": [
+        "device_id",
+        "last_login_ip",
+        "work_email"
+      ],
+      "third_country": true,
+      "transfer_basis": "none",
+      "vendor": "Sentry"
+    }
+  ],
+  "reference_date": "2026-10-01",
+  "retention": {
+    "actual": "6 years.",
+    "policy": "Timesheets are kept for six years.",
+    "questionnaire": "6 years"
+  },
+  "stack": "Electron application with a local SQLite store (purpose-built for the estate)",
+  "system_id": "staff_desktop",
+  "system_name": "Staff desktop client",
+  "technologies": [
+    "@sentry/electron",
+    "axios",
+    "better-sqlite3",
+    "electron",
+    "electron-store"
+  ]
+}

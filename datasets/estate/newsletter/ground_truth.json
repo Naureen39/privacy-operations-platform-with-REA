@@ -1,0 +1,255 @@
+{
+  "contradictions": [
+    "C15",
+    "C16",
+    "C17"
+  ],
+  "data_elements": [
+    {
+      "category": "name",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your first name",
+      "id": "first_name",
+      "locations": [
+        {
+          "endpoint": "subscribe",
+          "kind": "form_field",
+          "name": "first_name"
+        },
+        {
+          "endpoint": "subscribe",
+          "kind": "request_form_param",
+          "name": "first_name"
+        },
+        {
+          "column": "first_name",
+          "kind": "db_column",
+          "table": "subscribers"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "preferences",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "the topics you are interested in",
+      "id": "interests",
+      "locations": [
+        {
+          "endpoint": "subscribe",
+          "kind": "form_field",
+          "name": "interests"
+        },
+        {
+          "endpoint": "subscribe",
+          "kind": "request_form_param",
+          "name": "interests"
+        },
+        {
+          "column": "interests",
+          "kind": "db_column",
+          "table": "subscribers"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "consent_record",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your consent and when you gave it",
+      "id": "marketing_consent",
+      "locations": [
+        {
+          "endpoint": "subscribe",
+          "kind": "form_field",
+          "name": "consent_marketing"
+        },
+        {
+          "endpoint": "subscribe",
+          "kind": "request_form_param",
+          "name": "consent_marketing"
+        },
+        {
+          "column": "consent_marketing",
+          "kind": "db_column",
+          "table": "subscribers"
+        },
+        {
+          "column": "consent_at",
+          "kind": "db_column",
+          "table": "subscribers"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "contact_phone",
+      "declared_in_policy": false,
+      "declared_in_questionnaire": false,
+      "description": "your telephone number",
+      "id": "phone",
+      "locations": [
+        {
+          "endpoint": "subscribe",
+          "kind": "form_field",
+          "name": "phone"
+        },
+        {
+          "endpoint": "subscribe",
+          "kind": "request_form_param",
+          "name": "phone"
+        },
+        {
+          "column": "phone",
+          "kind": "db_column",
+          "table": "subscribers"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "postal_address",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your postcode",
+      "id": "postcode",
+      "locations": [
+        {
+          "endpoint": "subscribe",
+          "kind": "form_field",
+          "name": "postcode"
+        },
+        {
+          "endpoint": "subscribe",
+          "kind": "request_form_param",
+          "name": "postcode"
+        },
+        {
+          "column": "postcode",
+          "kind": "db_column",
+          "table": "subscribers"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "ip_address",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your IP address when you subscribe",
+      "id": "signup_ip",
+      "locations": [
+        {
+          "column": "signup_ip",
+          "kind": "db_column",
+          "table": "subscribers"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "contact_email",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your e-mail address",
+      "id": "subscriber_email",
+      "locations": [
+        {
+          "endpoint": "subscribe",
+          "kind": "form_field",
+          "name": "email"
+        },
+        {
+          "endpoint": "subscribe",
+          "kind": "request_form_param",
+          "name": "email"
+        },
+        {
+          "column": "email",
+          "kind": "db_column",
+          "table": "subscribers"
+        },
+        {
+          "host": "track.openpulse.example",
+          "kind": "third_party_param",
+          "name": "e"
+        }
+      ],
+      "special_category": false
+    }
+  ],
+  "dpia": {
+    "criteria": [],
+    "required": false
+  },
+  "last_review_date": "2026-01-14",
+  "modeled_open_source_product": false,
+  "recipients": [
+    {
+      "agreement_on_file": true,
+      "agreement_required": true,
+      "country": "IE",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "found_in": [
+        "har",
+        "js"
+      ],
+      "hosts": [
+        "api.mailsend.example"
+      ],
+      "id": "mailsend_news",
+      "internal": false,
+      "purpose": "Newsletter delivery",
+      "role": "processor",
+      "shares_elements": [
+        "first_name",
+        "interests",
+        "subscriber_email"
+      ],
+      "third_country": false,
+      "transfer_basis": "not_required",
+      "vendor": "MailSend Europe"
+    },
+    {
+      "agreement_on_file": false,
+      "agreement_required": true,
+      "country": "US",
+      "declared_in_policy": false,
+      "declared_in_questionnaire": false,
+      "found_in": [
+        "har",
+        "html",
+        "js"
+      ],
+      "hosts": [
+        "track.openpulse.example"
+      ],
+      "id": "openpulse",
+      "internal": false,
+      "purpose": "E-mail open tracking",
+      "role": "processor",
+      "shares_elements": [
+        "subscriber_email"
+      ],
+      "third_country": true,
+      "transfer_basis": "none",
+      "vendor": "OpenPulse Tracking"
+    }
+  ],
+  "reference_date": "2026-10-01",
+  "retention": {
+    "actual": "Until unsubscribe plus 30 days.",
+    "policy": "We keep your subscription until you unsubscribe, then delete it within 30 days.",
+    "questionnaire": "Until unsubscribe plus 30 days"
+  },
+  "stack": "FastAPI application (purpose-built for the estate)",
+  "system_id": "newsletter",
+  "system_name": "Newsletter service",
+  "technologies": [
+    "axios"
+  ]
+}

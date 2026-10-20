@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Request a quote - Northbridge Business</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body><main><h1>Request a quote</h1><p>Tell us about your business and we will get back to you.</p>
+<form id="web_to_lead" method="post" action="/index.php?entryPoint=WebToLeadCapture">
+<p><label for="f_first_name">First name</label> <input type="text" name="first_name" id="f_first_name" autocomplete="given-name" required></p>
+<p><label for="f_last_name">Last name</label> <input type="text" name="last_name" id="f_last_name" autocomplete="family-name" required></p>
+<p><label for="f_email1">Work email</label> <input type="email" name="email1" id="f_email1" autocomplete="email" required></p>
+<p><label for="f_phone_work">Work phone</label> <input type="tel" name="phone_work" id="f_phone_work" autocomplete="tel"></p>
+<p><label for="f_account_name">Company</label> <input type="text" name="account_name" id="f_account_name" autocomplete="organization"></p>
+<p><label for="f_title">Job title</label> <input type="text" name="title" id="f_title" autocomplete="organization-title"></p>
+<input type="hidden" name="lead_source" id="f_lead_source" value="">
+<p><label for="f_description">How can we help?</label> <textarea name="description" id="f_description"></textarea></p>
+<button type="submit">Submit</button></form>
+</main>
+<script src="https://crm.northbridge.example/include/javascript/webtolead.js"></script>
+</body></html>

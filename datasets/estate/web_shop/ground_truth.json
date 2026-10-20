@@ -1,0 +1,489 @@
+{
+  "contradictions": [
+    "C01",
+    "C02",
+    "C03",
+    "C04"
+  ],
+  "data_elements": [
+    {
+      "category": "authentication_credentials",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your account password (stored only as a hash)",
+      "id": "account_password",
+      "locations": [
+        {
+          "endpoint": "checkout",
+          "kind": "form_field",
+          "name": "account_password"
+        },
+        {
+          "endpoint": "checkout",
+          "kind": "request_form_param",
+          "name": "account_password"
+        },
+        {
+          "column": "password_hash",
+          "kind": "db_column",
+          "table": "customers"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "contact_email",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your e-mail address",
+      "id": "customer_email",
+      "locations": [
+        {
+          "endpoint": "checkout",
+          "kind": "form_field",
+          "name": "billing_email"
+        },
+        {
+          "endpoint": "checkout",
+          "kind": "request_form_param",
+          "name": "billing_email"
+        },
+        {
+          "column": "customer_email",
+          "kind": "db_column",
+          "table": "customers"
+        },
+        {
+          "column": "customer_email",
+          "kind": "db_column",
+          "table": "orders"
+        },
+        {
+          "host": "www.facebook.com",
+          "kind": "third_party_param",
+          "name": "ud[em]"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "name",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your name",
+      "id": "customer_name",
+      "locations": [
+        {
+          "endpoint": "checkout",
+          "kind": "form_field",
+          "name": "billing_first_name"
+        },
+        {
+          "endpoint": "checkout",
+          "kind": "request_form_param",
+          "name": "billing_first_name"
+        },
+        {
+          "endpoint": "checkout",
+          "kind": "form_field",
+          "name": "billing_last_name"
+        },
+        {
+          "endpoint": "checkout",
+          "kind": "request_form_param",
+          "name": "billing_last_name"
+        },
+        {
+          "column": "first_name",
+          "kind": "db_column",
+          "table": "customers"
+        },
+        {
+          "column": "last_name",
+          "kind": "db_column",
+          "table": "customers"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "contact_phone",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your telephone number",
+      "id": "customer_phone",
+      "locations": [
+        {
+          "endpoint": "checkout",
+          "kind": "form_field",
+          "name": "billing_phone"
+        },
+        {
+          "endpoint": "checkout",
+          "kind": "request_form_param",
+          "name": "billing_phone"
+        },
+        {
+          "column": "phone",
+          "kind": "db_column",
+          "table": "customers"
+        },
+        {
+          "host": "www.facebook.com",
+          "kind": "third_party_param",
+          "name": "ud[ph]"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "date_of_birth",
+      "declared_in_policy": false,
+      "declared_in_questionnaire": false,
+      "description": "your date of birth",
+      "id": "date_of_birth",
+      "locations": [
+        {
+          "endpoint": "checkout",
+          "kind": "form_field",
+          "name": "billing_birthdate"
+        },
+        {
+          "endpoint": "checkout",
+          "kind": "request_form_param",
+          "name": "billing_birthdate"
+        },
+        {
+          "column": "birthdate",
+          "kind": "db_column",
+          "table": "customers"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "postal_address",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your delivery and billing address",
+      "id": "delivery_address",
+      "locations": [
+        {
+          "endpoint": "checkout",
+          "kind": "form_field",
+          "name": "billing_address_1"
+        },
+        {
+          "endpoint": "checkout",
+          "kind": "request_form_param",
+          "name": "billing_address_1"
+        },
+        {
+          "endpoint": "checkout",
+          "kind": "form_field",
+          "name": "billing_city"
+        },
+        {
+          "endpoint": "checkout",
+          "kind": "request_form_param",
+          "name": "billing_city"
+        },
+        {
+          "endpoint": "checkout",
+          "kind": "form_field",
+          "name": "billing_postcode"
+        },
+        {
+          "endpoint": "checkout",
+          "kind": "request_form_param",
+          "name": "billing_postcode"
+        },
+        {
+          "endpoint": "checkout",
+          "kind": "form_field",
+          "name": "billing_country"
+        },
+        {
+          "endpoint": "checkout",
+          "kind": "request_form_param",
+          "name": "billing_country"
+        },
+        {
+          "column": "address_1",
+          "kind": "db_column",
+          "table": "customers"
+        },
+        {
+          "column": "city",
+          "kind": "db_column",
+          "table": "customers"
+        },
+        {
+          "column": "postcode",
+          "kind": "db_column",
+          "table": "customers"
+        },
+        {
+          "column": "country",
+          "kind": "db_column",
+          "table": "customers"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "ip_address",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your IP address",
+      "id": "ip_address",
+      "locations": [
+        {
+          "column": "customer_ip",
+          "kind": "db_column",
+          "table": "orders"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "consent_record",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your marketing preferences",
+      "id": "marketing_consent",
+      "locations": [
+        {
+          "endpoint": "checkout",
+          "kind": "form_field",
+          "name": "marketing_optin"
+        },
+        {
+          "column": "marketing_optin",
+          "kind": "db_column",
+          "table": "customers"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "purchase_history",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "the items you order and the order total",
+      "id": "order_history",
+      "locations": [
+        {
+          "column": "order_total",
+          "kind": "db_column",
+          "table": "orders"
+        },
+        {
+          "host": "www.facebook.com",
+          "kind": "third_party_param",
+          "name": "cd[value]"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "payment_card",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your payment card details (entered directly with our payment provider)",
+      "id": "payment_card",
+      "locations": [
+        {
+          "host": "api.stripe.com",
+          "kind": "third_party_param",
+          "name": "card[number]"
+        },
+        {
+          "host": "api.stripe.com",
+          "kind": "third_party_param",
+          "name": "card[exp_month]"
+        },
+        {
+          "host": "api.stripe.com",
+          "kind": "third_party_param",
+          "name": "card[cvc]"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "online_identifier",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "a shopping session cookie",
+      "id": "session_id",
+      "locations": [
+        {
+          "kind": "cookie",
+          "name": "wp_woocommerce_session"
+        }
+      ],
+      "special_category": false
+    }
+  ],
+  "dpia": {
+    "criteria": [
+      "large_scale"
+    ],
+    "required": false
+  },
+  "last_review_date": "2026-03-12",
+  "modeled_open_source_product": true,
+  "recipients": [
+    {
+      "agreement_on_file": true,
+      "agreement_required": true,
+      "country": "US",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "found_in": [
+        "har",
+        "html"
+      ],
+      "hosts": [
+        "fonts.googleapis.com"
+      ],
+      "id": "google_fonts",
+      "internal": false,
+      "purpose": "Web font delivery",
+      "role": "processor",
+      "shares_elements": [
+        "ip_address"
+      ],
+      "third_country": true,
+      "transfer_basis": "scc",
+      "vendor": "Google Fonts"
+    },
+    {
+      "agreement_on_file": true,
+      "agreement_required": false,
+      "country": "IE",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "found_in": [
+        "har",
+        "html",
+        "js"
+      ],
+      "hosts": [
+        "analytics.northbridge.example"
+      ],
+      "id": "matomo_internal",
+      "internal": true,
+      "purpose": "Site analytics (our own system)",
+      "role": "controller",
+      "shares_elements": [
+        "customer_email",
+        "ip_address",
+        "session_id"
+      ],
+      "third_country": false,
+      "transfer_basis": "not_required",
+      "vendor": "Northbridge web analytics"
+    },
+    {
+      "agreement_on_file": false,
+      "agreement_required": false,
+      "country": "US",
+      "declared_in_policy": false,
+      "declared_in_questionnaire": false,
+      "found_in": [
+        "har",
+        "html",
+        "js"
+      ],
+      "hosts": [
+        "connect.facebook.net",
+        "www.facebook.com"
+      ],
+      "id": "meta",
+      "internal": false,
+      "purpose": "Advertising measurement",
+      "role": "joint_controller",
+      "shares_elements": [
+        "customer_email",
+        "customer_phone",
+        "order_history"
+      ],
+      "third_country": true,
+      "transfer_basis": "none",
+      "vendor": "Meta Platforms"
+    },
+    {
+      "agreement_on_file": true,
+      "agreement_required": true,
+      "country": "US",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "found_in": [
+        "har",
+        "html",
+        "js"
+      ],
+      "hosts": [
+        "api.stripe.com",
+        "js.stripe.com"
+      ],
+      "id": "stripe",
+      "internal": false,
+      "purpose": "Payment processing",
+      "role": "processor",
+      "shares_elements": [
+        "customer_email",
+        "customer_name",
+        "payment_card"
+      ],
+      "third_country": true,
+      "transfer_basis": "scc",
+      "vendor": "Stripe"
+    },
+    {
+      "agreement_on_file": true,
+      "agreement_required": false,
+      "country": "GB",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "found_in": [
+        "har",
+        "js"
+      ],
+      "hosts": [
+        "api.swiftparcel.example"
+      ],
+      "id": "swiftparcel",
+      "internal": false,
+      "purpose": "Parcel delivery",
+      "role": "controller",
+      "shares_elements": [
+        "customer_email",
+        "customer_name",
+        "customer_phone",
+        "delivery_address"
+      ],
+      "third_country": true,
+      "transfer_basis": "adequacy",
+      "vendor": "SwiftParcel Logistics"
+    }
+  ],
+  "reference_date": "2026-10-01",
+  "retention": {
+    "actual": "Orders are kept 7 years and accounts until deletion.",
+    "policy": "We keep order records for seven years because tax law requires it. Account data is kept until you ask us to delete the account.",
+    "questionnaire": "7 years for orders (tax law); accounts until deletion request"
+  },
+  "stack": "WordPress with WooCommerce (modeled on the product's default checkout)",
+  "system_id": "web_shop",
+  "system_name": "Web shop",
+  "technologies": [
+    "@stripe/stripe-js",
+    "axios",
+    "core-js",
+    "react",
+    "react-dom"
+  ]
+}

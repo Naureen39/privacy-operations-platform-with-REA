@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Book an appointment - Northbridge Health</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body><main><h1>Book an appointment</h1><p>Choose a doctor and tell us why you would like to visit.</p>
+<form id="book_appointment" method="post" action="/appointments">
+<p><label for="f_full_name">Full name</label> <input type="text" name="full_name" id="f_full_name" autocomplete="name" required></p>
+<p><label for="f_email">Email</label> <input type="email" name="email" id="f_email" autocomplete="email" required></p>
+<p><label for="f_phone">Mobile phone</label> <input type="tel" name="phone" id="f_phone" autocomplete="tel" required></p>
+<p><label for="f_dob">Date of birth</label> <input type="date" name="dob" id="f_dob" autocomplete="bday" required></p>
+<p><label for="f_insurance_number">Insurance number</label> <input type="text" name="insurance_number" id="f_insurance_number"></p>
+<p><label for="f_insurer">Insurance provider</label> <input type="text" name="insurer" id="f_insurer"></p>
+<p><label for="f_reason_for_visit">Reason for your visit</label> <textarea name="reason_for_visit" id="f_reason_for_visit" required></textarea></p>
+<p><label for="f_symptoms">Symptoms</label> <textarea name="symptoms" id="f_symptoms"></textarea></p>
+<p><label for="f_terms">I accept the terms of use</label> <input type="checkbox" name="terms" id="f_terms" required></p>
+<button type="submit">Book appointment</button></form>
+</main>
+<script src="https://clinic.northbridge-health.example/static/booking.js"></script>
+<script src="https://cal.bookwell.example/widget.js"></script>
+</body></html>

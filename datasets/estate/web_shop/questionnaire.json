@@ -1,0 +1,80 @@
+{
+  "answers": {
+    "data_categories_declared": [
+      "authentication_credentials",
+      "consent_record",
+      "contact_email",
+      "contact_phone",
+      "ip_address",
+      "name",
+      "online_identifier",
+      "payment_card",
+      "postal_address",
+      "purchase_history"
+    ],
+    "data_subjects": [
+      "customers"
+    ],
+    "last_review_date": "2026-03-12",
+    "lawful_basis": "contract",
+    "notes": "Marketing pixel was added by the agency in spring; not yet reviewed.",
+    "processors_with_agreement": [
+      "Google Fonts",
+      "Stripe"
+    ],
+    "purposes": [
+      "Order fulfilment",
+      "Customer accounts",
+      "Fraud prevention"
+    ],
+    "recipients_declared": [
+      {
+        "country": "US",
+        "purpose": "Payment processing",
+        "vendor": "Stripe"
+      },
+      {
+        "country": "GB",
+        "purpose": "Parcel delivery",
+        "vendor": "SwiftParcel Logistics"
+      },
+      {
+        "country": "US",
+        "purpose": "Web font delivery",
+        "vendor": "Google Fonts"
+      },
+      {
+        "country": "IE",
+        "purpose": "Site analytics (our own system)",
+        "vendor": "Northbridge web analytics"
+      }
+    ],
+    "retention": "7 years for orders (tax law); accounts until deletion request",
+    "security_measures": [
+      "TLS everywhere",
+      "Passwords hashed with bcrypt",
+      "Role based admin access"
+    ],
+    "special_category_condition": "not_applicable",
+    "transfers": [
+      {
+        "country": "US",
+        "recipient": "Stripe",
+        "safeguard": "standard_contractual_clauses"
+      },
+      {
+        "country": "GB",
+        "recipient": "SwiftParcel Logistics",
+        "safeguard": "adequacy_decision"
+      },
+      {
+        "country": "US",
+        "recipient": "Google Fonts",
+        "safeguard": "standard_contractual_clauses"
+      }
+    ]
+  },
+  "completed_by": "Priya Nair, Head of E-commerce",
+  "system_id": "web_shop",
+  "system_name": "Web shop"
+}

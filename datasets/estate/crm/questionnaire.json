@@ -1,0 +1,53 @@
+{
+  "answers": {
+    "data_categories_declared": [
+      "communications_content",
+      "contact_email",
+      "contact_phone",
+      "employment_data",
+      "name",
+      "preferences"
+    ],
+    "data_subjects": [
+      "business contacts"
+    ],
+    "last_review_date": "2026-05-18",
+    "lawful_basis": "legitimate_interests",
+    "notes": "Transfer mechanism for LeadScope still to be confirmed with legal.",
+    "processors_with_agreement": [
+      "LeadScope Data",
+      "MailSend Europe"
+    ],
+    "purposes": [
+      "Sales and account management"
+    ],
+    "recipients_declared": [
+      {
+        "country": "IN",
+        "purpose": "Lead enrichment",
+        "vendor": "LeadScope Data"
+      },
+      {
+        "country": "IE",
+        "purpose": "Quote confirmation e-mails",
+        "vendor": "MailSend Europe"
+      }
+    ],
+    "retention": null,
+    "security_measures": [
+      "Role based access",
+      "Daily encrypted backups"
+    ],
+    "special_category_condition": "not_applicable",
+    "transfers": [
+      {
+        "country": "IN",
+        "recipient": "LeadScope Data",
+        "safeguard": ""
+      }
+    ]
+  },
+  "completed_by": "Marcus Weber, Head of Sales",
+  "system_id": "crm",
+  "system_name": "CRM"
+}

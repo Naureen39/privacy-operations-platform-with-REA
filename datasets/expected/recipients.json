@@ -1,0 +1,176 @@
+{
+  "description": "Expected recipient hosts with vendor, role and country.",
+  "items": [
+    {
+      "country": "US",
+      "host": "fonts.googleapis.com",
+      "internal": false,
+      "recipient": "google_fonts",
+      "role": "processor",
+      "system": "web_shop",
+      "vendor": "Google Fonts"
+    },
+    {
+      "country": "IE",
+      "host": "analytics.northbridge.example",
+      "internal": true,
+      "recipient": "matomo_internal",
+      "role": "controller",
+      "system": "web_shop",
+      "vendor": "Northbridge web analytics"
+    },
+    {
+      "country": "US",
+      "host": "connect.facebook.net",
+      "internal": false,
+      "recipient": "meta",
+      "role": "joint_controller",
+      "system": "web_shop",
+      "vendor": "Meta Platforms"
+    },
+    {
+      "country": "US",
+      "host": "www.facebook.com",
+      "internal": false,
+      "recipient": "meta",
+      "role": "joint_controller",
+      "system": "web_shop",
+      "vendor": "Meta Platforms"
+    },
+    {
+      "country": "US",
+      "host": "api.stripe.com",
+      "internal": false,
+      "recipient": "stripe",
+      "role": "processor",
+      "system": "web_shop",
+      "vendor": "Stripe"
+    },
+    {
+      "country": "US",
+      "host": "js.stripe.com",
+      "internal": false,
+      "recipient": "stripe",
+      "role": "processor",
+      "system": "web_shop",
+      "vendor": "Stripe"
+    },
+    {
+      "country": "GB",
+      "host": "api.swiftparcel.example",
+      "internal": false,
+      "recipient": "swiftparcel",
+      "role": "controller",
+      "system": "web_shop",
+      "vendor": "SwiftParcel Logistics"
+    },
+    {
+      "country": "GB",
+      "host": "dashboards.brightlens.example",
+      "internal": false,
+      "recipient": "brightlens",
+      "role": "processor",
+      "system": "web_analytics",
+      "vendor": "BrightLens Agency"
+    },
+    {
+      "country": "DE",
+      "host": "api.chatrelay.example",
+      "internal": false,
+      "recipient": "chatrelay",
+      "role": "processor",
+      "system": "helpdesk",
+      "vendor": "ChatRelay"
+    },
+    {
+      "country": "IE",
+      "host": "api.mailsend.example",
+      "internal": false,
+      "recipient": "mailsend_help",
+      "role": "processor",
+      "system": "helpdesk",
+      "vendor": "MailSend Europe"
+    },
+    {
+      "country": "IN",
+      "host": "enrich.leadscope.example",
+      "internal": false,
+      "recipient": "leadscope",
+      "role": "processor",
+      "system": "crm",
+      "vendor": "LeadScope Data"
+    },
+    {
+      "country": "IE",
+      "host": "api.mailsend.example",
+      "internal": false,
+      "recipient": "mailsend_crm",
+      "role": "processor",
+      "system": "crm",
+      "vendor": "MailSend Europe"
+    },
+    {
+      "country": "NL",
+      "host": "cal.bookwell.example",
+      "internal": false,
+      "recipient": "bookwell",
+      "role": "processor",
+      "system": "clinic_portal",
+      "vendor": "BookWell Scheduling"
+    },
+    {
+      "country": "IN",
+      "host": "api.smsgate.example",
+      "internal": false,
+      "recipient": "smsgate",
+      "role": "processor",
+      "system": "clinic_portal",
+      "vendor": "SMSGate"
+    },
+    {
+      "country": "IE",
+      "host": "api.mailsend.example",
+      "internal": false,
+      "recipient": "mailsend_news",
+      "role": "processor",
+      "system": "newsletter",
+      "vendor": "MailSend Europe"
+    },
+    {
+      "country": "US",
+      "host": "track.openpulse.example",
+      "internal": false,
+      "recipient": "openpulse",
+      "role": "processor",
+      "system": "newsletter",
+      "vendor": "OpenPulse Tracking"
+    },
+    {
+      "country": "US",
+      "host": "o4501.ingest.sentry.io",
+      "internal": false,
+      "recipient": "sentry",
+      "role": "processor",
+      "system": "staff_desktop",
+      "vendor": "Sentry"
+    },
+    {
+      "country": "PL",
+      "host": "api.payrollhub.example",
+      "internal": false,
+      "recipient": "payrollhub",
+      "role": "processor",
+      "system": "hr_onboarding",
+      "vendor": "PayrollHub"
+    },
+    {
+      "country": "GB",
+      "host": "api.verifycheck.example",
+      "internal": false,
+      "recipient": "verifycheck",
+      "role": "processor",
+      "system": "hr_onboarding",
+      "vendor": "VerifyCheck"
+    }
+  ]
+}

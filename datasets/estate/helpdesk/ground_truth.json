@@ -1,0 +1,245 @@
+{
+  "contradictions": [
+    "C08",
+    "C09"
+  ],
+  "data_elements": [
+    {
+      "category": "device_identifier",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your browser and device type",
+      "id": "browser_info",
+      "locations": [
+        {
+          "column": "browser",
+          "kind": "db_column",
+          "table": "conversations"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "contact_email",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your e-mail address",
+      "id": "contact_email",
+      "locations": [
+        {
+          "endpoint": "widget_conversation",
+          "kind": "form_field",
+          "name": "contact.email"
+        },
+        {
+          "endpoint": "widget_conversation",
+          "kind": "request_json_key",
+          "name": "contact.email"
+        },
+        {
+          "column": "email",
+          "kind": "db_column",
+          "table": "contacts"
+        },
+        {
+          "column": "contact_email",
+          "kind": "db_column",
+          "table": "conversations"
+        },
+        {
+          "column": "sender_email",
+          "kind": "db_column",
+          "table": "messages"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "name",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your name",
+      "id": "contact_name",
+      "locations": [
+        {
+          "endpoint": "widget_conversation",
+          "kind": "form_field",
+          "name": "contact.name"
+        },
+        {
+          "endpoint": "widget_conversation",
+          "kind": "request_json_key",
+          "name": "contact.name"
+        },
+        {
+          "column": "name",
+          "kind": "db_column",
+          "table": "contacts"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "contact_phone",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your telephone number",
+      "id": "contact_phone",
+      "locations": [
+        {
+          "endpoint": "widget_conversation",
+          "kind": "form_field",
+          "name": "contact.phone_number"
+        },
+        {
+          "endpoint": "widget_conversation",
+          "kind": "request_json_key",
+          "name": "contact.phone_number"
+        },
+        {
+          "column": "phone_number",
+          "kind": "db_column",
+          "table": "contacts"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "ip_address",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your IP address",
+      "id": "ip_address",
+      "locations": [
+        {
+          "column": "last_ip",
+          "kind": "db_column",
+          "table": "contacts"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "communications_content",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "the messages you send us",
+      "id": "message_content",
+      "locations": [
+        {
+          "endpoint": "widget_conversation",
+          "kind": "form_field",
+          "name": "message.content"
+        },
+        {
+          "endpoint": "widget_conversation",
+          "kind": "request_json_key",
+          "name": "message.content"
+        },
+        {
+          "column": "content",
+          "kind": "db_column",
+          "table": "messages"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "communications_content",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "the subject of your request",
+      "id": "ticket_subject",
+      "locations": [
+        {
+          "endpoint": "widget_conversation",
+          "kind": "form_field",
+          "name": "message.subject"
+        },
+        {
+          "endpoint": "widget_conversation",
+          "kind": "request_json_key",
+          "name": "message.subject"
+        },
+        {
+          "column": "subject",
+          "kind": "db_column",
+          "table": "conversations"
+        }
+      ],
+      "special_category": false
+    }
+  ],
+  "dpia": {
+    "criteria": [],
+    "required": false
+  },
+  "last_review_date": "2026-04-02",
+  "modeled_open_source_product": true,
+  "recipients": [
+    {
+      "agreement_on_file": true,
+      "agreement_required": true,
+      "country": "DE",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "found_in": [
+        "har",
+        "js"
+      ],
+      "hosts": [
+        "api.chatrelay.example"
+      ],
+      "id": "chatrelay",
+      "internal": false,
+      "purpose": "Message translation",
+      "role": "processor",
+      "shares_elements": [
+        "message_content"
+      ],
+      "third_country": false,
+      "transfer_basis": "not_required",
+      "vendor": "ChatRelay"
+    },
+    {
+      "agreement_on_file": true,
+      "agreement_required": true,
+      "country": "IE",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "found_in": [
+        "har",
+        "js"
+      ],
+      "hosts": [
+        "api.mailsend.example"
+      ],
+      "id": "mailsend_help",
+      "internal": false,
+      "purpose": "Ticket notification e-mails",
+      "role": "processor",
+      "shares_elements": [
+        "contact_email",
+        "contact_name",
+        "ticket_subject"
+      ],
+      "third_country": false,
+      "transfer_basis": "not_required",
+      "vendor": "MailSend Europe"
+    }
+  ],
+  "reference_date": "2026-10-01",
+  "retention": {
+    "actual": "Indefinite. No deletion job exists and conversations from 2022 are still stored.",
+    "policy": "Support conversations are deleted twelve months after they are closed.",
+    "questionnaire": "12 months after the ticket is closed"
+  },
+  "stack": "Chatwoot (modeled on the product's website widget and schema)",
+  "system_id": "helpdesk",
+  "system_name": "Helpdesk and chat widget",
+  "technologies": [
+    "@chatwoot/sdk",
+    "axios",
+    "vue"
+  ]
+}

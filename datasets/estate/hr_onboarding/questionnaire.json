@@ -1,0 +1,60 @@
+{
+  "answers": {
+    "data_categories_declared": [
+      "bank_account",
+      "contact_email",
+      "contact_phone",
+      "date_of_birth",
+      "family_data",
+      "health_data",
+      "name",
+      "national_id",
+      "nationality",
+      "postal_address",
+      "racial_ethnic_origin",
+      "trade_union_membership"
+    ],
+    "data_subjects": [
+      "employees"
+    ],
+    "last_review_date": "2026-07-09",
+    "lawful_basis": "contract",
+    "notes": "Equality monitoring question added at the request of the board.",
+    "processors_with_agreement": [
+      "PayrollHub",
+      "VerifyCheck"
+    ],
+    "purposes": [
+      "Onboarding",
+      "Payroll"
+    ],
+    "recipients_declared": [
+      {
+        "country": "PL",
+        "purpose": "Payroll processing",
+        "vendor": "PayrollHub"
+      },
+      {
+        "country": "GB",
+        "purpose": "Pre-employment identity check",
+        "vendor": "VerifyCheck"
+      }
+    ],
+    "retention": "Employment plus 6 years",
+    "security_measures": [
+      "Encryption at rest",
+      "HR-only access"
+    ],
+    "special_category_condition": null,
+    "transfers": [
+      {
+        "country": "GB",
+        "recipient": "VerifyCheck",
+        "safeguard": "adequacy_decision"
+      }
+    ]
+  },
+  "completed_by": "Grace Lindqvist, HR Director",
+  "system_id": "hr_onboarding",
+  "system_name": "HR onboarding form"
+}

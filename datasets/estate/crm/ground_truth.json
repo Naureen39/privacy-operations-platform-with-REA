@@ -1,0 +1,297 @@
+{
+  "contradictions": [
+    "C10",
+    "C11"
+  ],
+  "data_elements": [
+    {
+      "category": "employment_data",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your employer",
+      "id": "company",
+      "locations": [
+        {
+          "endpoint": "web_to_lead",
+          "kind": "form_field",
+          "name": "account_name"
+        },
+        {
+          "endpoint": "web_to_lead",
+          "kind": "request_form_param",
+          "name": "account_name"
+        },
+        {
+          "column": "account_name",
+          "kind": "db_column",
+          "table": "leads"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "employment_data",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "seniority and company size added from business data sources",
+      "id": "enriched_profile",
+      "locations": [
+        {
+          "column": "enriched_seniority",
+          "kind": "db_column",
+          "table": "leads"
+        },
+        {
+          "column": "enriched_company_size",
+          "kind": "db_column",
+          "table": "leads"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "employment_data",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your job title",
+      "id": "job_title",
+      "locations": [
+        {
+          "endpoint": "web_to_lead",
+          "kind": "form_field",
+          "name": "title"
+        },
+        {
+          "endpoint": "web_to_lead",
+          "kind": "request_form_param",
+          "name": "title"
+        },
+        {
+          "column": "title",
+          "kind": "db_column",
+          "table": "leads"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "contact_email",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your business e-mail address",
+      "id": "lead_email",
+      "locations": [
+        {
+          "endpoint": "web_to_lead",
+          "kind": "form_field",
+          "name": "email1"
+        },
+        {
+          "endpoint": "web_to_lead",
+          "kind": "request_form_param",
+          "name": "email1"
+        },
+        {
+          "column": "email1",
+          "kind": "db_column",
+          "table": "leads"
+        },
+        {
+          "column": "lead_email",
+          "kind": "db_column",
+          "table": "opportunities"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "name",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your name",
+      "id": "lead_name",
+      "locations": [
+        {
+          "endpoint": "web_to_lead",
+          "kind": "form_field",
+          "name": "first_name"
+        },
+        {
+          "endpoint": "web_to_lead",
+          "kind": "request_form_param",
+          "name": "first_name"
+        },
+        {
+          "endpoint": "web_to_lead",
+          "kind": "form_field",
+          "name": "last_name"
+        },
+        {
+          "endpoint": "web_to_lead",
+          "kind": "request_form_param",
+          "name": "last_name"
+        },
+        {
+          "column": "first_name",
+          "kind": "db_column",
+          "table": "leads"
+        },
+        {
+          "column": "last_name",
+          "kind": "db_column",
+          "table": "leads"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "contact_phone",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your business telephone number",
+      "id": "lead_phone",
+      "locations": [
+        {
+          "endpoint": "web_to_lead",
+          "kind": "form_field",
+          "name": "phone_work"
+        },
+        {
+          "endpoint": "web_to_lead",
+          "kind": "request_form_param",
+          "name": "phone_work"
+        },
+        {
+          "column": "phone_work",
+          "kind": "db_column",
+          "table": "leads"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "preferences",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "how you found us",
+      "id": "lead_source",
+      "locations": [
+        {
+          "endpoint": "web_to_lead",
+          "kind": "form_field",
+          "name": "lead_source"
+        },
+        {
+          "endpoint": "web_to_lead",
+          "kind": "request_form_param",
+          "name": "lead_source"
+        },
+        {
+          "column": "lead_source",
+          "kind": "db_column",
+          "table": "leads"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "communications_content",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "notes our sales team records about you",
+      "id": "notes",
+      "locations": [
+        {
+          "endpoint": "web_to_lead",
+          "kind": "form_field",
+          "name": "description"
+        },
+        {
+          "endpoint": "web_to_lead",
+          "kind": "request_form_param",
+          "name": "description"
+        },
+        {
+          "column": "description",
+          "kind": "db_column",
+          "table": "leads"
+        }
+      ],
+      "special_category": false
+    }
+  ],
+  "dpia": {
+    "criteria": [
+      "combining_datasets"
+    ],
+    "required": false
+  },
+  "last_review_date": "2026-05-18",
+  "modeled_open_source_product": true,
+  "recipients": [
+    {
+      "agreement_on_file": true,
+      "agreement_required": true,
+      "country": "IN",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "found_in": [
+        "har",
+        "js"
+      ],
+      "hosts": [
+        "enrich.leadscope.example"
+      ],
+      "id": "leadscope",
+      "internal": false,
+      "purpose": "Lead enrichment",
+      "role": "processor",
+      "shares_elements": [
+        "company",
+        "lead_email",
+        "lead_name"
+      ],
+      "third_country": true,
+      "transfer_basis": "none",
+      "vendor": "LeadScope Data"
+    },
+    {
+      "agreement_on_file": true,
+      "agreement_required": true,
+      "country": "IE",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "found_in": [
+        "har",
+        "js"
+      ],
+      "hosts": [
+        "api.mailsend.example"
+      ],
+      "id": "mailsend_crm",
+      "internal": false,
+      "purpose": "Quote confirmation e-mails",
+      "role": "processor",
+      "shares_elements": [
+        "lead_email",
+        "lead_name"
+      ],
+      "third_country": false,
+      "transfer_basis": "not_required",
+      "vendor": "MailSend Europe"
+    }
+  ],
+  "reference_date": "2026-10-01",
+  "retention": {
+    "actual": "Indefinite while the business relationship lasts.",
+    "policy": "Lead and customer records are kept while the business relationship lasts.",
+    "questionnaire": null
+  },
+  "stack": "SuiteCRM (modeled on the product's web-to-lead form and schema)",
+  "system_id": "crm",
+  "system_name": "CRM",
+  "technologies": [
+    "axios",
+    "jquery"
+  ]
+}

@@ -1,0 +1,437 @@
+{
+  "description": "Expected classification of every data element.",
+  "items": [
+    {
+      "category": "authentication_credentials",
+      "element": "account_password",
+      "special_category": false,
+      "system": "web_shop"
+    },
+    {
+      "category": "contact_email",
+      "element": "customer_email",
+      "special_category": false,
+      "system": "web_shop"
+    },
+    {
+      "category": "name",
+      "element": "customer_name",
+      "special_category": false,
+      "system": "web_shop"
+    },
+    {
+      "category": "contact_phone",
+      "element": "customer_phone",
+      "special_category": false,
+      "system": "web_shop"
+    },
+    {
+      "category": "date_of_birth",
+      "element": "date_of_birth",
+      "special_category": false,
+      "system": "web_shop"
+    },
+    {
+      "category": "postal_address",
+      "element": "delivery_address",
+      "special_category": false,
+      "system": "web_shop"
+    },
+    {
+      "category": "ip_address",
+      "element": "ip_address",
+      "special_category": false,
+      "system": "web_shop"
+    },
+    {
+      "category": "consent_record",
+      "element": "marketing_consent",
+      "special_category": false,
+      "system": "web_shop"
+    },
+    {
+      "category": "purchase_history",
+      "element": "order_history",
+      "special_category": false,
+      "system": "web_shop"
+    },
+    {
+      "category": "payment_card",
+      "element": "payment_card",
+      "special_category": false,
+      "system": "web_shop"
+    },
+    {
+      "category": "online_identifier",
+      "element": "session_id",
+      "special_category": false,
+      "system": "web_shop"
+    },
+    {
+      "category": "ip_address",
+      "element": "ip_address",
+      "special_category": false,
+      "system": "web_analytics"
+    },
+    {
+      "category": "geolocation",
+      "element": "location_city",
+      "special_category": false,
+      "system": "web_analytics"
+    },
+    {
+      "category": "browsing_behavior",
+      "element": "page_url",
+      "special_category": false,
+      "system": "web_analytics"
+    },
+    {
+      "category": "browsing_behavior",
+      "element": "referrer",
+      "special_category": false,
+      "system": "web_analytics"
+    },
+    {
+      "category": "device_identifier",
+      "element": "user_agent",
+      "special_category": false,
+      "system": "web_analytics"
+    },
+    {
+      "category": "contact_email",
+      "element": "user_email",
+      "special_category": false,
+      "system": "web_analytics"
+    },
+    {
+      "category": "online_identifier",
+      "element": "visitor_id",
+      "special_category": false,
+      "system": "web_analytics"
+    },
+    {
+      "category": "device_identifier",
+      "element": "browser_info",
+      "special_category": false,
+      "system": "helpdesk"
+    },
+    {
+      "category": "contact_email",
+      "element": "contact_email",
+      "special_category": false,
+      "system": "helpdesk"
+    },
+    {
+      "category": "name",
+      "element": "contact_name",
+      "special_category": false,
+      "system": "helpdesk"
+    },
+    {
+      "category": "contact_phone",
+      "element": "contact_phone",
+      "special_category": false,
+      "system": "helpdesk"
+    },
+    {
+      "category": "ip_address",
+      "element": "ip_address",
+      "special_category": false,
+      "system": "helpdesk"
+    },
+    {
+      "category": "communications_content",
+      "element": "message_content",
+      "special_category": false,
+      "system": "helpdesk"
+    },
+    {
+      "category": "communications_content",
+      "element": "ticket_subject",
+      "special_category": false,
+      "system": "helpdesk"
+    },
+    {
+      "category": "employment_data",
+      "element": "company",
+      "special_category": false,
+      "system": "crm"
+    },
+    {
+      "category": "employment_data",
+      "element": "enriched_profile",
+      "special_category": false,
+      "system": "crm"
+    },
+    {
+      "category": "employment_data",
+      "element": "job_title",
+      "special_category": false,
+      "system": "crm"
+    },
+    {
+      "category": "contact_email",
+      "element": "lead_email",
+      "special_category": false,
+      "system": "crm"
+    },
+    {
+      "category": "name",
+      "element": "lead_name",
+      "special_category": false,
+      "system": "crm"
+    },
+    {
+      "category": "contact_phone",
+      "element": "lead_phone",
+      "special_category": false,
+      "system": "crm"
+    },
+    {
+      "category": "preferences",
+      "element": "lead_source",
+      "special_category": false,
+      "system": "crm"
+    },
+    {
+      "category": "communications_content",
+      "element": "notes",
+      "special_category": false,
+      "system": "crm"
+    },
+    {
+      "category": "health_data",
+      "element": "appointment_datetime",
+      "special_category": true,
+      "system": "clinic_portal"
+    },
+    {
+      "category": "date_of_birth",
+      "element": "date_of_birth",
+      "special_category": false,
+      "system": "clinic_portal"
+    },
+    {
+      "category": "health_data",
+      "element": "diagnosis",
+      "special_category": true,
+      "system": "clinic_portal"
+    },
+    {
+      "category": "national_id",
+      "element": "insurance_number",
+      "special_category": false,
+      "system": "clinic_portal"
+    },
+    {
+      "category": "insurance_data",
+      "element": "insurer",
+      "special_category": false,
+      "system": "clinic_portal"
+    },
+    {
+      "category": "ip_address",
+      "element": "ip_address",
+      "special_category": false,
+      "system": "clinic_portal"
+    },
+    {
+      "category": "contact_email",
+      "element": "patient_email",
+      "special_category": false,
+      "system": "clinic_portal"
+    },
+    {
+      "category": "name",
+      "element": "patient_name",
+      "special_category": false,
+      "system": "clinic_portal"
+    },
+    {
+      "category": "contact_phone",
+      "element": "patient_phone",
+      "special_category": false,
+      "system": "clinic_portal"
+    },
+    {
+      "category": "health_data",
+      "element": "reason_for_visit",
+      "special_category": true,
+      "system": "clinic_portal"
+    },
+    {
+      "category": "health_data",
+      "element": "symptoms",
+      "special_category": true,
+      "system": "clinic_portal"
+    },
+    {
+      "category": "name",
+      "element": "first_name",
+      "special_category": false,
+      "system": "newsletter"
+    },
+    {
+      "category": "preferences",
+      "element": "interests",
+      "special_category": false,
+      "system": "newsletter"
+    },
+    {
+      "category": "consent_record",
+      "element": "marketing_consent",
+      "special_category": false,
+      "system": "newsletter"
+    },
+    {
+      "category": "contact_phone",
+      "element": "phone",
+      "special_category": false,
+      "system": "newsletter"
+    },
+    {
+      "category": "postal_address",
+      "element": "postcode",
+      "special_category": false,
+      "system": "newsletter"
+    },
+    {
+      "category": "ip_address",
+      "element": "signup_ip",
+      "special_category": false,
+      "system": "newsletter"
+    },
+    {
+      "category": "contact_email",
+      "element": "subscriber_email",
+      "special_category": false,
+      "system": "newsletter"
+    },
+    {
+      "category": "geolocation",
+      "element": "clock_in_location",
+      "special_category": false,
+      "system": "staff_desktop"
+    },
+    {
+      "category": "employment_data",
+      "element": "department",
+      "special_category": false,
+      "system": "staff_desktop"
+    },
+    {
+      "category": "device_identifier",
+      "element": "device_id",
+      "special_category": false,
+      "system": "staff_desktop"
+    },
+    {
+      "category": "employment_data",
+      "element": "employee_id",
+      "special_category": false,
+      "system": "staff_desktop"
+    },
+    {
+      "category": "name",
+      "element": "employee_name",
+      "special_category": false,
+      "system": "staff_desktop"
+    },
+    {
+      "category": "employment_data",
+      "element": "hours_worked",
+      "special_category": false,
+      "system": "staff_desktop"
+    },
+    {
+      "category": "ip_address",
+      "element": "last_login_ip",
+      "special_category": false,
+      "system": "staff_desktop"
+    },
+    {
+      "category": "contact_phone",
+      "element": "phone",
+      "special_category": false,
+      "system": "staff_desktop"
+    },
+    {
+      "category": "contact_email",
+      "element": "work_email",
+      "special_category": false,
+      "system": "staff_desktop"
+    },
+    {
+      "category": "bank_account",
+      "element": "bank_iban",
+      "special_category": false,
+      "system": "hr_onboarding"
+    },
+    {
+      "category": "date_of_birth",
+      "element": "date_of_birth",
+      "special_category": false,
+      "system": "hr_onboarding"
+    },
+    {
+      "category": "health_data",
+      "element": "disability_status",
+      "special_category": true,
+      "system": "hr_onboarding"
+    },
+    {
+      "category": "family_data",
+      "element": "emergency_contact",
+      "special_category": false,
+      "system": "hr_onboarding"
+    },
+    {
+      "category": "name",
+      "element": "employee_name",
+      "special_category": false,
+      "system": "hr_onboarding"
+    },
+    {
+      "category": "racial_ethnic_origin",
+      "element": "ethnic_origin",
+      "special_category": true,
+      "system": "hr_onboarding"
+    },
+    {
+      "category": "postal_address",
+      "element": "home_address",
+      "special_category": false,
+      "system": "hr_onboarding"
+    },
+    {
+      "category": "national_id",
+      "element": "national_id",
+      "special_category": false,
+      "system": "hr_onboarding"
+    },
+    {
+      "category": "nationality",
+      "element": "nationality",
+      "special_category": false,
+      "system": "hr_onboarding"
+    },
+    {
+      "category": "contact_email",
+      "element": "personal_email",
+      "special_category": false,
+      "system": "hr_onboarding"
+    },
+    {
+      "category": "contact_phone",
+      "element": "phone",
+      "special_category": false,
+      "system": "hr_onboarding"
+    },
+    {
+      "category": "trade_union_membership",
+      "element": "union_membership",
+      "special_category": true,
+      "system": "hr_onboarding"
+    }
+  ]
+}

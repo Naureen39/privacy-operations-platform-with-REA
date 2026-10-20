@@ -1,0 +1,66 @@
+# Domain patterns mapped to vendor, role, country and category.
+#
+# Pattern rules: a pattern matches a host that equals it or ends with "." plus the pattern.
+# The first matching entry in file order wins, so list more specific patterns first.
+# Entries marked fictional use the reserved ".example" suffix and exist only in the
+# demonstration estate. Real vendor entries record public facts (name, headquarters
+# country) for realistic discovery; they do not claim certification status.
+
+vendors:
+  # --- Payments ---
+  - {pattern: js.stripe.com, vendor: Stripe, role: processor, country: US, category: payments}
+  - {pattern: api.stripe.com, vendor: Stripe, role: processor, country: US, category: payments}
+  - {pattern: stripe.com, vendor: Stripe, role: processor, country: US, category: payments}
+  - {pattern: paypal.com, vendor: PayPal, role: controller, country: US, category: payments}
+
+  # --- Analytics and advertising ---
+  - {pattern: google-analytics.com, vendor: Google Analytics, role: processor, country: US, category: analytics}
+  - {pattern: analytics.google.com, vendor: Google Analytics, role: processor, country: US, category: analytics}
+  - {pattern: googletagmanager.com, vendor: Google Tag Manager, role: processor, country: US, category: tag_management}
+  - {pattern: doubleclick.net, vendor: Google Marketing Platform, role: controller, country: US, category: advertising}
+  - {pattern: connect.facebook.net, vendor: Meta Platforms, role: joint_controller, country: US, category: advertising}
+  - {pattern: facebook.com, vendor: Meta Platforms, role: joint_controller, country: US, category: advertising}
+  - {pattern: hotjar.com, vendor: Hotjar, role: processor, country: MT, category: analytics}
+  - {pattern: mixpanel.com, vendor: Mixpanel, role: processor, country: US, category: analytics}
+  - {pattern: segment.io, vendor: Segment, role: processor, country: US, category: analytics}
+  - {pattern: linkedin.com, vendor: LinkedIn, role: joint_controller, country: US, category: advertising}
+  - {pattern: openpulse.example, vendor: OpenPulse Tracking, role: processor, country: US, category: email_tracking, fictional: true}
+
+  # --- Delivery, e-mail and messaging ---
+  - {pattern: mailchimp.com, vendor: Mailchimp, role: processor, country: US, category: email_delivery}
+  - {pattern: list-manage.com, vendor: Mailchimp, role: processor, country: US, category: email_delivery}
+  - {pattern: sendgrid.net, vendor: SendGrid, role: processor, country: US, category: email_delivery}
+  - {pattern: twilio.com, vendor: Twilio, role: processor, country: US, category: sms}
+  - {pattern: mailsend.example, vendor: MailSend Europe, role: processor, country: IE, category: email_delivery, fictional: true}
+  - {pattern: smsgate.example, vendor: SMSGate, role: processor, country: IN, category: sms, fictional: true}
+
+  # --- Support, CRM, booking ---
+  - {pattern: zendesk.com, vendor: Zendesk, role: processor, country: US, category: support}
+  - {pattern: intercom.io, vendor: Intercom, role: processor, country: US, category: support}
+  - {pattern: hubspot.com, vendor: HubSpot, role: processor, country: US, category: crm}
+  - {pattern: chatrelay.example, vendor: ChatRelay, role: processor, country: DE, category: support, fictional: true}
+  - {pattern: leadscope.example, vendor: LeadScope Data, role: processor, country: IN, category: enrichment, fictional: true}
+  - {pattern: bookwell.example, vendor: BookWell Scheduling, role: processor, country: NL, category: booking, fictional: true}
+  - {pattern: brightlens.example, vendor: BrightLens Agency, role: processor, country: GB, category: agency, fictional: true}
+
+  # --- Infrastructure and delivery of assets ---
+  - {pattern: fonts.googleapis.com, vendor: Google Fonts, role: processor, country: US, category: fonts}
+  - {pattern: fonts.gstatic.com, vendor: Google Fonts, role: processor, country: US, category: fonts}
+  - {pattern: cloudflare.com, vendor: Cloudflare, role: processor, country: US, category: cdn}
+  - {pattern: cdnjs.cloudflare.com, vendor: Cloudflare, role: processor, country: US, category: cdn}
+  - {pattern: jsdelivr.net, vendor: jsDelivr, role: processor, country: PL, category: cdn}
+  - {pattern: youtube.com, vendor: YouTube, role: controller, country: US, category: video}
+
+  # --- Monitoring ---
+  - {pattern: ingest.sentry.io, vendor: Sentry, role: processor, country: US, category: error_monitoring}
+  - {pattern: sentry.io, vendor: Sentry, role: processor, country: US, category: error_monitoring}
+
+  # --- Human resources, checks, logistics ---
+  - {pattern: payrollhub.example, vendor: PayrollHub, role: processor, country: PL, category: payroll, fictional: true}
+  - {pattern: verifycheck.example, vendor: VerifyCheck, role: processor, country: GB, category: background_check, fictional: true}
+  - {pattern: swiftparcel.example, vendor: SwiftParcel Logistics, role: controller, country: GB, category: shipping, fictional: true}
+
+# The reference company's own domains. Requests to these are not third-party disclosures.
+first_party:
+  - northbridge.example
+  - northbridge-health.example

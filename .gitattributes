@@ -1,0 +1,3 @@
+# Dataset files are hashed in datasets/MANIFEST.sha256, so line endings must never be converted.
+datasets/** -text
+*.sqlite binary

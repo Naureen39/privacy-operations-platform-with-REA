@@ -1,0 +1,401 @@
+{
+  "contradictions": [
+    "C19"
+  ],
+  "data_elements": [
+    {
+      "category": "bank_account",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your bank account number for salary payments",
+      "id": "bank_iban",
+      "locations": [
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "form_field",
+          "name": "iban"
+        },
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "request_form_param",
+          "name": "iban"
+        },
+        {
+          "column": "iban",
+          "kind": "db_column",
+          "table": "onboarding_records"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "date_of_birth",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your date of birth",
+      "id": "date_of_birth",
+      "locations": [
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "form_field",
+          "name": "dob"
+        },
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "request_form_param",
+          "name": "dob"
+        },
+        {
+          "column": "dob",
+          "kind": "db_column",
+          "table": "onboarding_records"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "health_data",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "whether you have a disability that needs workplace adjustments",
+      "id": "disability_status",
+      "locations": [
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "form_field",
+          "name": "disability_status"
+        },
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "request_form_param",
+          "name": "disability_status"
+        },
+        {
+          "column": "disability_status",
+          "kind": "db_column",
+          "table": "onboarding_records"
+        }
+      ],
+      "special_category": true
+    },
+    {
+      "category": "family_data",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "the name and phone number of your emergency contact",
+      "id": "emergency_contact",
+      "locations": [
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "form_field",
+          "name": "emergency_contact_name"
+        },
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "request_form_param",
+          "name": "emergency_contact_name"
+        },
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "form_field",
+          "name": "emergency_contact_phone"
+        },
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "request_form_param",
+          "name": "emergency_contact_phone"
+        },
+        {
+          "column": "emergency_contact_name",
+          "kind": "db_column",
+          "table": "onboarding_records"
+        },
+        {
+          "column": "emergency_contact_phone",
+          "kind": "db_column",
+          "table": "onboarding_records"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "name",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your name",
+      "id": "employee_name",
+      "locations": [
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "form_field",
+          "name": "full_name"
+        },
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "request_form_param",
+          "name": "full_name"
+        },
+        {
+          "column": "full_name",
+          "kind": "db_column",
+          "table": "onboarding_records"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "racial_ethnic_origin",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your ethnic origin (equality monitoring, optional)",
+      "id": "ethnic_origin",
+      "locations": [
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "form_field",
+          "name": "ethnic_origin"
+        },
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "request_form_param",
+          "name": "ethnic_origin"
+        },
+        {
+          "column": "ethnic_origin",
+          "kind": "db_column",
+          "table": "onboarding_records"
+        }
+      ],
+      "special_category": true
+    },
+    {
+      "category": "postal_address",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your home address",
+      "id": "home_address",
+      "locations": [
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "form_field",
+          "name": "address"
+        },
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "request_form_param",
+          "name": "address"
+        },
+        {
+          "column": "address",
+          "kind": "db_column",
+          "table": "onboarding_records"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "national_id",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your national identification number",
+      "id": "national_id",
+      "locations": [
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "form_field",
+          "name": "national_id"
+        },
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "request_form_param",
+          "name": "national_id"
+        },
+        {
+          "column": "national_id",
+          "kind": "db_column",
+          "table": "onboarding_records"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "nationality",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your nationality and right to work",
+      "id": "nationality",
+      "locations": [
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "form_field",
+          "name": "nationality"
+        },
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "request_form_param",
+          "name": "nationality"
+        },
+        {
+          "column": "nationality",
+          "kind": "db_column",
+          "table": "onboarding_records"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "contact_email",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your personal e-mail address",
+      "id": "personal_email",
+      "locations": [
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "form_field",
+          "name": "email"
+        },
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "request_form_param",
+          "name": "email"
+        },
+        {
+          "column": "email",
+          "kind": "db_column",
+          "table": "onboarding_records"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "contact_phone",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your telephone number",
+      "id": "phone",
+      "locations": [
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "form_field",
+          "name": "phone"
+        },
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "request_form_param",
+          "name": "phone"
+        },
+        {
+          "column": "phone",
+          "kind": "db_column",
+          "table": "onboarding_records"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "trade_union_membership",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "whether you are a trade union member (for dues deduction)",
+      "id": "union_membership",
+      "locations": [
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "form_field",
+          "name": "union_member"
+        },
+        {
+          "endpoint": "submit_onboarding",
+          "kind": "request_form_param",
+          "name": "union_member"
+        },
+        {
+          "column": "union_member",
+          "kind": "db_column",
+          "table": "onboarding_records"
+        }
+      ],
+      "special_category": true
+    }
+  ],
+  "dpia": {
+    "criteria": [
+      "sensitive_data",
+      "vulnerable_subjects"
+    ],
+    "required": true
+  },
+  "last_review_date": "2026-07-09",
+  "modeled_open_source_product": false,
+  "recipients": [
+    {
+      "agreement_on_file": true,
+      "agreement_required": true,
+      "country": "PL",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "found_in": [
+        "har",
+        "js"
+      ],
+      "hosts": [
+        "api.payrollhub.example"
+      ],
+      "id": "payrollhub",
+      "internal": false,
+      "purpose": "Payroll processing",
+      "role": "processor",
+      "shares_elements": [
+        "bank_iban",
+        "employee_name",
+        "national_id",
+        "union_membership"
+      ],
+      "third_country": false,
+      "transfer_basis": "not_required",
+      "vendor": "PayrollHub"
+    },
+    {
+      "agreement_on_file": true,
+      "agreement_required": true,
+      "country": "GB",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "found_in": [
+        "har",
+        "js"
+      ],
+      "hosts": [
+        "api.verifycheck.example"
+      ],
+      "id": "verifycheck",
+      "internal": false,
+      "purpose": "Pre-employment identity check",
+      "role": "processor",
+      "shares_elements": [
+        "date_of_birth",
+        "employee_name",
+        "national_id"
+      ],
+      "third_country": true,
+      "transfer_basis": "adequacy",
+      "vendor": "VerifyCheck"
+    }
+  ],
+  "reference_date": "2026-10-01",
+  "retention": {
+    "actual": "Employment plus 6 years.",
+    "policy": "Employment records are kept for the duration of employment plus six years.",
+    "questionnaire": "Employment plus 6 years"
+  },
+  "stack": "FastAPI application (purpose-built for the estate)",
+  "system_id": "hr_onboarding",
+  "system_name": "HR onboarding form",
+  "technologies": [
+    "axios",
+    "react",
+    "react-dom",
+    "zod"
+  ]
+}

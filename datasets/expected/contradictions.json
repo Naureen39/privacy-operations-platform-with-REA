@@ -1,0 +1,282 @@
+{
+  "description": "Seeded contradictions. A correct fusion step reports each entry with the listed types.",
+  "items": [
+    {
+      "evidence_files": [
+        "estate/web_shop/evidence/capture.har",
+        "estate/web_shop/evidence/website_snapshot.html",
+        "estate/web_shop/policy.md",
+        "estate/web_shop/evidence/snapshot.sqlite"
+      ],
+      "id": "C01",
+      "subject": "date_of_birth",
+      "summary": "The checkout form collects a date of birth that the privacy notice does not list.",
+      "system": "web_shop",
+      "types": [
+        "element_not_in_policy"
+      ]
+    },
+    {
+      "evidence_files": [
+        "estate/web_shop/evidence/capture.har",
+        "estate/web_shop/policy.md",
+        "estate/web_shop/evidence/snapshot.sqlite"
+      ],
+      "id": "C02",
+      "subject": "meta",
+      "summary": "The privacy notice says data is shared with no one except the payment provider and carrier, yet the checkout sends hashed e-mail, phone and order value to Meta.",
+      "system": "web_shop",
+      "types": [
+        "policy_contradiction"
+      ]
+    },
+    {
+      "evidence_files": [
+        "estate/web_shop/evidence/capture.har",
+        "estate/web_shop/evidence/app.bundle.js",
+        "estate/web_shop/policy.md",
+        "estate/web_shop/questionnaire.json"
+      ],
+      "id": "C03",
+      "subject": "meta",
+      "summary": "Meta Platforms receives personal data in the United States but is neither declared nor covered by a transfer safeguard.",
+      "system": "web_shop",
+      "types": [
+        "undeclared_recipient",
+        "third_country_no_safeguard"
+      ]
+    },
+    {
+      "evidence_files": [
+        "policies/company_privacy_policy.md",
+        "estate/web_shop/policy.md",
+        "estate/web_shop/questionnaire.json",
+        "estate/web_shop/evidence/snapshot.sqlite"
+      ],
+      "id": "C04",
+      "subject": "retention",
+      "summary": "The company privacy policy promises deletion after 24 months while the shop keeps orders for seven years.",
+      "system": "web_shop",
+      "types": [
+        "retention_conflict"
+      ]
+    },
+    {
+      "evidence_files": [
+        "estate/web_analytics/evidence/capture.har",
+        "estate/web_analytics/policy.md",
+        "estate/web_analytics/evidence/snapshot.sqlite"
+      ],
+      "id": "C05",
+      "subject": "ip_address",
+      "summary": "The notice says IP addresses are shortened before storage, but full addresses are stored and sent to the agency.",
+      "system": "web_analytics",
+      "types": [
+        "policy_contradiction"
+      ]
+    },
+    {
+      "evidence_files": [
+        "estate/web_analytics/evidence/capture.har",
+        "estate/web_analytics/questionnaire.json"
+      ],
+      "id": "C06",
+      "subject": "brightlens",
+      "summary": "BrightLens processes visitor data but no processor agreement is on file.",
+      "system": "web_analytics",
+      "types": [
+        "missing_agreement"
+      ]
+    },
+    {
+      "evidence_files": [
+        "estate/web_analytics/evidence/capture.har",
+        "estate/web_analytics/evidence/website_snapshot.html",
+        "estate/web_analytics/policy.md",
+        "estate/web_analytics/evidence/snapshot.sqlite"
+      ],
+      "id": "C07",
+      "subject": "user_email",
+      "summary": "Logged in customers' e-mail addresses are stored as the user id, which the notice and questionnaire do not mention.",
+      "system": "web_analytics",
+      "types": [
+        "element_not_in_policy"
+      ]
+    },
+    {
+      "evidence_files": [
+        "policies/company_privacy_policy.md",
+        "estate/helpdesk/policy.md",
+        "estate/helpdesk/questionnaire.json",
+        "estate/helpdesk/evidence/snapshot.sqlite"
+      ],
+      "id": "C08",
+      "subject": "retention",
+      "summary": "Policy and questionnaire say twelve months after closure, but tickets back to 2022 are retained and no deletion exists.",
+      "system": "helpdesk",
+      "types": [
+        "retention_conflict"
+      ]
+    },
+    {
+      "evidence_files": [
+        "estate/helpdesk/evidence/capture.har",
+        "estate/helpdesk/policy.md",
+        "estate/helpdesk/evidence/snapshot.sqlite"
+      ],
+      "id": "C09",
+      "subject": "message_content",
+      "summary": "The notice says chat transcripts are not stored, but every message is stored in the messages table.",
+      "system": "helpdesk",
+      "types": [
+        "policy_contradiction"
+      ]
+    },
+    {
+      "evidence_files": [
+        "estate/crm/evidence/capture.har",
+        "estate/crm/evidence/app.bundle.js",
+        "estate/crm/policy.md",
+        "estate/crm/questionnaire.json"
+      ],
+      "id": "C10",
+      "subject": "leadscope",
+      "summary": "LeadScope Data receives contact data in India, which has no adequacy decision, and no safeguard is recorded.",
+      "system": "crm",
+      "types": [
+        "third_country_no_safeguard"
+      ]
+    },
+    {
+      "evidence_files": [
+        "estate/crm/questionnaire.json"
+      ],
+      "id": "C11",
+      "subject": "retention",
+      "summary": "The questionnaire gives no retention period.",
+      "system": "crm",
+      "types": [
+        "missing_retention"
+      ]
+    },
+    {
+      "evidence_files": [
+        "estate/clinic_portal/evidence/website_snapshot.html",
+        "estate/clinic_portal/policy.md",
+        "estate/clinic_portal/questionnaire.json",
+        "estate/clinic_portal/evidence/snapshot.sqlite"
+      ],
+      "id": "C12",
+      "subject": "health_data",
+      "summary": "Health data is processed with no Article 9 condition recorded, and the notice cites legitimate interests.",
+      "system": "clinic_portal",
+      "types": [
+        "missing_art9_condition"
+      ]
+    },
+    {
+      "evidence_files": [
+        "estate/clinic_portal/evidence/capture.har",
+        "estate/clinic_portal/evidence/app.bundle.js",
+        "estate/clinic_portal/policy.md",
+        "estate/clinic_portal/questionnaire.json"
+      ],
+      "id": "C13",
+      "subject": "smsgate",
+      "summary": "SMSGate receives phone numbers and appointment times in India with no adequacy decision or safeguard.",
+      "system": "clinic_portal",
+      "types": [
+        "third_country_no_safeguard"
+      ]
+    },
+    {
+      "evidence_files": [
+        "estate/clinic_portal/questionnaire.json"
+      ],
+      "id": "C14",
+      "subject": "last_review_date",
+      "summary": "The record was last reviewed on 2023-02-01, more than twelve months before the reference date.",
+      "system": "clinic_portal",
+      "types": [
+        "stale_review"
+      ]
+    },
+    {
+      "evidence_files": [
+        "estate/newsletter/evidence/capture.har",
+        "estate/newsletter/evidence/website_snapshot.html",
+        "estate/newsletter/policy.md",
+        "estate/newsletter/evidence/snapshot.sqlite"
+      ],
+      "id": "C15",
+      "subject": "phone",
+      "summary": "The subscribe form collects a phone number that the privacy notice does not list.",
+      "system": "newsletter",
+      "types": [
+        "element_not_in_policy"
+      ]
+    },
+    {
+      "evidence_files": [
+        "estate/newsletter/evidence/website_snapshot.html",
+        "estate/newsletter/policy.md"
+      ],
+      "id": "C16",
+      "subject": "marketing_consent",
+      "summary": "The marketing consent box is ticked by default although the notice promises an active opt in.",
+      "system": "newsletter",
+      "types": [
+        "consent_defect"
+      ]
+    },
+    {
+      "evidence_files": [
+        "estate/newsletter/evidence/capture.har",
+        "estate/newsletter/evidence/app.bundle.js",
+        "estate/newsletter/policy.md",
+        "estate/newsletter/questionnaire.json"
+      ],
+      "id": "C17",
+      "subject": "openpulse",
+      "summary": "OpenPulse Tracking receives hashed subscriber e-mails in the United States; it is undeclared, has no safeguard and no agreement.",
+      "system": "newsletter",
+      "types": [
+        "undeclared_recipient",
+        "third_country_no_safeguard",
+        "missing_agreement"
+      ]
+    },
+    {
+      "evidence_files": [
+        "estate/staff_desktop/evidence/capture.har",
+        "estate/staff_desktop/evidence/main.bundle.js",
+        "estate/staff_desktop/policy.md",
+        "estate/staff_desktop/questionnaire.json"
+      ],
+      "id": "C18",
+      "subject": "sentry",
+      "summary": "The desktop app sends staff e-mail, device id and IP address to Sentry, which is undeclared, has no safeguard and no agreement.",
+      "system": "staff_desktop",
+      "types": [
+        "undeclared_recipient",
+        "third_country_no_safeguard",
+        "missing_agreement"
+      ]
+    },
+    {
+      "evidence_files": [
+        "estate/hr_onboarding/evidence/website_snapshot.html",
+        "estate/hr_onboarding/policy.md",
+        "estate/hr_onboarding/questionnaire.json",
+        "estate/hr_onboarding/evidence/snapshot.sqlite"
+      ],
+      "id": "C19",
+      "subject": "special_categories",
+      "summary": "Disability, trade union and ethnic origin data are collected with no Article 9 condition recorded.",
+      "system": "hr_onboarding",
+      "types": [
+        "missing_art9_condition"
+      ]
+    }
+  ]
+}

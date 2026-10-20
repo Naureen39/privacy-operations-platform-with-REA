@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>New employee onboarding - Northbridge</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body><main><h1>Welcome to Northbridge</h1><p>Please complete this form before your first day.</p>
+<form id="submit_onboarding" method="post" action="/onboarding/submit">
+<p><label for="f_full_name">Full name</label> <input type="text" name="full_name" id="f_full_name" autocomplete="name" required></p>
+<p><label for="f_email">Personal email</label> <input type="email" name="email" id="f_email" autocomplete="email" required></p>
+<p><label for="f_phone">Phone</label> <input type="tel" name="phone" id="f_phone" autocomplete="tel" required></p>
+<p><label for="f_dob">Date of birth</label> <input type="date" name="dob" id="f_dob" autocomplete="bday" required></p>
+<p><label for="f_address">Home address</label> <input type="text" name="address" id="f_address" autocomplete="street-address" required></p>
+<p><label for="f_national_id">National ID number</label> <input type="text" name="national_id" id="f_national_id" required></p>
+<p><label for="f_iban">IBAN for salary</label> <input type="text" name="iban" id="f_iban" required></p>
+<p><label for="f_emergency_contact_name">Emergency contact name</label> <input type="text" name="emergency_contact_name" id="f_emergency_contact_name"></p>
+<p><label for="f_emergency_contact_phone">Emergency contact phone</label> <input type="tel" name="emergency_contact_phone" id="f_emergency_contact_phone"></p>
+<p><label for="f_nationality">Nationality</label> <input type="text" name="nationality" id="f_nationality"></p>
+<p><label for="f_disability_status">Disability needing adjustments</label> <input type="text" name="disability_status" id="f_disability_status"></p>
+<p><label for="f_union_member">Trade union member</label> <input type="text" name="union_member" id="f_union_member"></p>
+<p><label for="f_ethnic_origin">Ethnic origin (optional)</label> <input type="text" name="ethnic_origin" id="f_ethnic_origin"></p>
+<button type="submit">Submit</button></form>
+</main>
+<script src="https://hr.northbridge.example/static/onboarding.js"></script>
+</body></html>

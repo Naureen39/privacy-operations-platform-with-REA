@@ -1,0 +1,304 @@
+{
+  "version": 1,
+  "description": "Personal data categories used to classify discovered data elements. Definitions are written for this project. Synonyms are field name variants seen in forms, API payloads and database columns.",
+  "sensitivity_levels": ["low", "medium", "high", "special"],
+  "categories": [
+    {
+      "id": "name",
+      "label": "Name",
+      "definition": "A natural person's given name, family name or full name.",
+      "synonyms": ["name", "first_name", "firstname", "last_name", "lastname", "surname", "full_name", "fullname", "display_name", "given_name", "family_name", "contact_name", "customer_name", "billing_first_name", "billing_last_name", "patient_name", "employee_name"],
+      "pattern_classes": ["person_name"],
+      "sensitivity": "medium",
+      "special_category": false
+    },
+    {
+      "id": "contact_email",
+      "label": "E-mail address",
+      "definition": "An electronic mail address of a person.",
+      "synonyms": ["email", "e-mail", "mail", "email_address", "emailaddress", "customer_email", "billing_email", "user_email", "contact_email", "work_email", "subscriber_email", "login_email", "email_hash"],
+      "pattern_classes": ["email"],
+      "sensitivity": "medium",
+      "special_category": false
+    },
+    {
+      "id": "contact_phone",
+      "label": "Telephone number",
+      "definition": "A fixed or mobile telephone number of a person.",
+      "synonyms": ["phone", "telephone", "tel", "mobile", "cell", "phone_number", "phonenumber", "mobile_number", "billing_phone", "contact_phone", "msisdn"],
+      "pattern_classes": ["phone"],
+      "sensitivity": "medium",
+      "special_category": false
+    },
+    {
+      "id": "postal_address",
+      "label": "Postal address",
+      "definition": "Street address, city, postcode or country of residence or delivery.",
+      "synonyms": ["address", "address_1", "address_2", "street", "street_address", "billing_address_1", "billing_city", "billing_postcode", "billing_country", "city", "town", "postcode", "postal_code", "zip", "zipcode", "country", "shipping_address", "home_address"],
+      "pattern_classes": ["postal_address", "postcode"],
+      "sensitivity": "medium",
+      "special_category": false
+    },
+    {
+      "id": "date_of_birth",
+      "label": "Date of birth",
+      "definition": "A person's birth date or exact age.",
+      "synonyms": ["dob", "date_of_birth", "birthdate", "birth_date", "birthday", "billing_birthdate", "born", "age"],
+      "pattern_classes": ["date"],
+      "sensitivity": "medium",
+      "special_category": false
+    },
+    {
+      "id": "gender",
+      "label": "Gender or title",
+      "definition": "Gender, salutation or title of a person.",
+      "synonyms": ["gender", "sex", "salutation", "title", "pronoun"],
+      "pattern_classes": [],
+      "sensitivity": "low",
+      "special_category": false
+    },
+    {
+      "id": "national_id",
+      "label": "National or insurance identifier",
+      "definition": "A government issued identifier such as a national identity, tax, social security or health insurance number.",
+      "synonyms": ["national_id", "nationalid", "ssn", "social_security", "social_security_number", "tax_id", "tin", "nino", "insurance_number", "health_insurance_number", "passport", "passport_number", "id_number", "identity_number"],
+      "pattern_classes": ["national_id"],
+      "sensitivity": "high",
+      "special_category": false
+    },
+    {
+      "id": "bank_account",
+      "label": "Bank account",
+      "definition": "An account number or IBAN used for payments to or from a person.",
+      "synonyms": ["iban", "bank_account", "account_number", "bic", "swift", "sort_code", "payroll_account", "bank_iban"],
+      "pattern_classes": ["iban"],
+      "sensitivity": "high",
+      "special_category": false
+    },
+    {
+      "id": "payment_card",
+      "label": "Payment card",
+      "definition": "A payment card number, expiry date or security code.",
+      "synonyms": ["card", "card_number", "cardnumber", "pan", "cc_number", "credit_card", "card[number]", "card[exp_month]", "card[cvc]", "cvv", "cvc", "expiry", "exp_month", "exp_year"],
+      "pattern_classes": ["payment_card"],
+      "sensitivity": "high",
+      "special_category": false
+    },
+    {
+      "id": "ip_address",
+      "label": "IP address",
+      "definition": "An internet protocol address of a device used by a person.",
+      "synonyms": ["ip", "ip_address", "ipaddress", "client_ip", "customer_ip", "remote_addr", "uip", "location_ip", "signup_ip", "source_ip", "x_forwarded_for"],
+      "pattern_classes": ["ip_address"],
+      "sensitivity": "medium",
+      "special_category": false
+    },
+    {
+      "id": "online_identifier",
+      "label": "Online identifier",
+      "definition": "A cookie value, visitor id, user id, advertising id or similar pseudonymous identifier that singles out a person or device.",
+      "synonyms": ["visitor_id", "idvisitor", "cookie_id", "client_id", "cid", "user_id", "userid", "uid", "session_id", "tracking_id", "_pk_id", "_ga", "fbp", "fbc", "advertising_id", "idfa", "gaid", "distinct_id", "anonymous_id"],
+      "pattern_classes": ["uuid", "hex_token"],
+      "sensitivity": "medium",
+      "special_category": false
+    },
+    {
+      "id": "device_identifier",
+      "label": "Device and browser data",
+      "definition": "Device model, operating system, browser, screen size, language and other technical details that can fingerprint a device.",
+      "synonyms": ["user_agent", "useragent", "ua", "device_id", "device", "os", "browser", "screen_resolution", "viewport", "locale", "language", "config_os", "config_browser", "machine_id", "hostname"],
+      "pattern_classes": ["user_agent"],
+      "sensitivity": "low",
+      "special_category": false
+    },
+    {
+      "id": "geolocation",
+      "label": "Location",
+      "definition": "Precise or approximate location of a person or device.",
+      "synonyms": ["latitude", "longitude", "lat", "lon", "lng", "geo", "geolocation", "location", "gps", "location_city", "location_country", "coordinates", "clock_in_location"],
+      "pattern_classes": ["coordinates"],
+      "sensitivity": "high",
+      "special_category": false
+    },
+    {
+      "id": "employment_data",
+      "label": "Employment and professional data",
+      "definition": "Job title, employer, department, manager, working hours, salary or other data about a person's work.",
+      "synonyms": ["job_title", "title_job", "position", "role", "company", "employer", "organization", "department", "manager", "salary", "hours_worked", "start_date", "employee_id", "staff_id", "work_hours", "timesheet", "hourly_rate"],
+      "pattern_classes": [],
+      "sensitivity": "medium",
+      "special_category": false
+    },
+    {
+      "id": "communications_content",
+      "label": "Communications content",
+      "definition": "The content of messages, tickets, chat transcripts, notes and free text written by or about a person.",
+      "synonyms": ["message", "body", "content", "comment", "comments", "note", "notes", "ticket_body", "chat_message", "subject", "description", "text", "reply", "transcript", "feedback"],
+      "pattern_classes": ["free_text"],
+      "sensitivity": "medium",
+      "special_category": false
+    },
+    {
+      "id": "purchase_history",
+      "label": "Purchase and transaction history",
+      "definition": "Orders, items bought, totals, invoices and payment status linked to a person.",
+      "synonyms": ["order", "order_id", "order_total", "total", "items", "cart", "invoice", "purchase", "product_id", "sku", "payment_status", "transaction_id", "amount", "currency"],
+      "pattern_classes": ["currency_amount"],
+      "sensitivity": "medium",
+      "special_category": false
+    },
+    {
+      "id": "browsing_behavior",
+      "label": "Browsing and usage behavior",
+      "definition": "Pages viewed, clicks, search terms, referrers, session duration and other usage events.",
+      "synonyms": ["page_url", "url", "referrer", "referer", "page_title", "action", "event", "events", "dl", "dr", "dt", "search_query", "visit_duration", "pageviews", "campaign", "utm_source", "utm_medium", "utm_campaign"],
+      "pattern_classes": ["url"],
+      "sensitivity": "medium",
+      "special_category": false
+    },
+    {
+      "id": "authentication_credentials",
+      "label": "Authentication credentials",
+      "definition": "Passwords, password hashes, tokens, security questions and other secrets that prove identity.",
+      "synonyms": ["password", "passwd", "pwd", "password_hash", "pass_hash", "token", "access_token", "api_key", "secret", "otp", "security_answer"],
+      "pattern_classes": ["password_hash", "token"],
+      "sensitivity": "high",
+      "special_category": false
+    },
+    {
+      "id": "photo_image",
+      "label": "Photograph or image",
+      "definition": "A photograph, scan or video of a person, including identity document images.",
+      "synonyms": ["photo", "picture", "image", "avatar", "profile_picture", "portrait", "id_scan", "selfie", "scan"],
+      "pattern_classes": ["image"],
+      "sensitivity": "medium",
+      "special_category": false
+    },
+    {
+      "id": "family_data",
+      "label": "Family and emergency contacts",
+      "definition": "Details about relatives, dependants or emergency contacts of a person.",
+      "synonyms": ["emergency_contact", "emergency_contact_name", "emergency_contact_phone", "next_of_kin", "spouse", "dependants", "children", "marital_status", "parent"],
+      "pattern_classes": [],
+      "sensitivity": "medium",
+      "special_category": false
+    },
+    {
+      "id": "insurance_data",
+      "label": "Insurance data",
+      "definition": "Insurer, policy number and cover details of a person.",
+      "synonyms": ["insurer", "insurance_provider", "policy_number", "insurance_policy", "cover", "member_number"],
+      "pattern_classes": [],
+      "sensitivity": "high",
+      "special_category": false
+    },
+    {
+      "id": "nationality",
+      "label": "Nationality and right to work",
+      "definition": "Citizenship, nationality, residence permit or work authorization status.",
+      "synonyms": ["nationality", "citizenship", "work_permit", "right_to_work", "visa", "residence_permit"],
+      "pattern_classes": [],
+      "sensitivity": "medium",
+      "special_category": false
+    },
+    {
+      "id": "consent_record",
+      "label": "Consent record",
+      "definition": "Evidence that a person agreed to something, such as a timestamp, wording version or opt-in flag.",
+      "synonyms": ["consent", "opt_in", "optin", "marketing_consent", "newsletter_optin", "consent_timestamp", "consent_at", "gdpr_consent", "terms_accepted", "subscribed"],
+      "pattern_classes": ["boolean"],
+      "sensitivity": "low",
+      "special_category": false
+    },
+    {
+      "id": "preferences",
+      "label": "Preferences and interests",
+      "definition": "Declared interests, topics, communication preferences and settings.",
+      "synonyms": ["interests", "preferences", "topics", "categories", "frequency", "lead_source", "source", "segment", "tags"],
+      "pattern_classes": [],
+      "sensitivity": "low",
+      "special_category": false
+    },
+    {
+      "id": "criminal_data",
+      "label": "Criminal record data",
+      "definition": "Criminal convictions, offences or the result of a background check. Regulated by Article 10 rather than Article 9.",
+      "synonyms": ["criminal_record", "dbs", "background_check", "conviction", "offence", "police_check", "vetting_result"],
+      "pattern_classes": [],
+      "sensitivity": "high",
+      "special_category": false
+    },
+    {
+      "id": "health_data",
+      "label": "Health data",
+      "definition": "Information about physical or mental health, including symptoms, diagnoses, treatment, appointments for care and disability.",
+      "synonyms": ["health", "diagnosis", "symptoms", "reason_for_visit", "medical", "medication", "allergy", "condition", "disability", "disability_status", "sick_leave", "treatment", "illness", "patient_notes", "clinical_notes", "blood_type"],
+      "pattern_classes": [],
+      "sensitivity": "special",
+      "special_category": true
+    },
+    {
+      "id": "trade_union_membership",
+      "label": "Trade union membership",
+      "definition": "Whether a person belongs to a trade union or similar body.",
+      "synonyms": ["union", "union_member", "trade_union", "union_membership", "works_council", "union_dues"],
+      "pattern_classes": ["boolean"],
+      "sensitivity": "special",
+      "special_category": true
+    },
+    {
+      "id": "racial_ethnic_origin",
+      "label": "Racial or ethnic origin",
+      "definition": "Race, ethnicity or ethnic background of a person.",
+      "synonyms": ["ethnicity", "ethnic_origin", "race", "racial_origin", "ethnic_group", "diversity_ethnicity"],
+      "pattern_classes": [],
+      "sensitivity": "special",
+      "special_category": true
+    },
+    {
+      "id": "biometric_data",
+      "label": "Biometric data",
+      "definition": "Fingerprints, face templates, voiceprints or other data used to identify a person uniquely.",
+      "synonyms": ["fingerprint", "face_template", "faceprint", "voiceprint", "biometric", "iris", "palm"],
+      "pattern_classes": [],
+      "sensitivity": "special",
+      "special_category": true
+    },
+    {
+      "id": "genetic_data",
+      "label": "Genetic data",
+      "definition": "Information about inherited or acquired genetic characteristics of a person.",
+      "synonyms": ["genetic", "dna", "genome", "genotype", "hereditary"],
+      "pattern_classes": [],
+      "sensitivity": "special",
+      "special_category": true
+    },
+    {
+      "id": "political_opinions",
+      "label": "Political opinions",
+      "definition": "Political views or party affiliation of a person.",
+      "synonyms": ["political", "political_opinion", "party", "party_membership", "voting"],
+      "pattern_classes": [],
+      "sensitivity": "special",
+      "special_category": true
+    },
+    {
+      "id": "religious_beliefs",
+      "label": "Religious or philosophical beliefs",
+      "definition": "Religion or philosophical conviction of a person.",
+      "synonyms": ["religion", "religious", "belief", "faith", "denomination", "philosophical_belief"],
+      "pattern_classes": [],
+      "sensitivity": "special",
+      "special_category": true
+    },
+    {
+      "id": "sex_life_orientation",
+      "label": "Sex life or sexual orientation",
+      "definition": "Information about a person's sex life or sexual orientation.",
+      "synonyms": ["sexual_orientation", "orientation", "sex_life", "lgbt"],
+      "pattern_classes": [],
+      "sensitivity": "special",
+      "special_category": true
+    }
+  ]
+}

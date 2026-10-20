@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "source": "Regulation (EU) 2016/679, Article 9(1). Descriptions are written for this project.",
+  "rule": "Any data element that matches or is close to one of these categories is always escalated for human review, whatever the classifier confidence.",
+  "categories": [
+    {
+      "id": "racial_ethnic_origin",
+      "article": "9(1)",
+      "label": "Racial or ethnic origin",
+      "synonyms": ["race", "racial", "ethnicity", "ethnic", "ethnic_origin", "ethnic_group", "origin", "diversity", "skin_colour"]
+    },
+    {
+      "id": "political_opinions",
+      "article": "9(1)",
+      "label": "Political opinions",
+      "synonyms": ["political", "politics", "party", "party_membership", "voting", "election", "campaign_donation"]
+    },
+    {
+      "id": "religious_beliefs",
+      "article": "9(1)",
+      "label": "Religious or philosophical beliefs",
+      "synonyms": ["religion", "religious", "faith", "church", "mosque", "denomination", "belief", "philosophical", "dietary_religious"]
+    },
+    {
+      "id": "trade_union_membership",
+      "article": "9(1)",
+      "label": "Trade union membership",
+      "synonyms": ["union", "trade_union", "union_member", "union_membership", "works_council", "union_dues", "labour_union"]
+    },
+    {
+      "id": "genetic_data",
+      "article": "9(1)",
+      "label": "Genetic data",
+      "synonyms": ["genetic", "genetics", "dna", "genome", "genotype", "hereditary", "gene"]
+    },
+    {
+      "id": "biometric_data",
+      "article": "9(1)",
+      "label": "Biometric data for unique identification",
+      "synonyms": ["biometric", "fingerprint", "face_template", "faceprint", "face_id", "voiceprint", "iris", "retina", "palm_vein"]
+    },
+    {
+      "id": "health_data",
+      "article": "9(1)",
+      "label": "Data concerning health",
+      "synonyms": ["health", "medical", "diagnosis", "symptom", "symptoms", "reason_for_visit", "medication", "allergy", "condition", "disability", "sick", "sick_leave", "illness", "treatment", "patient", "clinical", "therapy", "pregnancy", "blood"]
+    },
+    {
+      "id": "sex_life_orientation",
+      "article": "9(1)",
+      "label": "Data concerning sex life or sexual orientation",
+      "synonyms": ["sexual", "orientation", "sex_life", "lgbt", "gay", "lesbian", "bisexual"]
+    }
+  ],
+  "article_9_2_conditions": [
+    {"id": "explicit_consent", "ref": "9(2)(a)", "label": "Explicit consent of the data subject"},
+    {"id": "employment_social_security", "ref": "9(2)(b)", "label": "Employment, social security and social protection law"},
+    {"id": "vital_interests", "ref": "9(2)(c)", "label": "Vital interests where the person cannot consent"},
+    {"id": "nonprofit_body", "ref": "9(2)(d)", "label": "Legitimate activities of a non-profit body with members"},
+    {"id": "made_public", "ref": "9(2)(e)", "label": "Data manifestly made public by the data subject"},
+    {"id": "legal_claims", "ref": "9(2)(f)", "label": "Establishment, exercise or defence of legal claims"},
+    {"id": "substantial_public_interest", "ref": "9(2)(g)", "label": "Substantial public interest on a legal basis"},
+    {"id": "health_care", "ref": "9(2)(h)", "label": "Preventive or occupational medicine, medical diagnosis, health or social care"},
+    {"id": "public_health", "ref": "9(2)(i)", "label": "Public interest in public health"},
+    {"id": "archiving_research", "ref": "9(2)(j)", "label": "Archiving, scientific or historical research, statistics"}
+  ]
+}

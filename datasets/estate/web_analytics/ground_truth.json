@@ -1,0 +1,208 @@
+{
+  "contradictions": [
+    "C05",
+    "C06",
+    "C07"
+  ],
+  "data_elements": [
+    {
+      "category": "ip_address",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your IP address, shortened before it is stored",
+      "id": "ip_address",
+      "locations": [
+        {
+          "column": "location_ip",
+          "kind": "db_column",
+          "table": "visits"
+        },
+        {
+          "host": "dashboards.brightlens.example",
+          "kind": "third_party_param",
+          "name": "ip"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "geolocation",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your approximate location (country level)",
+      "id": "location_city",
+      "locations": [
+        {
+          "column": "location_city",
+          "kind": "db_column",
+          "table": "visits"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "browsing_behavior",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "the pages you view",
+      "id": "page_url",
+      "locations": [
+        {
+          "endpoint": "tracker",
+          "kind": "request_query_param",
+          "name": "url"
+        },
+        {
+          "column": "page_url",
+          "kind": "db_column",
+          "table": "visits"
+        },
+        {
+          "host": "dashboards.brightlens.example",
+          "kind": "third_party_param",
+          "name": "url"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "browsing_behavior",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "the page that referred you to us",
+      "id": "referrer",
+      "locations": [
+        {
+          "endpoint": "tracker",
+          "kind": "request_query_param",
+          "name": "urlref"
+        },
+        {
+          "column": "referer_url",
+          "kind": "db_column",
+          "table": "visits"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "device_identifier",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your browser and operating system",
+      "id": "user_agent",
+      "locations": [
+        {
+          "column": "config_os",
+          "kind": "db_column",
+          "table": "visits"
+        },
+        {
+          "column": "config_browser",
+          "kind": "db_column",
+          "table": "visits"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "contact_email",
+      "declared_in_policy": false,
+      "declared_in_questionnaire": false,
+      "description": "an account identifier",
+      "id": "user_email",
+      "locations": [
+        {
+          "endpoint": "tracker",
+          "kind": "request_query_param",
+          "name": "uid"
+        },
+        {
+          "column": "user_id",
+          "kind": "db_column",
+          "table": "visits"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "online_identifier",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "a random visitor identifier stored in a cookie",
+      "id": "visitor_id",
+      "locations": [
+        {
+          "endpoint": "tracker",
+          "kind": "request_query_param",
+          "name": "_id"
+        },
+        {
+          "column": "idvisitor",
+          "kind": "db_column",
+          "table": "visits"
+        },
+        {
+          "host": "dashboards.brightlens.example",
+          "kind": "third_party_param",
+          "name": "visitor"
+        },
+        {
+          "kind": "cookie",
+          "name": "_pk_id"
+        }
+      ],
+      "special_category": false
+    }
+  ],
+  "dpia": {
+    "criteria": [
+      "systematic_monitoring",
+      "large_scale"
+    ],
+    "required": true
+  },
+  "last_review_date": "2026-02-20",
+  "modeled_open_source_product": true,
+  "recipients": [
+    {
+      "agreement_on_file": false,
+      "agreement_required": true,
+      "country": "GB",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "found_in": [
+        "har",
+        "html",
+        "js"
+      ],
+      "hosts": [
+        "dashboards.brightlens.example"
+      ],
+      "id": "brightlens",
+      "internal": false,
+      "purpose": "Marketing reporting dashboards",
+      "role": "processor",
+      "shares_elements": [
+        "ip_address",
+        "page_url",
+        "visitor_id"
+      ],
+      "third_country": true,
+      "transfer_basis": "adequacy",
+      "vendor": "BrightLens Agency"
+    }
+  ],
+  "reference_date": "2026-10-01",
+  "retention": {
+    "actual": "25 months.",
+    "policy": "Visit records are kept for 25 months.",
+    "questionnaire": "25 months"
+  },
+  "stack": "Matomo, self hosted (modeled on the product's tracking API and schema)",
+  "system_id": "web_analytics",
+  "system_name": "Web analytics",
+  "technologies": [
+    "matomo-tracker"
+  ]
+}

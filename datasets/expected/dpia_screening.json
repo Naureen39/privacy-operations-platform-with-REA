@@ -1,0 +1,62 @@
+{
+  "description": "Rubric for impact assessment screening: two or more criteria means an assessment is required.",
+  "items": [
+    {
+      "assessment_required": false,
+      "criteria_met": [
+        "large_scale"
+      ],
+      "system": "web_shop"
+    },
+    {
+      "assessment_required": true,
+      "criteria_met": [
+        "large_scale",
+        "systematic_monitoring"
+      ],
+      "system": "web_analytics"
+    },
+    {
+      "assessment_required": false,
+      "criteria_met": [],
+      "system": "helpdesk"
+    },
+    {
+      "assessment_required": false,
+      "criteria_met": [
+        "combining_datasets"
+      ],
+      "system": "crm"
+    },
+    {
+      "assessment_required": true,
+      "criteria_met": [
+        "sensitive_data",
+        "vulnerable_subjects"
+      ],
+      "system": "clinic_portal"
+    },
+    {
+      "assessment_required": false,
+      "criteria_met": [],
+      "system": "newsletter"
+    },
+    {
+      "assessment_required": true,
+      "criteria_met": [
+        "systematic_monitoring",
+        "vulnerable_subjects"
+      ],
+      "system": "staff_desktop"
+    },
+    {
+      "assessment_required": true,
+      "criteria_met": [
+        "sensitive_data",
+        "vulnerable_subjects"
+      ],
+      "system": "hr_onboarding"
+    }
+  ],
+  "threshold": 2
+}

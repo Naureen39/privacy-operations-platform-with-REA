@@ -1,0 +1,105 @@
+# Optional: the open source products behind four estate systems, for a real capture.
+#
+# The committed evidence does not need this file. `run.py estate` builds evidence offline from
+# the estate specification, with the four products modeled on their public defaults. Use this
+# stack only if you want to record flows against the real software with capture_evidence.ts.
+#
+# Not exercised by the automated tests. Before use, confirm each product's license and that the
+# image tag still exists:
+#   WordPress (GPL-2.0-or-later) + WooCommerce plugin (GPL-3.0-or-later)  image: wordpress
+#   Matomo (GPL-3.0-or-later)                                              image: matomo
+#   Chatwoot (MIT for the core)                                            image: chatwoot/chatwoot
+#   SuiteCRM (AGPL-3.0)                                                    image: bitnami/suitecrm
+# The bitnami/suitecrm image was last published in August 2025 and may need replacing with a
+# maintained image or a manual SuiteCRM install.
+#
+#   docker compose -f datasets/scripts/compose_estate.yml up -d
+#   (then install WooCommerce, create the Matomo site, and run seed_estate.py equivalents through
+#    each product's own interface; see datasets/README.md)
+
+name: northbridge-estate
+
+x-db-password: &db_password estate_demo_only
+
+services:
+  shop-db:
+    image: mariadb:11
+    environment:
+      MARIADB_ROOT_PASSWORD: *db_password
+      MARIADB_DATABASE: wordpress
+    volumes: [shop_db:/var/lib/mysql]
+
+  shop:
+    image: wordpress:6-apache
+    depends_on: [shop-db]
+    environment:
+      WORDPRESS_DB_HOST: shop-db
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: *db_password
+      WORDPRESS_DB_NAME: wordpress
+    ports: ["127.0.0.1:8101:80"]
+
+  analytics-db:
+    image: mariadb:11
+    environment:
+      MARIADB_ROOT_PASSWORD: *db_password
+      MARIADB_DATABASE: matomo
+    volumes: [analytics_db:/var/lib/mysql]
+
+  analytics:
+    image: matomo:5-apache
+    depends_on: [analytics-db]
+    environment:
+      MATOMO_DATABASE_HOST: analytics-db
+      MATOMO_DATABASE_USERNAME: root
+      MATOMO_DATABASE_PASSWORD: *db_password
+      MATOMO_DATABASE_DBNAME: matomo
+    ports: ["127.0.0.1:8102:80"]
+
+  helpdesk-db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_PASSWORD: *db_password
+      POSTGRES_DB: chatwoot
+    volumes: [helpdesk_db:/var/lib/postgresql/data]
+
+  helpdesk-redis:
+    image: redis:7-alpine
+
+  helpdesk:
+    image: chatwoot/chatwoot:latest
+    depends_on: [helpdesk-db, helpdesk-redis]
+    command: ["bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0"]
+    environment:
+      POSTGRES_HOST: helpdesk-db
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: *db_password
+      POSTGRES_DATABASE: chatwoot
+      REDIS_URL: redis://helpdesk-redis:6379
+      SECRET_KEY_BASE: estate-demo-only-not-a-secret
+      FRONTEND_URL: http://127.0.0.1:8103
+    ports: ["127.0.0.1:8103:3000"]
+
+  crm-db:
+    image: mariadb:11
+    environment:
+      MARIADB_ROOT_PASSWORD: *db_password
+      MARIADB_DATABASE: suitecrm
+    volumes: [crm_db:/var/lib/mysql]
+
+  crm:
+    image: bitnami/suitecrm:latest
+    depends_on: [crm-db]
+    environment:
+      SUITECRM_DATABASE_HOST: crm-db
+      SUITECRM_DATABASE_USER: root
+      SUITECRM_DATABASE_PASSWORD: *db_password
+      SUITECRM_DATABASE_NAME: suitecrm
+      ALLOW_EMPTY_PASSWORD: "yes"
+    ports: ["127.0.0.1:8104:8080"]
+
+volumes:
+  shop_db:
+  analytics_db:
+  helpdesk_db:
+  crm_db:

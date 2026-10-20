@@ -1,0 +1,48 @@
+{
+  "answers": {
+    "data_categories_declared": [
+      "communications_content",
+      "contact_email",
+      "contact_phone",
+      "device_identifier",
+      "ip_address",
+      "name"
+    ],
+    "data_subjects": [
+      "customers",
+      "prospects"
+    ],
+    "last_review_date": "2026-04-02",
+    "lawful_basis": "legitimate_interests",
+    "notes": "A clean-up job was planned but has not been built.",
+    "processors_with_agreement": [
+      "ChatRelay",
+      "MailSend Europe"
+    ],
+    "purposes": [
+      "Customer support"
+    ],
+    "recipients_declared": [
+      {
+        "country": "DE",
+        "purpose": "Message translation",
+        "vendor": "ChatRelay"
+      },
+      {
+        "country": "IE",
+        "purpose": "Ticket notification e-mails",
+        "vendor": "MailSend Europe"
+      }
+    ],
+    "retention": "12 months after the ticket is closed",
+    "security_measures": [
+      "Encrypted database",
+      "SSO for agents"
+    ],
+    "special_category_condition": "not_applicable",
+    "transfers": []
+  },
+  "completed_by": "Imogen Clarke, Customer Care Lead",
+  "system_id": "helpdesk",
+  "system_name": "Helpdesk and chat widget"
+}

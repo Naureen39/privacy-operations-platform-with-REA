@@ -1,0 +1,155 @@
+{
+  "company": {
+    "description": "Fictional mid-size retailer with a small health clinic arm.",
+    "name": "Northbridge Group",
+    "privacy_officer_contact": "privacy@northbridge.example"
+  },
+  "people": 2000,
+  "reference_date": "2026-10-01",
+  "systems": [
+    {
+      "description": "Online store selling clothing and home goods to consumers in five countries.",
+      "files": {
+        "ground_truth": "estate/web_shop/ground_truth.json",
+        "har": "estate/web_shop/evidence/capture.har",
+        "javascript_bundle": "estate/web_shop/evidence/app.bundle.js",
+        "privacy_policy": "estate/web_shop/policy.md",
+        "questionnaire": "estate/web_shop/questionnaire.json",
+        "sqlite_snapshot": "estate/web_shop/evidence/snapshot.sqlite",
+        "website": "estate/web_shop/evidence/website_snapshot.html"
+      },
+      "host": "shop.northbridge.example",
+      "id": "web_shop",
+      "modeled_open_source_product": true,
+      "name": "Web shop",
+      "owner": "Priya Nair, Head of E-commerce",
+      "stack": "WordPress with WooCommerce (modeled on the product's default checkout)"
+    },
+    {
+      "description": "Self hosted analytics for the shop, the newsletter site and the blog.",
+      "files": {
+        "ground_truth": "estate/web_analytics/ground_truth.json",
+        "har": "estate/web_analytics/evidence/capture.har",
+        "javascript_bundle": "estate/web_analytics/evidence/app.bundle.js",
+        "privacy_policy": "estate/web_analytics/policy.md",
+        "questionnaire": "estate/web_analytics/questionnaire.json",
+        "sqlite_snapshot": "estate/web_analytics/evidence/snapshot.sqlite",
+        "website": "estate/web_analytics/evidence/website_snapshot.html"
+      },
+      "host": "analytics.northbridge.example",
+      "id": "web_analytics",
+      "modeled_open_source_product": true,
+      "name": "Web analytics",
+      "owner": "Daniel Okoye, Digital Marketing Manager",
+      "stack": "Matomo, self hosted (modeled on the product's tracking API and schema)"
+    },
+    {
+      "description": "Customer support tickets and live chat for the shop.",
+      "files": {
+        "ground_truth": "estate/helpdesk/ground_truth.json",
+        "har": "estate/helpdesk/evidence/capture.har",
+        "javascript_bundle": "estate/helpdesk/evidence/app.bundle.js",
+        "privacy_policy": "estate/helpdesk/policy.md",
+        "questionnaire": "estate/helpdesk/questionnaire.json",
+        "sqlite_snapshot": "estate/helpdesk/evidence/snapshot.sqlite",
+        "website": "estate/helpdesk/evidence/website_snapshot.html"
+      },
+      "host": "support.northbridge.example",
+      "id": "helpdesk",
+      "modeled_open_source_product": true,
+      "name": "Helpdesk and chat widget",
+      "owner": "Imogen Clarke, Customer Care Lead",
+      "stack": "Chatwoot (modeled on the product's website widget and schema)"
+    },
+    {
+      "description": "Business customers, leads and sales opportunities.",
+      "files": {
+        "ground_truth": "estate/crm/ground_truth.json",
+        "har": "estate/crm/evidence/capture.har",
+        "javascript_bundle": "estate/crm/evidence/app.bundle.js",
+        "privacy_policy": "estate/crm/policy.md",
+        "questionnaire": "estate/crm/questionnaire.json",
+        "sqlite_snapshot": "estate/crm/evidence/snapshot.sqlite",
+        "website": "estate/crm/evidence/website_snapshot.html"
+      },
+      "host": "crm.northbridge.example",
+      "id": "crm",
+      "modeled_open_source_product": true,
+      "name": "CRM",
+      "owner": "Marcus Weber, Head of Sales",
+      "stack": "SuiteCRM (modeled on the product's web-to-lead form and schema)"
+    },
+    {
+      "description": "Appointment booking for the Northbridge Health clinic arm.",
+      "files": {
+        "ground_truth": "estate/clinic_portal/ground_truth.json",
+        "har": "estate/clinic_portal/evidence/capture.har",
+        "javascript_bundle": "estate/clinic_portal/evidence/app.bundle.js",
+        "privacy_policy": "estate/clinic_portal/policy.md",
+        "questionnaire": "estate/clinic_portal/questionnaire.json",
+        "sqlite_snapshot": "estate/clinic_portal/evidence/snapshot.sqlite",
+        "website": "estate/clinic_portal/evidence/website_snapshot.html"
+      },
+      "host": "clinic.northbridge-health.example",
+      "id": "clinic_portal",
+      "modeled_open_source_product": false,
+      "name": "Clinic appointment portal",
+      "owner": "Dr. Helena Voss, Clinic Director",
+      "stack": "FastAPI application (purpose-built for the estate)"
+    },
+    {
+      "description": "Subscription page and list management for the marketing newsletter.",
+      "files": {
+        "ground_truth": "estate/newsletter/ground_truth.json",
+        "har": "estate/newsletter/evidence/capture.har",
+        "javascript_bundle": "estate/newsletter/evidence/app.bundle.js",
+        "privacy_policy": "estate/newsletter/policy.md",
+        "questionnaire": "estate/newsletter/questionnaire.json",
+        "sqlite_snapshot": "estate/newsletter/evidence/snapshot.sqlite",
+        "website": "estate/newsletter/evidence/website_snapshot.html"
+      },
+      "host": "newsletter.northbridge.example",
+      "id": "newsletter",
+      "modeled_open_source_product": false,
+      "name": "Newsletter service",
+      "owner": "Daniel Okoye, Digital Marketing Manager",
+      "stack": "FastAPI application (purpose-built for the estate)"
+    },
+    {
+      "description": "Desktop client for staff to view their profile, clock in and out, and submit timesheets.",
+      "files": {
+        "ground_truth": "estate/staff_desktop/ground_truth.json",
+        "har": "estate/staff_desktop/evidence/capture.har",
+        "javascript_bundle": "estate/staff_desktop/evidence/main.bundle.js",
+        "privacy_policy": "estate/staff_desktop/policy.md",
+        "questionnaire": "estate/staff_desktop/questionnaire.json",
+        "sqlite_snapshot": "estate/staff_desktop/evidence/snapshot.sqlite",
+        "website": "estate/staff_desktop/evidence/website_snapshot.html"
+      },
+      "host": "hr-api.northbridge.example",
+      "id": "staff_desktop",
+      "modeled_open_source_product": false,
+      "name": "Staff desktop client",
+      "owner": "Nadia Rahman, IT Manager",
+      "stack": "Electron application with a local SQLite store (purpose-built for the estate)"
+    },
+    {
+      "description": "Onboarding form completed by new employees before their start date.",
+      "files": {
+        "ground_truth": "estate/hr_onboarding/ground_truth.json",
+        "har": "estate/hr_onboarding/evidence/capture.har",
+        "javascript_bundle": "estate/hr_onboarding/evidence/app.bundle.js",
+        "privacy_policy": "estate/hr_onboarding/policy.md",
+        "questionnaire": "estate/hr_onboarding/questionnaire.json",
+        "sqlite_snapshot": "estate/hr_onboarding/evidence/snapshot.sqlite",
+        "website": "estate/hr_onboarding/evidence/website_snapshot.html"
+      },
+      "host": "hr.northbridge.example",
+      "id": "hr_onboarding",
+      "modeled_open_source_product": false,
+      "name": "HR onboarding form",
+      "owner": "Grace Lindqvist, HR Director",
+      "stack": "FastAPI application (purpose-built for the estate)"
+    }
+  ]
+}

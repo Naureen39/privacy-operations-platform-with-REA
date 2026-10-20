@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Northbridge Support</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body><main><h1>How can we help?</h1><p>Start a chat or send us a message.</p>
+<form id="widget_conversation" method="post" action="/api/v1/widget/conversations" data-format="json">
+<p><label for="f_contact_name">Your name</label> <input type="text" name="contact.name" id="f_contact_name" autocomplete="name" required></p>
+<p><label for="f_contact_email">Email</label> <input type="email" name="contact.email" id="f_contact_email" autocomplete="email" required></p>
+<p><label for="f_contact_phone_number">Phone (optional)</label> <input type="tel" name="contact.phone_number" id="f_contact_phone_number" autocomplete="tel"></p>
+<p><label for="f_message_subject">Subject</label> <input type="text" name="message.subject" id="f_message_subject"></p>
+<p><label for="f_message_content">Message</label> <textarea name="message.content" id="f_message_content" required></textarea></p>
+<button type="submit">Send</button></form>
+</main>
+<script src="https://support.northbridge.example/packs/js/sdk.js"></script>
+</body></html>

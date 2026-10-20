@@ -1,0 +1,41 @@
+{
+  "answers": {
+    "data_categories_declared": [
+      "consent_record",
+      "contact_email",
+      "ip_address",
+      "name",
+      "postal_address",
+      "preferences"
+    ],
+    "data_subjects": [
+      "subscribers"
+    ],
+    "last_review_date": "2026-01-14",
+    "lawful_basis": "consent",
+    "notes": "Phone number was added for a text message campaign.",
+    "processors_with_agreement": [
+      "MailSend Europe"
+    ],
+    "purposes": [
+      "Email marketing"
+    ],
+    "recipients_declared": [
+      {
+        "country": "IE",
+        "purpose": "Newsletter delivery",
+        "vendor": "MailSend Europe"
+      }
+    ],
+    "retention": "Until unsubscribe plus 30 days",
+    "security_measures": [
+      "Double encrypted backups",
+      "Admin access via SSO"
+    ],
+    "special_category_condition": "not_applicable",
+    "transfers": []
+  },
+  "completed_by": "Daniel Okoye, Digital Marketing Manager",
+  "system_id": "newsletter",
+  "system_name": "Newsletter service"
+}

@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "threshold": 2,
+  "threshold_rule": "An activity that meets two or more criteria is likely to require a Data Protection Impact Assessment under Article 35. Meeting one criterion does not rule an assessment out. Check the current guidelines of the European Data Protection Board before relying on this list.",
+  "source": "Article 35 of Regulation (EU) 2016/679 and the criteria discussed in the European Data Protection Board guidelines on impact assessments. The wording below is the project's own.",
+  "criteria": [
+    {
+      "id": "evaluation_scoring",
+      "label": "Evaluation or scoring",
+      "description": "The activity profiles people or predicts aspects of their behavior, health, work performance, finances, interests or location.",
+      "signals": ["profiling", "credit_scoring", "behavioral_analytics", "performance_review"]
+    },
+    {
+      "id": "automated_decisions",
+      "label": "Automated decisions with legal or similar effect",
+      "description": "Decisions that significantly affect people are taken by automated means without meaningful human involvement.",
+      "signals": ["automated_decision", "auto_approval", "auto_rejection"]
+    },
+    {
+      "id": "systematic_monitoring",
+      "label": "Systematic monitoring",
+      "description": "People are observed, tracked or monitored on a continuing basis, including online tracking or location tracking at work.",
+      "signals": ["tracking", "geolocation", "clock_in_location", "cross_site_tracking", "cctv"]
+    },
+    {
+      "id": "sensitive_data",
+      "label": "Sensitive or highly personal data",
+      "description": "The activity handles special categories of data (Article 9), criminal data (Article 10) or other data whose misuse would seriously harm people, such as financial or location data.",
+      "signals": ["special_category", "criminal_data", "national_id", "bank_account"]
+    },
+    {
+      "id": "large_scale",
+      "label": "Large scale processing",
+      "description": "Many people, a large volume of data, a long duration or a wide geographic reach are involved.",
+      "signals": ["many_data_subjects", "high_volume", "long_retention", "multi_country"]
+    },
+    {
+      "id": "combining_datasets",
+      "label": "Matching or combining datasets",
+      "description": "Data from different sources or purposes is combined in a way people would not reasonably expect.",
+      "signals": ["enrichment", "data_matching", "cross_system_join"]
+    },
+    {
+      "id": "vulnerable_subjects",
+      "label": "Vulnerable data subjects",
+      "description": "People who cannot easily object or consent freely, such as patients, employees, children or other groups with a power imbalance.",
+      "signals": ["patients", "employees", "children", "elderly"]
+    },
+    {
+      "id": "innovative_technology",
+      "label": "Innovative use of technology",
+      "description": "New technology or a new application of existing technology with unclear privacy consequences.",
+      "signals": ["biometrics", "machine_learning", "iot", "facial_recognition"]
+    },
+    {
+      "id": "prevents_exercise_of_rights",
+      "label": "Processing that blocks people from exercising rights or using a service",
+      "description": "The outcome of the processing decides whether someone can access a service, contract or benefit.",
+      "signals": ["eligibility_check", "blacklist", "access_decision"]
+    }
+  ]
+}

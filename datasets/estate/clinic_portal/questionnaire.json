@@ -1,0 +1,55 @@
+{
+  "answers": {
+    "data_categories_declared": [
+      "contact_email",
+      "contact_phone",
+      "date_of_birth",
+      "health_data",
+      "insurance_data",
+      "ip_address",
+      "name",
+      "national_id"
+    ],
+    "data_subjects": [
+      "patients"
+    ],
+    "last_review_date": "2023-02-01",
+    "lawful_basis": "legitimate_interests",
+    "notes": "Portal built in-house; no review since launch.",
+    "processors_with_agreement": [
+      "BookWell Scheduling",
+      "SMSGate"
+    ],
+    "purposes": [
+      "Appointment management"
+    ],
+    "recipients_declared": [
+      {
+        "country": "NL",
+        "purpose": "Appointment slot booking",
+        "vendor": "BookWell Scheduling"
+      },
+      {
+        "country": "IN",
+        "purpose": "Appointment reminder text messages",
+        "vendor": "SMSGate"
+      }
+    ],
+    "retention": "10 years",
+    "security_measures": [
+      "Encryption at rest",
+      "Two person access to clinical notes"
+    ],
+    "special_category_condition": null,
+    "transfers": [
+      {
+        "country": "IN",
+        "recipient": "SMSGate",
+        "safeguard": ""
+      }
+    ]
+  },
+  "completed_by": "Dr. Helena Voss, Clinic Director",
+  "system_id": "clinic_portal",
+  "system_name": "Clinic appointment portal"
+}

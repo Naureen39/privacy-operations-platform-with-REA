@@ -1,0 +1,34 @@
+{
+  "answers": {
+    "data_categories_declared": [
+      "contact_email",
+      "contact_phone",
+      "device_identifier",
+      "employment_data",
+      "geolocation",
+      "ip_address",
+      "name"
+    ],
+    "data_subjects": [
+      "employees"
+    ],
+    "last_review_date": "2026-06-30",
+    "lawful_basis": "legal_obligation",
+    "notes": "Error reporting added in the last release.",
+    "processors_with_agreement": [],
+    "purposes": [
+      "Working time recording"
+    ],
+    "recipients_declared": [],
+    "retention": "6 years",
+    "security_measures": [
+      "Signed application builds",
+      "Encrypted local database"
+    ],
+    "special_category_condition": "not_applicable",
+    "transfers": []
+  },
+  "completed_by": "Nadia Rahman, IT Manager",
+  "system_id": "staff_desktop",
+  "system_name": "Staff desktop client"
+}

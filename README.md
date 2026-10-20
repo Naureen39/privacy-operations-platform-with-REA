@@ -10,7 +10,8 @@ Generated legal or compliance documents are drafts for review by a qualified pri
 |---|---|---|
 | 1 | Database, migrations, tenant isolation (row level security) | Done |
 | 2 | Authentication, authorization, security baseline | Done |
-| 3 onwards | Dataset, discovery, classification, fusion, assessments, requests, frontend | Planned |
+| 3 | Dataset and reference estate (`datasets/`) | Done |
+| 4 onwards | Discovery, classification, fusion, assessments, requests, frontend | Planned |
 
 ## Quick start (backend)
 
@@ -35,6 +36,10 @@ uv run ruff check . && uv run black --check . && uv run mypy
 ```
 
 Use `127.0.0.1` rather than `localhost` in database URLs; `localhost` can resolve to IPv6 first and stall on some machines.
+
+## Dataset
+
+`datasets/` holds the GDPR text, taxonomies, vendor registry and a fictional company with eight systems, 2,000 synthetic people and 19 seeded privacy problems. Rebuild it with `make datasets`, or `cd backend && uv run python ../datasets/scripts/run.py all`. See [datasets/README.md](datasets/README.md) for provenance, licenses and what is modeled.
 
 ## Documentation
 

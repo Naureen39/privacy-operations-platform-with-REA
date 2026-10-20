@@ -1,0 +1,342 @@
+{
+  "contradictions": [
+    "C12",
+    "C13",
+    "C14"
+  ],
+  "data_elements": [
+    {
+      "category": "health_data",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "the date and time of your appointment",
+      "id": "appointment_datetime",
+      "locations": [
+        {
+          "column": "appointment_at",
+          "kind": "db_column",
+          "table": "appointments"
+        }
+      ],
+      "special_category": true
+    },
+    {
+      "category": "date_of_birth",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your date of birth",
+      "id": "date_of_birth",
+      "locations": [
+        {
+          "endpoint": "book_appointment",
+          "kind": "form_field",
+          "name": "dob"
+        },
+        {
+          "endpoint": "book_appointment",
+          "kind": "request_form_param",
+          "name": "dob"
+        },
+        {
+          "column": "dob",
+          "kind": "db_column",
+          "table": "patients"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "health_data",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "diagnoses recorded by your doctor",
+      "id": "diagnosis",
+      "locations": [
+        {
+          "column": "diagnosis",
+          "kind": "db_column",
+          "table": "consultation_notes"
+        }
+      ],
+      "special_category": true
+    },
+    {
+      "category": "national_id",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your insurance number",
+      "id": "insurance_number",
+      "locations": [
+        {
+          "endpoint": "book_appointment",
+          "kind": "form_field",
+          "name": "insurance_number"
+        },
+        {
+          "endpoint": "book_appointment",
+          "kind": "request_form_param",
+          "name": "insurance_number"
+        },
+        {
+          "column": "insurance_number",
+          "kind": "db_column",
+          "table": "patients"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "insurance_data",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your insurance provider",
+      "id": "insurer",
+      "locations": [
+        {
+          "endpoint": "book_appointment",
+          "kind": "form_field",
+          "name": "insurer"
+        },
+        {
+          "endpoint": "book_appointment",
+          "kind": "request_form_param",
+          "name": "insurer"
+        },
+        {
+          "column": "insurer",
+          "kind": "db_column",
+          "table": "patients"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "ip_address",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your IP address",
+      "id": "ip_address",
+      "locations": [
+        {
+          "column": "booked_from_ip",
+          "kind": "db_column",
+          "table": "appointments"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "contact_email",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your e-mail address",
+      "id": "patient_email",
+      "locations": [
+        {
+          "endpoint": "book_appointment",
+          "kind": "form_field",
+          "name": "email"
+        },
+        {
+          "endpoint": "book_appointment",
+          "kind": "request_form_param",
+          "name": "email"
+        },
+        {
+          "column": "email",
+          "kind": "db_column",
+          "table": "patients"
+        },
+        {
+          "column": "patient_email",
+          "kind": "db_column",
+          "table": "appointments"
+        },
+        {
+          "column": "patient_email",
+          "kind": "db_column",
+          "table": "consultation_notes"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "name",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your name",
+      "id": "patient_name",
+      "locations": [
+        {
+          "endpoint": "book_appointment",
+          "kind": "form_field",
+          "name": "full_name"
+        },
+        {
+          "endpoint": "book_appointment",
+          "kind": "request_form_param",
+          "name": "full_name"
+        },
+        {
+          "column": "full_name",
+          "kind": "db_column",
+          "table": "patients"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "contact_phone",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your telephone number",
+      "id": "patient_phone",
+      "locations": [
+        {
+          "endpoint": "book_appointment",
+          "kind": "form_field",
+          "name": "phone"
+        },
+        {
+          "endpoint": "book_appointment",
+          "kind": "request_form_param",
+          "name": "phone"
+        },
+        {
+          "column": "phone",
+          "kind": "db_column",
+          "table": "patients"
+        }
+      ],
+      "special_category": false
+    },
+    {
+      "category": "health_data",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "your reason for visiting",
+      "id": "reason_for_visit",
+      "locations": [
+        {
+          "endpoint": "book_appointment",
+          "kind": "form_field",
+          "name": "reason_for_visit"
+        },
+        {
+          "endpoint": "book_appointment",
+          "kind": "request_form_param",
+          "name": "reason_for_visit"
+        },
+        {
+          "column": "reason_for_visit",
+          "kind": "db_column",
+          "table": "appointments"
+        }
+      ],
+      "special_category": true
+    },
+    {
+      "category": "health_data",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "description": "the symptoms you describe",
+      "id": "symptoms",
+      "locations": [
+        {
+          "endpoint": "book_appointment",
+          "kind": "form_field",
+          "name": "symptoms"
+        },
+        {
+          "endpoint": "book_appointment",
+          "kind": "request_form_param",
+          "name": "symptoms"
+        },
+        {
+          "column": "symptoms",
+          "kind": "db_column",
+          "table": "appointments"
+        }
+      ],
+      "special_category": true
+    }
+  ],
+  "dpia": {
+    "criteria": [
+      "sensitive_data",
+      "vulnerable_subjects"
+    ],
+    "required": true
+  },
+  "last_review_date": "2023-02-01",
+  "modeled_open_source_product": false,
+  "recipients": [
+    {
+      "agreement_on_file": true,
+      "agreement_required": true,
+      "country": "NL",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "found_in": [
+        "har",
+        "html",
+        "js"
+      ],
+      "hosts": [
+        "cal.bookwell.example"
+      ],
+      "id": "bookwell",
+      "internal": false,
+      "purpose": "Appointment slot booking",
+      "role": "processor",
+      "shares_elements": [
+        "appointment_datetime",
+        "patient_email",
+        "patient_name"
+      ],
+      "third_country": false,
+      "transfer_basis": "not_required",
+      "vendor": "BookWell Scheduling"
+    },
+    {
+      "agreement_on_file": true,
+      "agreement_required": true,
+      "country": "IN",
+      "declared_in_policy": true,
+      "declared_in_questionnaire": true,
+      "found_in": [
+        "har",
+        "js"
+      ],
+      "hosts": [
+        "api.smsgate.example"
+      ],
+      "id": "smsgate",
+      "internal": false,
+      "purpose": "Appointment reminder text messages",
+      "role": "processor",
+      "shares_elements": [
+        "appointment_datetime",
+        "patient_phone"
+      ],
+      "third_country": true,
+      "transfer_basis": "none",
+      "vendor": "SMSGate"
+    }
+  ],
+  "reference_date": "2026-10-01",
+  "retention": {
+    "actual": "10 years.",
+    "policy": "Appointment records are kept for ten years.",
+    "questionnaire": "10 years"
+  },
+  "stack": "FastAPI application (purpose-built for the estate)",
+  "system_id": "clinic_portal",
+  "system_name": "Clinic appointment portal",
+  "technologies": [
+    "@bookwell/widget",
+    "axios",
+    "react",
+    "react-dom"
+  ]
+}

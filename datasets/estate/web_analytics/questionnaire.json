@@ -1,0 +1,45 @@
+{
+  "answers": {
+    "data_categories_declared": [
+      "browsing_behavior",
+      "device_identifier",
+      "geolocation",
+      "ip_address",
+      "online_identifier"
+    ],
+    "data_subjects": [
+      "website visitors"
+    ],
+    "last_review_date": "2026-02-20",
+    "lawful_basis": "legitimate_interests",
+    "notes": "BrightLens receives dashboards only. Agreement being renegotiated.",
+    "processors_with_agreement": [],
+    "purposes": [
+      "Site analytics",
+      "Marketing reporting"
+    ],
+    "recipients_declared": [
+      {
+        "country": "GB",
+        "purpose": "Marketing reporting dashboards",
+        "vendor": "BrightLens Agency"
+      }
+    ],
+    "retention": "25 months",
+    "security_measures": [
+      "Hosted in our EU data centre",
+      "Access limited to marketing team"
+    ],
+    "special_category_condition": "not_applicable",
+    "transfers": [
+      {
+        "country": "GB",
+        "recipient": "BrightLens Agency",
+        "safeguard": "adequacy_decision"
+      }
+    ]
+  },
+  "completed_by": "Daniel Okoye, Digital Marketing Manager",
+  "system_id": "web_analytics",
+  "system_name": "Web analytics"
+}

@@ -1,0 +1,7 @@
+extend = "../backend/pyproject.toml"
+src = ["scripts"]
+
+[lint.per-file-ignores]
+# Seeded generators are deliberate (S311). Table and column names in SQL come from the
+# estate spec, never from user input (S608). Scripts adjust sys.path before importing siblings (E402).
+"scripts/*" = ["S311", "S608", "E402", "S101"]

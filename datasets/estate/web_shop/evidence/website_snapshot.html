@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Checkout - Northbridge Shop</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;display=swap">
+</head>
+<body><main><h1>Checkout</h1><p>Enter your details to complete the order.</p>
+<form id="checkout" method="post" action="/?wc-ajax=checkout">
+<p><label for="f_billing_first_name">First name</label> <input type="text" name="billing_first_name" id="f_billing_first_name" autocomplete="given-name" required></p>
+<p><label for="f_billing_last_name">Last name</label> <input type="text" name="billing_last_name" id="f_billing_last_name" autocomplete="family-name" required></p>
+<p><label for="f_billing_email">Email address</label> <input type="email" name="billing_email" id="f_billing_email" autocomplete="email" required></p>
+<p><label for="f_billing_phone">Phone</label> <input type="tel" name="billing_phone" id="f_billing_phone" autocomplete="tel"></p>
+<p><label for="f_billing_address_1">Street address</label> <input type="text" name="billing_address_1" id="f_billing_address_1" autocomplete="address-line1" required></p>
+<p><label for="f_billing_city">Town / City</label> <input type="text" name="billing_city" id="f_billing_city" autocomplete="address-level2" required></p>
+<p><label for="f_billing_postcode">Postcode</label> <input type="text" name="billing_postcode" id="f_billing_postcode" autocomplete="postal-code" required></p>
+<p><label for="f_billing_country">Country</label> <input type="text" name="billing_country" id="f_billing_country" autocomplete="country" required></p>
+<p><label for="f_billing_birthdate">Date of birth</label> <input type="date" name="billing_birthdate" id="f_billing_birthdate" autocomplete="bday"></p>
+<p><label for="f_account_password">Create account password</label> <input type="password" name="account_password" id="f_account_password" autocomplete="new-password"></p>
+<p><label for="f_marketing_optin">Send me news and offers</label> <input type="checkbox" name="marketing_optin" id="f_marketing_optin"></p>
+<button type="submit">Place order</button></form>
+</main>
+<script src="https://shop.northbridge.example/wp-content/themes/northbridge/assets/app.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
+<script src="https://connect.facebook.net/en_US/fbevents.js"></script>
+<script src="https://analytics.northbridge.example/matomo.js"></script>
+</body></html>
