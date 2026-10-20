@@ -1,0 +1,50 @@
+# ProcessLedger: Privacy Operations Platform
+
+ProcessLedger automates the privacy documentation workflow of an organization: system inventory, discovery of the personal data each system handles, Records of Processing Activities, Data Protection Impact Assessments, and data subject access requests. The full development plan is in [PLAN_PRIVACY_OPS.md](PLAN_PRIVACY_OPS.md).
+
+Generated legal or compliance documents are drafts for review by a qualified privacy professional. They are not legal advice. All data in this repository is demonstration data.
+
+## Status
+
+| Phase | Scope | State |
+|---|---|---|
+| 1 | Database, migrations, tenant isolation (row level security) | Done |
+| 2 | Authentication, authorization, security baseline | Done |
+| 3 onwards | Dataset, discovery, classification, fusion, assessments, requests, frontend | Planned |
+
+## Quick start (backend)
+
+Prerequisites: Docker, Python 3.12, [uv](https://docs.astral.sh/uv/).
+
+```
+cp .env.example .env          # then set JWT_SECRET and EVIDENCE_ENCRYPTION_KEY (see the file)
+docker compose up -d db
+cd backend
+uv sync
+uv run alembic upgrade head
+uv run python ../scripts/seed_demo_users.py
+uv run uvicorn app.main:create_app --factory --port 8000
+```
+
+Run the tests (they start their own throwaway PostgreSQL container):
+
+```
+cd backend
+uv run pytest
+uv run ruff check . && uv run black --check . && uv run mypy
+```
+
+Use `127.0.0.1` rather than `localhost` in database URLs; `localhost` can resolve to IPv6 first and stall on some machines.
+
+## Documentation
+
+- [docs/database.md](docs/database.md): schema, migrations and the tenancy model.
+- [docs/security.md](docs/security.md): authentication, authorization, uploads, request forgery protection and runner isolation.
+
+## Demo accounts
+
+`scripts/seed_demo_users.py` creates one account per role (admin, analyst, system owner, viewer) in a demo organization. The default password is for local use only. Change every credential outside a local machine.
+
+## Responsible use
+
+The platform performs static or observational analysis of systems the organization owns or is authorized to examine. It never executes uploaded files.
