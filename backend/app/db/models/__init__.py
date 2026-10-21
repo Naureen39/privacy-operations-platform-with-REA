@@ -26,7 +26,7 @@ from app.db.models.inventory import (
     System,
     Technology,
 )
-from app.db.models.knowledge import Document, DocumentChunk, RegulationChunk
+from app.db.models.knowledge import Document, DocumentChunk, RegulationChunk, TaxonomyEntry
 from app.db.models.llm import LlmCache, LlmCall
 from app.db.models.records import (
     ActivitySystem,
@@ -79,6 +79,7 @@ __all__ = [
     "RequestResult",
     "Subscription",
     "System",
+    "TaxonomyEntry",
     "Task",
     "Technology",
     "UsageEvent",

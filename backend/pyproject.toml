@@ -17,6 +17,7 @@ dependencies = [
     "slowapi>=0.1.10",
     "cryptography>=50.0.2",
     "python-multipart>=0.0.32",
+    "sentence-transformers>=3.0",
 ]
 
 [dependency-groups]
@@ -33,6 +34,7 @@ dev = [
     "black>=24.8",
     "mypy>=1.11",
     "bandit>=1.7",
+    "types-pyyaml>=6.0.12.20260906",
 ]
 
 [tool.uv]
@@ -74,4 +76,4 @@ exclude_dirs = ["tests", ".venv"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
-addopts = "-ra -p tests.fixtures_api"
+addopts = "-ra -p tests.fixtures_api -p tests.fixtures_classify"

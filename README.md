@@ -12,7 +12,8 @@ Generated legal or compliance documents are drafts for review by a qualified pri
 | 2 | Authentication, authorization, security baseline | Done |
 | 3 | Dataset and reference estate (`datasets/`) | Done |
 | 4 | REA integration and evidence extraction (`rea-runner/`, `backend/app/discovery/`) | Done |
-| 5 onwards | Classification, fusion, assessments, requests, frontend | Planned |
+| 5 | Classification and the data element engine (`backend/app/classify/`) | Done |
+| 6 onwards | Knowledge base, LLM router, fusion, assessments, requests, frontend | Planned |
 
 ## Quick start (backend)
 
@@ -37,6 +38,8 @@ uv run ruff check . && uv run black --check . && uv run mypy
 ```
 
 Discovery uses the pinned [REA](https://github.com/morluto/rea) release. Install it once with `cd rea-runner && npm ci` (Node 24.15 or newer); without it the backend falls back to built-in parsers and the REA tests are skipped.
+
+Classification needs the embedding model and the taxonomy index: `cd backend && uv run python ../scripts/download_embedding_model.py && uv run python ../scripts/load_taxonomy.py`. Without the model the classification tests are skipped.
 
 Runner tests (Node 24.15 or newer): `cd rea-runner && npm test`. Container images: `make runner-images`.
 

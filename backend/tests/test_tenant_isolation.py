@@ -45,6 +45,7 @@ NON_TENANT_TABLES = {
     "plans",
     "regulation_chunks",
     "daily_metrics",
+    "taxonomy_entries",
 }
 VECTOR = [0.1] * 384
 
@@ -440,6 +441,8 @@ def test_app_role_cannot_write_shared_reference_tables(
         "VALUES ('x', 'x', 1, 1, 1)",
         "INSERT INTO regulation_chunks (text) VALUES ('x')",
         "INSERT INTO daily_metrics (metric_date) VALUES (current_date)",
+        "INSERT INTO taxonomy_entries (category_id, kind, text, source_version, embedding) "
+        "VALUES ('x', 'label', 'x', 'v', array_fill(0.1::float4, ARRAY[384])::vector)",
     ):
         with pytest.raises(ProgrammingError, match="permission denied"):  # noqa: PT012
             with session_factory() as s:

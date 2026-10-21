@@ -4,6 +4,7 @@ from typing import Any
 
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
+    Boolean,
     Computed,
     DateTime,
     ForeignKey,
@@ -13,6 +14,7 @@ from sqlalchemy import (
     Text,
     text,
 )
+from sqlalchemy import text as text_sql
 from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -93,4 +95,30 @@ class RegulationChunk(UuidPkMixin, Base):
             postgresql_ops={"embedding": "vector_cosine_ops"},
         ),
         Index("ix_regulation_chunks_tsv", "tsv", postgresql_using="gin"),
+    )
+
+
+class TaxonomyEntry(UuidPkMixin, Base):
+    """Embedded taxonomy texts (labels, definitions, synonyms) the classifier matches against.
+    Shared and read only for the application role; loaded by scripts/load_taxonomy.py."""
+
+    __tablename__ = "taxonomy_entries"
+
+    category_id: Mapped[str] = mapped_column(String(60), nullable=False, index=True)
+    kind: Mapped[str] = mapped_column(String(20), nullable=False)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    special_category: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text_sql("false")
+    )
+    source_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    embedding: Mapped[list[float]] = mapped_column(Vector(EMBEDDING_DIMENSIONS), nullable=False)
+
+    __table_args__ = (
+        Index(
+            "ix_taxonomy_entries_embedding_hnsw",
+            "embedding",
+            postgresql_using="hnsw",
+            postgresql_with={"m": 16, "ef_construction": 64},
+            postgresql_ops={"embedding": "vector_cosine_ops"},
+        ),
     )

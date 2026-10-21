@@ -1,0 +1,116 @@
+{
+  "version": "1.0-tuned",
+  "rule_accept": 0.75,
+  "rule_margin": 0.12,
+  "embedding_accept": 0.74,
+  "embedding_margin": 0.04,
+  "special_near": 0.86,
+  "review_floor": 0.5,
+  "non_personal_tokens": [
+    "created",
+    "updated",
+    "modified",
+    "status",
+    "idsite",
+    "rec",
+    "ev",
+    "version",
+    "stage",
+    "actions",
+    "action",
+    "currency",
+    "type",
+    "event",
+    "id",
+    "list",
+    "site",
+    "slot",
+    "lang",
+    "language",
+    "target",
+    "source",
+    "campaign"
+  ],
+  "prefix_tokens": [
+    "billing",
+    "shipping",
+    "customer",
+    "user",
+    "contact",
+    "account",
+    "work",
+    "personal",
+    "patient",
+    "employee",
+    "subscriber",
+    "lead",
+    "login",
+    "home",
+    "delivery",
+    "card",
+    "payment",
+    "business"
+  ],
+  "meta": {
+    "embedding_model": "BAAI/bge-small-en-v1.5",
+    "tuned_on": [
+      "web_shop",
+      "helpdesk",
+      "clinic_portal",
+      "newsletter",
+      "hr_onboarding"
+    ],
+    "held_out": [
+      "web_analytics",
+      "crm",
+      "staff_desktop"
+    ],
+    "objective": "correct - 3 * wrong - 0.5 * technical false positives - 0.15 * extra special escalations; every special category element must be flagged",
+    "metrics": {
+      "tuning": {
+        "labelled": 150,
+        "correct": 148,
+        "wrong": 0,
+        "unclassified": 2,
+        "accuracy": 0.9867,
+        "coverage": 0.9867,
+        "special_recall": 1.0,
+        "special_extra_escalations": 2,
+        "technical_false_positives": 0
+      },
+      "held_out": {
+        "labelled": 66,
+        "correct": 65,
+        "wrong": 0,
+        "unclassified": 1,
+        "accuracy": 0.9848,
+        "coverage": 0.9848,
+        "special_recall": 1.0,
+        "special_extra_escalations": 0,
+        "technical_false_positives": 0
+      },
+      "estate_all": {
+        "labelled": 216,
+        "correct": 213,
+        "wrong": 0,
+        "unclassified": 3,
+        "accuracy": 0.9861,
+        "coverage": 0.9861,
+        "special_recall": 1.0,
+        "special_extra_escalations": 2,
+        "technical_false_positives": 0
+      },
+      "challenge": {
+        "labelled": 78,
+        "correct": 72,
+        "wrong": 3,
+        "unclassified": 3,
+        "accuracy": 0.9231,
+        "coverage": 0.9615,
+        "special_recall": 1.0,
+        "special_extra_escalations": 10,
+        "technical_false_positives": 0
+      }
+    }
+  }
+}

@@ -27,6 +27,7 @@ policies/
   company_privacy_policy.md  company wide policy with statements the systems contradict
   vendor_agreements/         short synthetic processor agreements (only where one is on file)
 expected/                    reference outputs for the evaluation harness
+evaluation/                  hand written evaluation data (classification challenge set); not regenerated
 scripts/                     the build (see below)
 MANIFEST.sha256              SHA-256 of every committed file in the folders above
 ```

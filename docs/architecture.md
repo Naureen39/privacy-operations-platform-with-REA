@@ -1,6 +1,6 @@
 # Architecture
 
-This document grows with the phases. It currently covers evidence discovery (Phase 4). The system onboarding pipeline is `CREATED, EVIDENCE_ATTACHED, DISCOVERING, CLASSIFIED, FUSED, DRAFTED, AWAITING_REVIEW, APPROVED, PUBLISHED, FAILED`; this phase implements the first extraction step of `DISCOVERING`.
+This document grows with the phases. It currently covers evidence discovery (Phase 4) and classification (Phase 5). The system onboarding pipeline is `CREATED, EVIDENCE_ATTACHED, DISCOVERING, CLASSIFIED, FUSED, DRAFTED, AWAITING_REVIEW, APPROVED, PUBLISHED, FAILED`; this phase implements the first extraction step of `DISCOVERING`.
 
 ## Discovery
 
@@ -119,3 +119,67 @@ Candidate precision (share of discovered names that are a ground-truth location)
 - The browser resolves no names itself: host resolution is mapped to "not found" except for the served snapshot (or the single pinned address for a URL), so a saved page's third-party requests are recorded as attempts and never leave the machine.
 - REA reports DOM attribute values, text and request bodies only in limited ways by design; this project relies on that minimisation rather than working around it.
 - An uploaded script is analysed as data. Nothing is executed.
+
+## Classification
+
+Runs after discovery: it decides the category of each data element, flags Article 9 data, resolves recipient hosts to vendors, and queues what a person must look at. **No LLM is called**; the code in `backend/app/classify/` has no provider or network client, and a test checks its imports.
+
+```
+data_elements (name, type, pattern class, label, autocomplete, table)  (never sample values)
+      ├─ rule layer ────────── autocomplete hint, value pattern, input type, name and label vs. synonyms
+      ├─ embedding layer ───── description → bge-small-en-v1.5 (384 d, CPU) → nearest taxonomy entries in pgvector
+      ▼
+decision (category, confidence, method, reasons, top candidates)  +  Article 9 check  +  vendor resolution
+      ▼
+data_elements.category / special_category / confidence / embedding / context.classification
+findings: special_category_review, low_confidence_classification, unknown_recipient_host
+system status → CLASSIFIED
+```
+
+### Layers
+
+- **Rules** (`rules.py`): patterns for e-mail, phone, IP address, payment card (Luhn), IBAN (mod 97), password hashes and coordinates; HTML `autocomplete` tokens; input types; the element name and label compared with the taxonomy synonyms (exact, without qualifiers such as `billing_`, multi word, single word). Generic words (`name`, `number`, `order`) never decide alone. A technical name (`created_at`, `status`, `idsite`) with no personal-data word and no personal value pattern is not personal data.
+- **Embeddings** (`embedder.py`, `index.py`): the taxonomy labels, definitions and synonyms (about 410 entries) are embedded once into `taxonomy_entries` (pgvector, HNSW cosine index). An element description (normalised name, label, autocomplete hint in words, type, pattern class, table; no values) is embedded and matched against it; the best entry per category is that category's similarity.
+- **Decision** (`decide.py`): a confident, unambiguous rule result is accepted (an agreeing embedding adds confidence). Rules that tie are broken by the embedding. Without a rule result, a clear embedding match (similarity and margin over the next category) is accepted. Anything plausible but short of the thresholds stays unclassified and becomes a review item; implausible names produce nothing.
+- **Special categories** (`special.py`): strong if the element is classified as one or its name or label contains an Article 9 word; near if it carries only a weak word (`patient_email`), sits in a table with strong special data and its meaning depends on context (an appointment time, a doctor), or its embedding is close to a special category. Strong and near are both escalated to review whatever the confidence; only strong sets `special_category`.
+- **Vendors** (`vendors.py`): the first matching entry of `vendor_registry.yaml` gives vendor, role, country and category; the organisation's own domains are internal; anything else is unknown and gets a finding. A vendor entered by a person is kept.
+
+### Thresholds
+
+Stored in `datasets/regulation/taxonomy/classifier_config.json` and recorded with every decision. `scripts/tune_classifier.py` chooses them by grid search on five tuning systems (objective: correct minus three times wrong, minus penalties for technical names classified and for extra escalations; every special category element must be flagged). It then scores three held-out systems (`web_analytics`, `crm`, `staff_desktop`) and a hand-written challenge set (`datasets/evaluation/classification_challenge.json`, 87 names written independently of the synonym lists). Neither is used to choose values.
+
+| Set | Labelled | Correct | Wrong | Unclassified | Special categories flagged |
+|---|---|---|---|---|---|
+| Tuning systems (5) | 150 | 148 | 0 | 2 | 100 percent |
+| Held-out systems (3) | 66 | 65 | 0 | 1 | 100 percent |
+| Whole estate | 216 | 213 (98.6 percent) | 0 | 3 | 17 of 17 (16 strong, 1 near) |
+| Challenge set | 78 personal + 9 technical | 72 + 9 | 3 | 3 | not applicable |
+
+Ablation on the estate: rules only 94.4 percent, embeddings only 65.3 percent, both 98.6 percent. Treat the estate figures with care: the synonym lists and the estate field names were written by the same author, which flatters the rule layer. The challenge set (92.3 percent, no technical name mistaken for personal data) is the fairer estimate for unseen systems. The three remaining estate misses are an obscure tracker parameter (`cd[value]`), an abbreviated Meta parameter (`ud[ph]`) and an appointment time next to health data (escalated as near, category unclassified).
+
+### Setup
+
+```
+cd backend
+uv run alembic upgrade head
+uv run python ../scripts/download_embedding_model.py   # once; bake into the image and set EMBEDDING_LOCAL_FILES_ONLY=true
+uv run python ../scripts/load_taxonomy.py              # embeds the taxonomy into taxonomy_entries (owner connection)
+```
+
+`taxonomy_entries` is shared reference data that the application role can only read; classification answers 503 until it has been loaded. A different taxonomy or model reloads it.
+
+### API
+
+| Route | Roles |
+|---|---|
+| `POST /systems/{id}/classification` | admin, analyst |
+| `PATCH /systems/{id}/data-elements/{element_id}` (accept, override, mark as not personal data) | admin, analyst |
+| `GET /taxonomy` | all roles |
+
+Reviewed elements (`accepted` or `overridden`) are never overwritten by a later run, and findings are deduplicated by key: a review item closes automatically when it no longer applies.
+
+### Limits
+
+- Names are judged in English. Field names in other languages rely on the embedding model, which is trained mostly on English.
+- Values are used only to detect pattern classes and are never embedded or stored.
+- A column meaning can depend on a neighbour (an `amount`, a `title`); table context is used for special categories only.

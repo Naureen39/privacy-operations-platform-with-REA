@@ -141,6 +141,7 @@ class DataElementOut(BaseModel):
     pattern_class: str | None
     category: str | None
     special_category: bool
+    special_category_label: str | None
     confidence: float | None
     review_status: ReviewStatus
     evidence_id: uuid.UUID | None
@@ -156,6 +157,7 @@ class RecipientOut(BaseModel):
     vendor: str | None
     role: RecipientRole
     country: str | None
+    category: str | None
     evidence_id: uuid.UUID | None
     context: dict[str, Any]
 
@@ -187,3 +189,38 @@ class DiscoveryEvidenceOut(BaseModel):
     raw_truncated: bool
     raw_output: dict[str, Any] | None
     created_at: datetime
+
+
+class ClassificationSummaryOut(BaseModel):
+    elements: int
+    classified: int
+    unclassified: int
+    non_personal: int
+    reviewed_kept: int
+    special_strong: int
+    special_near: int
+    recipients: int
+    recipients_known: int
+    recipients_internal: int
+    recipients_unknown: int
+    findings_open: int
+    methods: dict[str, int]
+    thresholds_version: str
+    embedding_model: str
+
+
+class ElementReview(BaseModel):
+    """A person's decision on a discovered element."""
+
+    review_status: Literal["accepted", "overridden"]
+    category: str | None = Field(default=None, max_length=60)
+    special_category: bool | None = None
+    not_personal_data: bool = False
+
+
+class TaxonomyCategoryOut(BaseModel):
+    id: str
+    label: str
+    definition: str
+    sensitivity: str
+    special_category: bool

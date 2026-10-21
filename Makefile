@@ -2,7 +2,7 @@
 
 UV := cd backend && uv run python
 
-.PHONY: datasets datasets-regulation datasets-estate datasets-verify test lint runner-install runner-test runner-images
+.PHONY: taxonomy tune-classifier datasets datasets-regulation datasets-estate datasets-verify test lint runner-install runner-test runner-images
 
 # Rebuild the whole dataset. Needs the network only if gdpr_articles.json is missing.
 datasets:
@@ -17,6 +17,14 @@ datasets-estate:
 
 datasets-verify:
 	$(UV) ../datasets/scripts/run.py verify
+
+# Embed the personal data taxonomy into PostgreSQL (needs the database and the embedding model).
+taxonomy:
+	cd backend && uv run python ../scripts/load_taxonomy.py
+
+# Re-tune the classifier thresholds on the reference estate (about 5 minutes).
+tune-classifier:
+	cd backend && uv run python ../scripts/tune_classifier.py --write
 
 # The pinned REA release used by discovery (Node 24.15 or newer).
 runner-install:

@@ -56,6 +56,11 @@ class Settings(BaseSettings):
     observation_allowed_networks: list[str] = []  # the demo network, for example 172.28.0.0/16
     observation_allowed_ports: list[int] = [80, 443]
 
+    # Classification
+    embedding_model: str = "BAAI/bge-small-en-v1.5"
+    embedding_local_files_only: bool = False
+    knowledge_dir: str | None = None
+
     # REA discovery (the runner is rea-runner/wrapper.mjs, see docs/architecture.md)
     rea_enabled: bool = True
     rea_transport: Literal["local", "http"] = "local"

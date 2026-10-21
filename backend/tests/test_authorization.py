@@ -51,7 +51,7 @@ def _protected_routes(app: FastAPI) -> list[tuple[str, APIRoute]]:
 
 def test_every_route_declares_its_roles(app: FastAPI) -> None:
     protected = _protected_routes(app)
-    assert len(protected) == 18
+    assert len(protected) == 21
     for method, route in protected:
         roles = [
             getattr(call, "allowed_roles", None)
@@ -170,6 +170,23 @@ def _matrix(
         ("GET", "/data-elements", lambda c: c.get(f"/api/v1/systems/{sys_id}/data-elements"), ALL),
         ("GET", "/recipients", lambda c: c.get(f"/api/v1/systems/{sys_id}/recipients"), ALL),
         ("GET", "/technologies", lambda c: c.get(f"/api/v1/systems/{sys_id}/technologies"), ALL),
+        ("GET", "/taxonomy", lambda c: c.get("/api/v1/taxonomy"), ALL),
+        (
+            "POST",
+            "/classification",
+            lambda c: c.post(f"/api/v1/systems/{sys_id}/classification", headers=csrf(c)),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "PATCH",
+            "/data-elements/{id}",
+            lambda c: c.patch(
+                f"/api/v1/systems/{sys_id}/data-elements/{uuid.uuid4()}",
+                json={"review_status": "accepted"},
+                headers=csrf(c),
+            ),
+            {Role.ADMIN, Role.ANALYST},
+        ),
         (
             "GET",
             "/discovery-evidence/{id}",

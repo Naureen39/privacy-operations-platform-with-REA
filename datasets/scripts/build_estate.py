@@ -29,7 +29,7 @@ from js_bundles import bundle_filename  # noqa: E402
 from request_cases import build_cases, case_person_ids  # noqa: E402
 from seed_estate import seed_all  # noqa: E402
 
-MANIFEST_DIRS = ["estate", "people", "policies", "expected", "regulation"]
+MANIFEST_DIRS = ["estate", "people", "policies", "expected", "regulation", "evaluation"]
 GENERATED_DIRS = ["estate", "expected"]
 
 
