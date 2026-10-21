@@ -2,7 +2,7 @@
 
 UV := cd backend && uv run python
 
-.PHONY: taxonomy tune-classifier datasets datasets-regulation datasets-estate datasets-verify test lint runner-install runner-test runner-images
+.PHONY: taxonomy regulation tune-classifier datasets datasets-regulation datasets-estate datasets-verify test lint runner-install runner-test runner-images
 
 # Rebuild the whole dataset. Needs the network only if gdpr_articles.json is missing.
 datasets:
@@ -21,6 +21,10 @@ datasets-verify:
 # Embed the personal data taxonomy into PostgreSQL (needs the database and the embedding model).
 taxonomy:
 	cd backend && uv run python ../scripts/load_taxonomy.py
+
+# Embed the GDPR text into PostgreSQL (the knowledge base; needs the database and the embedding model).
+regulation:
+	cd backend && uv run python ../scripts/ingest_regulation.py
 
 # Re-tune the classifier thresholds on the reference estate (about 5 minutes).
 tune-classifier:

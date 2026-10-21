@@ -5,7 +5,15 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from app.db.enums import EvidenceKind, Extractor, JobState, RecipientRole, ReviewStatus, Role
+from app.db.enums import (
+    DocumentType,
+    EvidenceKind,
+    Extractor,
+    JobState,
+    RecipientRole,
+    ReviewStatus,
+    Role,
+)
 
 
 class LoginRequest(BaseModel):
@@ -224,3 +232,55 @@ class TaxonomyCategoryOut(BaseModel):
     definition: str
     sensitivity: str
     special_category: bool
+
+
+KnowledgeSource = Literal["regulation", "document"]
+ALL_SOURCES: tuple[KnowledgeSource, ...] = ("regulation", "document")
+
+
+class KnowledgeSearchIn(BaseModel):
+    query: str = Field(min_length=3, max_length=1000)
+    top_k: int = Field(default=5, ge=1, le=20)
+    system_id: uuid.UUID | None = None
+    doc_types: list[DocumentType] = Field(default_factory=list, max_length=4)
+    articles: list[int] = Field(default_factory=list, max_length=20)
+    sources: list[KnowledgeSource] = Field(default_factory=lambda: list(ALL_SOURCES))
+    rerank: bool | None = None
+
+
+class PassageOut(BaseModel):
+    id: uuid.UUID
+    source: Literal["regulation", "document"]
+    citation: str
+    label: str
+    text: str
+    score: float
+    signals: dict[str, float | int | None]
+    metadata: dict[str, Any]
+
+
+class KnowledgeSearchOut(BaseModel):
+    passages: list[PassageOut]
+    reranked: bool
+    timings_ms: dict[str, float]
+
+
+class DocumentOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    system_id: uuid.UUID | None
+    evidence_item_id: uuid.UUID | None
+    doc_type: DocumentType
+    title: str
+    source_uri: str | None
+    chunks: int = 0
+    created_at: datetime
+
+
+class IngestItemOut(BaseModel):
+    document_id: uuid.UUID | None = None
+    title: str | None = None
+    chunks: int = 0
+    status: str
+    detail: str | None = None

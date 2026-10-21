@@ -22,7 +22,10 @@ from app.db.base import Base, TenantMixin, UuidPkMixin, enum_type, jsonb_default
 from app.db.enums import DocumentType
 from app.db.models.inventory import EMBEDDING_DIMENSIONS
 
-_TSV_EXPR = "to_tsvector('english', text)"
+# Headings and titles are searchable too: a question about "retention" should find the section
+# called "How long we keep it" even when the paragraph under it does not repeat the word.
+_DOC_TSV_EXPR = "to_tsvector('english', coalesce(heading, '') || ' ' || text)"
+_REG_TSV_EXPR = "to_tsvector('english', coalesce(title, '') || ' ' || text)"
 
 
 class Document(UuidPkMixin, TenantMixin, Base):
@@ -30,6 +33,9 @@ class Document(UuidPkMixin, TenantMixin, Base):
 
     system_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("systems.id", ondelete="CASCADE"), index=True
+    )
+    evidence_item_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("evidence_items.id", ondelete="CASCADE"), index=True
     )
     doc_type: Mapped[DocumentType] = mapped_column(enum_type(DocumentType), nullable=False)
     title: Mapped[str] = mapped_column(String(300), nullable=False)
@@ -58,7 +64,7 @@ class DocumentChunk(UuidPkMixin, TenantMixin, Base):
     text: Mapped[str] = mapped_column(Text, nullable=False)
     token_count: Mapped[int | None] = mapped_column(Integer)
     embedding: Mapped[list[float] | None] = mapped_column(Vector(EMBEDDING_DIMENSIONS))
-    tsv: Mapped[Any] = mapped_column(TSVECTOR, Computed(_TSV_EXPR, persisted=True))
+    tsv: Mapped[Any] = mapped_column(TSVECTOR, Computed(_DOC_TSV_EXPR, persisted=True))
 
     __table_args__ = (
         Index(
@@ -77,6 +83,7 @@ class RegulationChunk(UuidPkMixin, Base):
 
     __tablename__ = "regulation_chunks"
 
+    chunk_key: Mapped[str] = mapped_column(String(80), nullable=False, unique=True)
     regulation: Mapped[str] = mapped_column(String(40), nullable=False, server_default="GDPR")
     chapter: Mapped[str | None] = mapped_column(String(200))
     article: Mapped[int | None] = mapped_column(Integer, index=True)
@@ -84,7 +91,7 @@ class RegulationChunk(UuidPkMixin, Base):
     title: Mapped[str | None] = mapped_column(String(300))
     text: Mapped[str] = mapped_column(Text, nullable=False)
     embedding: Mapped[list[float] | None] = mapped_column(Vector(EMBEDDING_DIMENSIONS))
-    tsv: Mapped[Any] = mapped_column(TSVECTOR, Computed(_TSV_EXPR, persisted=True))
+    tsv: Mapped[Any] = mapped_column(TSVECTOR, Computed(_REG_TSV_EXPR, persisted=True))
 
     __table_args__ = (
         Index(

@@ -19,6 +19,7 @@ Migrations:
 | 0003 | `organizations.settings`, `refresh_tokens.session_org_id` (Phase 2) |
 | 0004 | `context` on `data_elements`, `recipients` and `technologies`; `source_kind` on `data_elements`; `raw_sha256` and `raw_truncated` on `discovery_evidence` (Phase 4) |
 | 0005 | `taxonomy_entries`: the embedded taxonomy for the classifier (HNSW cosine index, read only for the application role) (Phase 5) |
+| 0006 | `regulation_chunks.chunk_key` (stable citation key), `documents.evidence_item_id`, full text vectors that include the heading or article title (Phase 6) |
 
 Both directions are tested: upgrade, downgrade to 0001, downgrade to base, upgrade again, plus a check that the models and the migrated schema have no drift.
 

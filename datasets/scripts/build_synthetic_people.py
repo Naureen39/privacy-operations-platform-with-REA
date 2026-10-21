@@ -11,9 +11,11 @@ person is coincidental. People are spread across the estate systems with realist
 import csv
 import sys
 import unicodedata
+from datetime import date, timedelta
 from pathlib import Path
 
 from faker import Faker
+from faker.providers.date_time import change_year
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import DATASETS_DIR, SEED, has_banned_word, rng_for  # noqa: E402
@@ -66,6 +68,18 @@ COLUMNS = [
 ]
 
 
+# Faker's date_of_birth counts back from today's date, which made the build depend on the day it
+# ran. Ages (18 to 80) are counted from this fixed day instead.
+DOB_ANCHOR = date(2026, 10, 20)
+
+
+def date_of_birth(gen: Faker) -> date:
+    start = change_year(DOB_ANCHOR, -81)
+    end = change_year(DOB_ANCHOR, -18)
+    dob = gen.date_time_ad(start_datetime=start, end_datetime=end).date()
+    return dob if dob != start else dob + timedelta(days=1)
+
+
 def ascii_fold(text: str) -> str:
     return unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode().lower()
 
@@ -111,7 +125,7 @@ def build_people(count: int = PEOPLE_COUNT) -> list[dict[str, object]]:
         if flags["in_hr_onboarding"]:
             employee_counter += 1
             employee_id = f"NB{employee_counter:04d}"
-        dob = gen.date_of_birth(minimum_age=18, maximum_age=80)
+        dob = date_of_birth(gen)
         n = index  # unique host number inside 198.18.0.0/15
         ip = f"198.{18 + (n // 65024)}.{(n // 254) % 256}.{n % 254 + 1}"
         people.append(

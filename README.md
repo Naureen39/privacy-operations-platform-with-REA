@@ -13,7 +13,8 @@ Generated legal or compliance documents are drafts for review by a qualified pri
 | 3 | Dataset and reference estate (`datasets/`) | Done |
 | 4 | REA integration and evidence extraction (`rea-runner/`, `backend/app/discovery/`) | Done |
 | 5 | Classification and the data element engine (`backend/app/classify/`) | Done |
-| 6 onwards | Knowledge base, LLM router, fusion, assessments, requests, frontend | Planned |
+| 6 | Knowledge base and hybrid retrieval (`backend/app/knowledge/`) | Done |
+| 7 onwards | LLM router, fusion, assessments, requests, frontend | Planned |
 
 ## Quick start (backend)
 
@@ -41,6 +42,8 @@ Discovery uses the pinned [REA](https://github.com/morluto/rea) release. Install
 
 Classification needs the embedding model and the taxonomy index: `cd backend && uv run python ../scripts/download_embedding_model.py && uv run python ../scripts/load_taxonomy.py`. Without the model the classification tests are skipped.
 
+The knowledge base needs the same model plus the GDPR text: `cd backend && uv run python ../scripts/ingest_regulation.py` (or `make regulation`). The cross encoder used for optional reranking is downloaded on first use (`RERANK_ENABLED=true`); the retrieval tests that need either model are skipped when it is not cached.
+
 Runner tests (Node 24.15 or newer): `cd rea-runner && npm test`. Container images: `make runner-images`.
 
 Use `127.0.0.1` rather than `localhost` in database URLs; `localhost` can resolve to IPv6 first and stall on some machines.
@@ -65,4 +68,4 @@ The platform performs static or observational analysis of systems the organizati
 
 ## Project plan
 
-The phase by phase plan is in [PLAN_PRIVACY_OPS.md](PLAN_PRIVACY_OPS.md). Phases 1 to 3 are complete: database and tenancy, authentication and security baseline, and the dataset with the reference estate.
+The phase by phase plan is in [PLAN_PRIVACY_OPS.md](PLAN_PRIVACY_OPS.md). Phases 1 to 6 are complete: database and tenancy, authentication and security baseline, the dataset with the reference estate, evidence extraction, classification, and the knowledge base with hybrid retrieval.

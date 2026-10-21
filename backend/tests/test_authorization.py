@@ -51,7 +51,7 @@ def _protected_routes(app: FastAPI) -> list[tuple[str, APIRoute]]:
 
 def test_every_route_declares_its_roles(app: FastAPI) -> None:
     protected = _protected_routes(app)
-    assert len(protected) == 21
+    assert len(protected) == 27
     for method, route in protected:
         roles = [
             getattr(call, "allowed_roles", None)
@@ -186,6 +186,44 @@ def _matrix(
                 headers=csrf(c),
             ),
             {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "POST",
+            "/knowledge/search",
+            lambda c: c.post(
+                "/api/v1/knowledge/search", json={"query": "breach notification"}, headers=csrf(c)
+            ),
+            ALL,
+        ),
+        (
+            "GET",
+            "/knowledge/passage",
+            lambda c: c.get("/api/v1/knowledge/passage", params={"citation": "reg:gdpr-art30-p1"}),
+            ALL,
+        ),
+        ("GET", "/knowledge/documents", lambda c: c.get("/api/v1/knowledge/documents"), ALL),
+        (
+            "POST",
+            "/knowledge/documents",
+            lambda c: c.post(
+                "/api/v1/knowledge/documents",
+                data={"doc_type": "policy"},
+                files={"file": ("p.md", b"## A\n\nSome policy text here.", "text/markdown")},
+                headers=csrf(c),
+            ),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "DELETE",
+            "/knowledge/documents/{id}",
+            lambda c: c.delete(f"/api/v1/knowledge/documents/{uuid.uuid4()}", headers=csrf(c)),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "POST",
+            "/knowledge/ingest",
+            lambda c: c.post(f"/api/v1/systems/{sys_id}/knowledge/ingest", headers=csrf(c)),
+            {Role.ADMIN, Role.ANALYST, Role.SYSTEM_OWNER},
         ),
         (
             "GET",

@@ -61,6 +61,12 @@ class Settings(BaseSettings):
     embedding_local_files_only: bool = False
     knowledge_dir: str | None = None
 
+    # Knowledge base and retrieval
+    retrieval_candidates: int = 30
+    chunk_max_chars: int = 900
+    rerank_enabled: bool = False  # cross encoder over the top 10: better order, about 250 ms more
+    rerank_model: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+
     # REA discovery (the runner is rea-runner/wrapper.mjs, see docs/architecture.md)
     rea_enabled: bool = True
     rea_transport: Literal["local", "http"] = "local"

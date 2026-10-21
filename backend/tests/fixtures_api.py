@@ -32,6 +32,7 @@ def settings(tmp_path: Path) -> Settings:
         login_rate_limit="1000/minute",
         default_rate_limit="10000/minute",
         max_upload_bytes=200_000,
+        embedding_local_files_only=True,
         cors_allowed_origins=["https://app.example.test"],
         observation_allowed_hosts=[
             "93.184.216.34",

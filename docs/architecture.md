@@ -183,3 +183,80 @@ Reviewed elements (`accepted` or `overridden`) are never overwritten by a later 
 - Names are judged in English. Field names in other languages rely on the embedding model, which is trained mostly on English.
 - Values are used only to detect pattern classes and are never embedded or stored.
 - A column meaning can depend on a neighbour (an `amount`, a `title`); table context is used for special categories only.
+
+## Knowledge base and retrieval
+
+Holds the text the later phases reason over (the GDPR, the organisation's policies, questionnaires and vendor agreements) and returns passages that a downstream claim can cite. **No LLM is called**; retrieval is full text plus vectors in PostgreSQL.
+
+```
+datasets/regulation/gdpr_articles.json ── scripts/ingest_regulation.py (owner role) ──► regulation_chunks (shared)
+policy / questionnaire / agreement (upload or evidence item)
+      ├─ chunking.py ── by heading and paragraph, page and section kept ──► document_chunks (per organisation, RLS)
+      ▼
+embedding (bge-small-en-v1.5, "title. heading: text")  +  generated tsvector (heading + text)
+
+query ─┬─ vector: pgvector cosine (HNSW) over both tables, top 30 by similarity
+       ├─ full text: to_tsquery with OR-ed terms, ts_rank_cd, top 30
+       ▼
+reciprocal rank fusion (k = 60) ─► optional cross encoder over the top 10 ─► passages with id, citation, label, score, signals
+```
+
+### Chunking (`backend/app/knowledge/chunking.py`)
+
+- Markdown: one passage never crosses a heading; nested headings become a path (`Security > Backups`). Paragraphs under one heading are packed up to 900 characters, longer ones are split at sentence boundaries, a small tail is merged back. The italic provenance note under the title is not indexed.
+- PDF (pdfplumber): numbered headings (`1. Subject matter`) and the page number of each passage are kept. HTML (BeautifulSoup): headings, paragraphs and list items without scripts. Questionnaire JSON: one passage per answer, headed by the question.
+- The embedding of a document passage is computed from `document title. heading: text`, so a section called "How long we keep it" is tied to the system it belongs to. The full text vector covers heading and text.
+- Regulation passages are the 412 article and paragraph chunks, embedded as `GDPR Article 30(1), Records of processing activities: text`. Each has a stable key (`gdpr-art30-p1`).
+
+### Retrieval (`backend/app/knowledge/retrieval.py`)
+
+- Vector and full text candidate lists (30 each) are merged by reciprocal rank fusion. Cosine similarity is comparable across the two tables, so the vector list mixes regulation and document passages by similarity; the full text list is merged by `ts_rank_cd`.
+- Filters: system, document type, article numbers, source (regulation or documents). A system owner sees organisation wide documents and those of the systems they own. Row Level Security keeps other organisations out whatever the query says.
+- The bge query instruction is added to the question before embedding. Query terms are reduced to letters and digits before they reach `to_tsquery`, so operators in user text have no effect.
+- Cross encoder (`cross-encoder/ms-marco-MiniLM-L-6-v2`, Apache-2.0) over the top 10: off by default (`RERANK_ENABLED=false`), `rerank` can be set per request.
+- Every passage has an `id`, a `citation` (`reg:gdpr-art30-p1` or `doc:<document id>#<chunk>`), a human readable `label` (`GDPR Article 30(1), Records of processing activities`, `Privacy notice: Web shop, How long we keep it`), its score, which lists found it (`vector_rank`, `fulltext_rank`) and metadata (article, heading, page, system, document type). `resolve_citation` and `GET /knowledge/passage` turn a citation back into the exact text, which lets later phases reject a claim whose citation does not resolve.
+
+### Ingestion
+
+Idempotent: a document is identified by its evidence item (or system, source and type for uploads); the checksum covers the content, the chunk size and the embedding model, so unchanged content is not embedded again and any change replaces the document and its passages in one transaction. The regulation load compares text and model and skips when nothing changed.
+
+### Setup
+
+```
+cd backend
+uv run alembic upgrade head
+uv run python ../scripts/download_embedding_model.py   # once
+uv run python ../scripts/ingest_regulation.py          # embeds the GDPR text (owner connection)
+```
+
+Policies, questionnaires and agreements are indexed per system with `POST /systems/{id}/knowledge/ingest` (reads the evidence already uploaded) or uploaded directly as organisation wide or system documents. Search answers 503 while the knowledge base is empty.
+
+### API
+
+| Route | Roles |
+|---|---|
+| `POST /knowledge/search` | all roles (system owners see their own systems and organisation wide documents) |
+| `GET /knowledge/passage?citation=` | all roles |
+| `GET /knowledge/documents` | all roles |
+| `POST /knowledge/documents` (upload), `DELETE /knowledge/documents/{id}` | admin, analyst |
+| `POST /systems/{id}/knowledge/ingest` | admin, analyst, system owner (own systems) |
+
+### Evaluation
+
+`datasets/evaluation/retrieval_gold.json` holds 40 questions (24 on the regulation, 16 on policies, questionnaires and agreements of the estate), written before any tuning. A question counts as found when a relevant passage is in the top 5. `backend/tests/test_knowledge_gold.py` fails below 90 percent.
+
+| Method | Recall at 5 | MRR | Median latency |
+|---|---|---|---|
+| Full text only | 75.0 percent (30 of 40) | 0.600 | 16 ms |
+| Vector only | 97.5 percent (39 of 40) | 0.869 | 72 ms |
+| **Hybrid (default)** | **97.5 percent (39 of 40)** | **0.910** | 111 ms |
+| Hybrid + cross encoder | 97.5 percent (39 of 40) | 0.950 | 360 ms (p95 455 ms) |
+
+Hybrid and vector only find the same questions; fusion improves the position of the answer (MRR) and keyword matches rescue exact terms that the embedding blurs. The cross encoder improves the order further at about 250 ms extra, which is why it is optional. The one miss is "Which service providers receive the patients' data?" scoped to the clinic portal: the questionnaire's declared recipients and the vendor agreements outrank the notice section "Who we share it with". Times are for a laptop CPU with 412 regulation and 245 document passages.
+
+### Limits
+
+- English only (model and stemming). The full text configuration is `english`.
+- Document passages are not shared across organisations; the same agreement uploaded by two organisations is embedded twice.
+- The gold set covers the reference estate; recall on other corpora is not measured. Questions that need several passages together (a contradiction between a notice and a record) are the fusion phase's job, not retrieval's.
+- Scanned PDFs without a text layer are rejected as empty.
