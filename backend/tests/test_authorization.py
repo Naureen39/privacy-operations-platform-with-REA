@@ -51,7 +51,7 @@ def _protected_routes(app: FastAPI) -> list[tuple[str, APIRoute]]:
 
 def test_every_route_declares_its_roles(app: FastAPI) -> None:
     protected = _protected_routes(app)
-    assert len(protected) == 27
+    assert len(protected) == 46
     for method, route in protected:
         roles = [
             getattr(call, "allowed_roles", None)
@@ -224,6 +224,111 @@ def _matrix(
             "/knowledge/ingest",
             lambda c: c.post(f"/api/v1/systems/{sys_id}/knowledge/ingest", headers=csrf(c)),
             {Role.ADMIN, Role.ANALYST, Role.SYSTEM_OWNER},
+        ),
+        (
+            "GET",
+            "/llm/usage",
+            lambda c: c.get("/api/v1/llm/usage"),
+            {Role.ADMIN, Role.ANALYST, Role.VIEWER},
+        ),
+        (
+            "POST",
+            "/llm/test-connection",
+            lambda c: c.post("/api/v1/llm/test-connection", headers=csrf(c)),
+            {Role.ADMIN},
+        ),
+        (
+            "POST",
+            "/fusion",
+            lambda c: c.post(f"/api/v1/systems/{sys_id}/fusion", headers=csrf(c)),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        ("GET", "/findings", lambda c: c.get("/api/v1/findings"), ALL),
+        (
+            "PATCH",
+            "/findings/{id}",
+            lambda c: c.patch(
+                f"/api/v1/findings/{uuid.uuid4()}", json={"status": "dismissed"}, headers=csrf(c)
+            ),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "POST",
+            "/record",
+            lambda c: c.post(f"/api/v1/systems/{sys_id}/record", headers=csrf(c)),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        ("GET", "/activities", lambda c: c.get("/api/v1/activities"), ALL),
+        ("GET", "/activities/{id}", lambda c: c.get(f"/api/v1/activities/{uuid.uuid4()}"), ALL),
+        (
+            "GET",
+            "/activities/{id}/versions",
+            lambda c: c.get(f"/api/v1/activities/{uuid.uuid4()}/versions"),
+            ALL,
+        ),
+        (
+            "GET",
+            "/activities/{id}/versions/{n}",
+            lambda c: c.get(f"/api/v1/activities/{uuid.uuid4()}/versions/1"),
+            ALL,
+        ),
+        (
+            "GET",
+            "/activities/{id}/diff",
+            lambda c: c.get(f"/api/v1/activities/{uuid.uuid4()}/diff", params={"from": 1, "to": 2}),
+            ALL,
+        ),
+        (
+            "PATCH",
+            "/activities/{id}",
+            lambda c: c.patch(
+                f"/api/v1/activities/{uuid.uuid4()}", json={"retention": "1 year"}, headers=csrf(c)
+            ),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "POST",
+            "/activities/{id}/submit",
+            lambda c: c.post(f"/api/v1/activities/{uuid.uuid4()}/submit", headers=csrf(c)),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "POST",
+            "/activities/{id}/approve",
+            lambda c: c.post(
+                f"/api/v1/activities/{uuid.uuid4()}/approve", json={}, headers=csrf(c)
+            ),
+            {Role.ADMIN},
+        ),
+        (
+            "POST",
+            "/activities/{id}/reject",
+            lambda c: c.post(f"/api/v1/activities/{uuid.uuid4()}/reject", json={}, headers=csrf(c)),
+            {Role.ADMIN},
+        ),
+        (
+            "POST",
+            "/activities/{id}/publish",
+            lambda c: c.post(f"/api/v1/activities/{uuid.uuid4()}/publish", headers=csrf(c)),
+            {Role.ADMIN},
+        ),
+        (
+            "GET",
+            "/review-queue",
+            lambda c: c.get("/api/v1/review-queue"),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "GET",
+            "/exports/register.xlsx",
+            lambda c: c.get("/api/v1/exports/register.xlsx"),
+            {Role.ADMIN, Role.ANALYST, Role.VIEWER},
+        ),
+        (
+            "GET",
+            "/exports/register.pdf",
+            lambda c: c.get("/api/v1/exports/register.pdf"),
+            {Role.ADMIN, Role.ANALYST, Role.VIEWER},
         ),
         (
             "GET",

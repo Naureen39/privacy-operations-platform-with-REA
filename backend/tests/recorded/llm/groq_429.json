@@ -1,0 +1,12 @@
+{
+  "note": "Groq rate limit answer in the documented shape.",
+  "status": 429,
+  "headers": {"retry-after": "7", "x-ratelimit-remaining-tokens": "0"},
+  "body": {
+    "error": {
+      "message": "Rate limit reached for model openai/gpt-oss-20b on tokens per minute (TPM): Limit 8000, Used 7900, Requested 700. Please try again in 6.9s.",
+      "type": "tokens",
+      "code": "rate_limit_exceeded"
+    }
+  }
+}

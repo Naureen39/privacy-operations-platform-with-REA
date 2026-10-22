@@ -1,0 +1,30 @@
+{
+  "note": "Response in the documented shape of Groq chat completions (OpenAI compatible), with the rate limit headers Groq documents. Replayed by the tests; CI never calls a provider.",
+  "status": 200,
+  "headers": {
+    "x-ratelimit-remaining-tokens": "7312",
+    "x-ratelimit-remaining-requests": "28",
+    "x-ratelimit-reset-tokens": "5.2s"
+  },
+  "body": {
+    "id": "chatcmpl-recorded-1",
+    "object": "chat.completion",
+    "model": "openai/gpt-oss-20b",
+    "choices": [
+      {
+        "index": 0,
+        "finish_reason": "stop",
+        "message": {
+          "role": "assistant",
+          "content": "{\"purposes\":[\"Order fulfilment\",\"Customer accounts\"],\"lawful_basis\":\"contract\",\"basis_rationale\":\"Orders are placed to perform a sales contract with the customer.\",\"needs_review\":false}"
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 612,
+      "completion_tokens": 58,
+      "total_tokens": 670,
+      "prompt_tokens_details": {"cached_tokens": 320}
+    }
+  }
+}

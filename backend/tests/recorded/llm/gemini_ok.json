@@ -1,0 +1,26 @@
+{
+  "note": "Response in the documented shape of Gemini generateContent.",
+  "status": 200,
+  "headers": {},
+  "body": {
+    "candidates": [
+      {
+        "content": {
+          "role": "model",
+          "parts": [
+            {"text": "{\"purposes\":[\"Order fulfilment\"],\"lawful_basis\":\"contract\",\"basis_rationale\":\"Needed to deliver the ordered goods.\",\"needs_review\":false}"}
+          ]
+        },
+        "finishReason": "STOP",
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 640,
+      "candidatesTokenCount": 41,
+      "totalTokenCount": 681,
+      "cachedContentTokenCount": 0
+    },
+    "modelVersion": "gemini-2.5-flash-lite"
+  }
+}

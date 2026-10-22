@@ -5,6 +5,7 @@ table). The fallback path reads the file with the standard library, read only. S
 used here to detect pattern classes and are then reduced to shape masks.
 """
 
+import re
 import sqlite3
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -15,6 +16,34 @@ from app.discovery.patterns import dominant_pattern, masked_samples
 
 ROW_SAMPLE = 20
 MAX_TABLES = 100
+# Columns that say when a record was made. Birth dates and the like are personal data themselves
+# and are never summarised.
+RECORD_DATE_NAME = re.compile(
+    r"(created|updated|closed|opened|ordered|started|visited|timestamp|_at$)"
+)
+NOT_RECORD_DATE = re.compile(r"(birth|dob|born|expir)")
+ISO_PREFIX = re.compile(r"^(\d{4}-\d{2})-\d{2}")
+
+
+def is_record_date_column(name: str) -> bool:
+    lowered = name.lower()
+    return bool(RECORD_DATE_NAME.search(lowered)) and not NOT_RECORD_DATE.search(lowered)
+
+
+def sample_date_ranges(info: "TableInfo") -> dict[str, tuple[str, str, str]]:
+    ranges: dict[str, tuple[str, str, str]] = {}
+    for column in info.columns:
+        if not is_record_date_column(column.name) or column.name not in info.sample_columns:
+            continue
+        position = info.sample_columns.index(column.name)
+        months = [
+            m.group(1)
+            for row in info.sample_rows
+            if isinstance(row[position], str) and (m := ISO_PREFIX.match(row[position]))
+        ]
+        if months:
+            ranges[column.name] = (min(months), max(months), "sample")
+    return ranges
 
 
 @dataclass
@@ -31,6 +60,8 @@ class TableInfo:
     columns: list[ColumnInfo]
     sample_columns: list[str] = field(default_factory=list)
     sample_rows: list[list[Any]] = field(default_factory=list)
+    # Oldest and newest record month (YYYY-MM) of timestamp columns: how long data is really kept.
+    date_ranges: dict[str, tuple[str, str, str]] = field(default_factory=dict)
 
 
 def _decode_cell(cell: dict[str, Any]) -> Any:
@@ -68,6 +99,7 @@ def tables_from_rea(result: dict[str, Any]) -> list[TableInfo]:
         rows = (sampled.get("rows") or {}) if sampled.get("ok") else {}
         info.sample_columns = list(rows.get("columns", []))
         info.sample_rows = [[_decode_cell(c) for c in row] for row in rows.get("values", [])]
+        info.date_ranges = sample_date_ranges(info)
         tables.append(info)
     return tables[:MAX_TABLES]
 
@@ -95,6 +127,17 @@ def tables_from_file(path: Path, row_sample: int = ROW_SAMPLE) -> list[TableInfo
             info.sample_rows = [
                 [v if not isinstance(v, bytes) else None for v in row] for row in cursor.fetchall()
             ]
+            info.date_ranges = sample_date_ranges(info)
+            for column in info.columns:
+                if not is_record_date_column(column.name):
+                    continue
+                col = '"' + column.name.replace('"', '""') + '"'
+                low, high = db.execute(
+                    f"SELECT min(substr({col}, 1, 7)), max(substr({col}, 1, 7)) FROM {quoted} "  # noqa: S608
+                    f"WHERE {col} GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]*'"
+                ).fetchone()
+                if low:
+                    info.date_ranges[column.name] = (low, high, "whole table")
             tables.append(info)
         return tables
     finally:
@@ -125,7 +168,15 @@ def extract_tables(tables: list[TableInfo]) -> list[ElementCandidate]:
                         "table_columns": [c.name for c in table.columns],
                         "values_seen": observed,
                         "masked_samples": masked_samples(values),
+                        **_range_context(table, column.name),
                     },
                 )
             )
     return candidates
+
+
+def _range_context(table: TableInfo, column: str) -> dict[str, Any]:
+    if column not in table.date_ranges:
+        return {}
+    oldest, newest, basis = table.date_ranges[column]
+    return {"record_months": {"oldest": oldest, "newest": newest, "basis": basis}}

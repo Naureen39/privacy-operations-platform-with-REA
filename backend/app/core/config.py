@@ -1,5 +1,6 @@
 import base64
 import binascii
+from datetime import date
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -66,6 +67,28 @@ class Settings(BaseSettings):
     chunk_max_chars: int = 900
     rerank_enabled: bool = False  # cross encoder over the top 10: better order, about 250 ms more
     rerank_model: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+
+    # Fusion: the date review and retention checks count from (default: today). The demonstration
+    # estate was built for 2026-10-01.
+    reference_date: date | None = None
+
+    # LLM router (see docs/architecture.md). Free tier providers: send only masked metadata.
+    groq_api_key: SecretStr | None = None
+    groq_model: str = "openai/gpt-oss-20b"
+    groq_base_url: str = "https://api.groq.com/openai/v1"
+    groq_tokens_per_minute: int = 8000
+    groq_requests_per_minute: int = 30
+    gemini_api_key: SecretStr | None = None
+    # Free models and quotas change often: confirm in Google AI Studio before relying on this.
+    gemini_model: str = "gemini-2.5-flash-lite"
+    gemini_base_url: str = "https://generativelanguage.googleapis.com"
+    gemini_tokens_per_minute: int = 250_000
+    gemini_requests_per_minute: int = 10
+    llm_timeout_seconds: float = 30.0
+    llm_request_token_cap: int = 5000  # estimated input plus the output cap, per request
+    llm_max_output_tokens: int = 800
+    llm_attempts_per_provider: int = 2
+    llm_onboarding_token_budget: int = 4000
 
     # REA discovery (the runner is rea-runner/wrapper.mjs, see docs/architecture.md)
     rea_enabled: bool = True

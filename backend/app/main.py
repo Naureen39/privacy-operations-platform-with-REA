@@ -13,13 +13,26 @@ from sqlalchemy.orm import sessionmaker
 
 from app.api.deps import CSRF_HEADER
 from app.api.middleware import csrf_protection, security_headers
-from app.api.routes import admin, auth, classification, discovery, evidence, knowledge, systems
+from app.api.routes import (
+    admin,
+    auth,
+    classification,
+    discovery,
+    evidence,
+    fusion,
+    knowledge,
+    llm,
+    records,
+    systems,
+)
 from app.classify.embedder import Embedder, SentenceTransformerEmbedder
 from app.classify.knowledge import load_knowledge
 from app.core.config import Settings, get_settings
 from app.db.session import TenantSession, make_engine, make_session_factory
 from app.discovery.executor import Executor, build_rea_clients
 from app.knowledge.retrieval import CrossEncoderReranker
+from app.llm.factory import build_router
+from app.llm.router import LLMRouter
 from app.services.evidence_store import EvidenceStore
 
 
@@ -27,6 +40,7 @@ def create_app(
     settings: Settings | None = None,
     session_factory: sessionmaker[TenantSession] | None = None,
     embedder: Embedder | None = None,
+    llm_router: LLMRouter | None = None,
 ) -> FastAPI:
     settings = settings or get_settings()
     settings.require_secrets()
@@ -55,6 +69,7 @@ def create_app(
     app.state.embedder = embedder or SentenceTransformerEmbedder(
         settings.embedding_model, settings.embedding_local_files_only
     )
+    app.state.llm_router = llm_router or build_router(settings, lambda: app.state.session_factory)
     app.state.reranker = (
         CrossEncoderReranker(settings.rerank_model, settings.embedding_local_files_only)
         if settings.rerank_enabled
@@ -93,6 +108,9 @@ def create_app(
     app.include_router(evidence.router)
     app.include_router(discovery.router)
     app.include_router(classification.router)
+    app.include_router(fusion.router)
     app.include_router(knowledge.router)
+    app.include_router(llm.router)
+    app.include_router(records.router)
     app.include_router(admin.router)
     return app

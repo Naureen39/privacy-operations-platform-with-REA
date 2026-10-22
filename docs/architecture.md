@@ -260,3 +260,174 @@ Hybrid and vector only find the same questions; fusion improves the position of 
 - Document passages are not shared across organisations; the same agreement uploaded by two organisations is embedded twice.
 - The gold set covers the reference estate; recall on other corpora is not measured. Questions that need several passages together (a contradiction between a notice and a record) are the fusion phase's job, not retrieval's.
 - Scanned PDFs without a text layer are rejected as empty.
+
+## LLM router and token budget
+
+The model is used for free text and ambiguous judgments only. Extraction, classification, vendor lookup, conflict screening and retrieval are rules, embeddings and SQL. The code is in `backend/app/llm/`.
+
+```
+task + payload ── guard (mask identifiers, refuse sample values) ── fenced JSON in <data> ... </data>
+      ▼
+llm_cache (org, SHA-256 of task, prompt version + hash, payload)  ── hit: zero tokens, logged as a cache hit
+      ▼ miss
+budgets: request cap 5,000 ─ job budget ─ system per day ─ organisation per day   ── over: BudgetExceededError (logged)
+      ▼
+providers in the organisation's order (default Groq, then Gemini)
+   circuit breaker (3 failures, open 60 s) ─ token bucket per provider ─ retry with backoff and jitter ─ failover
+      ▼
+JSON parsed and validated (Pydantic, task checks); one repair call; still invalid: next provider
+      ▼
+answer cached, every attempt written to llm_calls (provider, model, task, tokens, cached tokens, latency, status, system)
+```
+
+### Tasks and prompts
+
+| Task | Used for | Calls |
+|---|---|---|
+| `suggest_purpose_and_basis` | purposes and a lawful basis suggestion | one per processing activity |
+| `adjudicate_conflict` | a statement the rules cannot settle, with the top 3 retrieved passages | only when needed |
+| `draft_dpia_sections` | description and necessity, then risks | two per assessment |
+| `draft_request_cover_note` | optional short cover note (counts only) | optional |
+| `answer_question` | retrieval augmented answer with citations | none when nothing is retrieved |
+
+Prompts are files (`backend/app/llm/prompt_files/<task>.v1.md`) behind a shared first part (`_common.v1.md`) so the prefix is constant and provider prompt caching applies. The version and the hash of the text are part of the cache key: editing a prompt never serves an old answer. The output schemas (`schemas.py`) require every field, forbid extras and cap every string, so an answer cannot outgrow the 800 token output cap. Requests use temperature 0 and strict JSON schema output (Groq `json_schema`, Gemini `responseJsonSchema`).
+
+### What is sent
+
+Element names, category labels, vendor names, roles, countries and short retrieved passages. `guard.py` refuses payload fields called `sample`, `values`, `raw`, `email`, `identifier`, `subject_hash` and similar, and masks e-mail addresses, IP addresses, IBANs, long digit runs, hashes and telephone numbers inside text. ISO dates and passage ids are kept. The data sits inside `<data>` tags, any tag in the text is removed, and the prompt tells the model that the content is untrusted. Answers cite passage ids; an id that was not in the request makes the answer invalid. The model has no tools and writes no documents.
+
+### Failure behaviour
+
+| Event | Behaviour |
+|---|---|
+| 429 | provider marked blocked for its `Retry-After`; retried once after a short backoff when that is short; then the next provider |
+| 5xx, timeout, network error | retried once with backoff and jitter, then the next provider |
+| 401 or 403 | next provider at once |
+| Invalid JSON or schema or citation | one repair call, then the next provider |
+| Three consecutive failures | provider skipped for 60 seconds, then one probe call |
+| Every provider unavailable | `LLMUnavailableError` with `retry_after_seconds`; the caller keeps its job and retries |
+| Budget exceeded | `BudgetExceededError`, no provider is called; cached answers still work |
+
+Rate limit state (token and request buckets, breaker) is held in the process and is seeded from Groq's `x-ratelimit-remaining-*` headers. Several workers each keep their own state, so a worker may still receive a 429; failover handles it. Daily budgets are summed from `llm_calls` (UTC day); two jobs running at the same moment can overshoot a budget by one request each.
+
+### Budgets (defaults)
+
+| Budget | Default | Where set |
+|---|---|---|
+| One request (estimated input + output cap) | 5,000 tokens | `LLM_REQUEST_TOKEN_CAP` |
+| One system onboarding | 4,000 tokens | `LLM_ONBOARDING_TOKEN_BUDGET` (a `JobBudget`) |
+| Per system per day | 20,000 tokens | organisation settings |
+| Per organisation per day | 200,000 tokens | organisation settings |
+
+### Measured (reference estate, `backend/tests/test_llm_onboarding.py`)
+
+The worst case onboarding of one system is one purpose call plus two conflict calls with three passages each. The provider is scripted and token counts come from the router's high estimate (3.5 characters per token), so they are an upper bound for real tokenizers.
+
+| Case | Tokens |
+|---|---|
+| First onboarding, 8 systems | 1,650 to 1,914 (limit 4,000) |
+| Repeat with unchanged evidence | 0, no provider call |
+| One new recipient | one call for the changed question only |
+
+The tests use responses recorded in the providers' documented formats (`backend/tests/recorded/llm/`); CI never calls a provider. No live call has been made from this repository, so real token counts and the Gemini free tier limits are unverified: confirm the current free models and quotas in Google AI Studio, set `GEMINI_MODEL`, and run `POST /api/v1/llm/test-connection` once keys are configured.
+
+### Setup and privacy
+
+```
+GROQ_API_KEY=...          # optional; without a key the provider is not registered
+GEMINI_API_KEY=...        # optional
+GEMINI_MODEL=gemini-2.5-flash-lite
+```
+
+Free tier content may be used by the provider to improve its products. Send only synthetic or masked data (the guard enforces masking, not consent). With no key the router has no provider and every uncached call raises `LLMUnavailableError`; nothing else in the platform depends on it yet.
+
+### API
+
+| Route | Roles |
+|---|---|
+| `GET /llm/usage` (today's calls, tokens, cache hits, failed attempts, circuit states) | admin, analyst, viewer |
+| `POST /llm/test-connection` (one tiny call per configured provider) | admin |
+
+The provider order and the two daily budgets are organisation settings (`GET/PUT /settings`).
+
+## Fusion, findings and records
+
+Runs after classification. It compares three sources for one system, raises findings, and builds a versioned record of processing from the facts. Code: `backend/app/fusion/` and `backend/app/records/`.
+
+```
+questionnaire (evidence)  ─┐
+privacy notice (evidence) ─┼─ FactsLoader ── SystemFacts ── rules (no model) ── findings (dedupe key, evidence refs)
+discovered elements,       │                                      │
+recipients (database)     ─┤                                      └─ conflicts the rules cannot settle ── adjudicate_conflict (top 3 passages)
+company policy, agreements │
+(knowledge base)          ─┘
+                                   facts ── Jinja templates ── record (citation for every field) ── versions ── review ── XLSX / PDF
+                                   suggest_purpose_and_basis (one cached call) fills purposes and a basis suggestion
+```
+
+### Rules
+
+| Finding type | Raised when | Severity |
+|---|---|---|
+| `element_not_in_policy` | a discovered category (confidence 0.80 or more, or special, or reviewed) is not named by the notice | medium, high for special categories |
+| `cookie_not_in_policy` | the same for a cookie whose kind of data is not already reported | low |
+| `undeclared_recipient` | an external recipient is missing from the notice or from the questionnaire | high |
+| `third_country_no_safeguard` | recipient outside the EEA, no applicable adequacy decision (the US needs a safeguard) and no safeguard in the questionnaire | high |
+| `missing_agreement` | a processor with no agreement in the questionnaire or among the agreements on file | high |
+| `missing_art9_condition` | special category data and no condition recorded | critical |
+| `missing_retention` / `stale_review` | no retention in the questionnaire / last review more than twelve months before the comparison date | medium / low |
+| `policy_contradiction` | the notice promises limited sharing and another recipient is found, or promises not to store something that is stored in a database column | high |
+| `consent_defect` | the notice promises an active opt in and a consent checkbox is ticked by default | high |
+| `retention_conflict` | records older than the period the notice states for them, or a period over the company limit for customers | medium |
+| `retention_review` | the company limit may or may not apply (other data subjects): put to the model, or left to a person | low |
+
+The notice is read with the same classifier that classifies discovered elements (a bullet such as "your date of birth" gives a category; close candidates count, so "an identifier of your computer" names a device identifier). Sentences are matched for three kinds of claim: limited sharing, "never store / not stored" and active consent. Retention periods are parsed from words and numbers ("seven years", "25 months"); open ended ones ("employment plus six years") are not compared. Discovery now records the oldest and newest record month of timestamp columns (never birth dates), which is how "records older than the stated period" is checked.
+
+Findings are keyed (`fusion:<system>:<type>:<subject>`), so running again updates them in place. A finding that stops applying is resolved; a dismissed or acknowledged one stays as the person left it; one that returns reopens. Every finding carries evidence references (`questionnaire`, `policy`, `discovery`, `company_policy`) with the id of the evidence item or discovery record.
+
+### The model's part
+
+The only ambiguity the rules meet is whether the company retention limit covers data subjects other than customers (patients, employees, visitors). That goes to `adjudicate_conflict` with the company clause as the single passage. `contradicts_policy` raises the conflict; `supported_by_policy` and `undetermined` become a low severity review item. Without a provider, or over budget, the review item is created and nothing is lost. Answers are cached, so a repeat comparison costs no tokens.
+
+### Records
+
+A record has the fields of an Article 30 entry: purposes, data subjects, data categories, recipients, transfers, retention, security measures, lawful basis, Article 9 condition, owner and next review date. Text is rendered from Jinja templates; every field has citations (the questionnaire, discovery evidence, the notice, or `assistant` for the suggestion, or `manual` for a person's edit).
+
+- Purposes and a lawful basis: the owner's words come first. The assistant's suggestion is added to the purposes and marked "Suggested for review"; it fills the basis only when the owner gave none, and never states an Article 9 condition.
+- A required field that is empty is reported as missing; a record with missing fields cannot be submitted. Special category data without a condition keeps the record incomplete on purpose.
+- Versions: regenerating without new evidence creates nothing; changed content becomes a new version with a change summary, and a diff (`GET /activities/{id}/diff`) shows fields and list items added or removed. Fields a person edited survive regeneration. A change to an approved or published record returns it to draft.
+- Workflow: draft, submit (admin, analyst), approve or reject (admin; the submitter cannot approve their own record), publish (admin). The review queue lists approvals, incomplete drafts and open high or critical findings.
+- Exports: the register as XLSX (sheets Register, Recipients, Evidence, Open findings) and PDF. The notice "Draft for review by a qualified privacy professional. Not legal advice." is on the first rows of every sheet and in every PDF page footer.
+
+### Measured (reference estate, `backend/tests/test_fusion_acceptance.py`, `test_records.py`)
+
+| Check | Result |
+|---|---|
+| Seeded contradictions found (all expected finding types) | 19 of 19 |
+| Expected (system, type) findings reported | 24 of 24 |
+| Precision | 88.9 percent (24 of 27 reported pairs) |
+| Records complete against the required fields | 8 of 8, apart from the Article 9 condition of the clinic and HR systems (a real gap, also a finding) |
+| Fields citing existing evidence | every required field of every record |
+| Tokens per system, fusion + record, scripted model | 520 to 660 for the record; 0 or about 490 for the comparison (limit 4,000) |
+
+The three reported pairs the dataset does not list: the newsletter and staff notices promise not to share beyond what they name while an undeclared recipient receives data (a true inconsistency the dataset records only as `undeclared_recipient`), and a CRM finding caused by a classifier mistake (`amount` read as purchase history). The first run had 80 percent precision. After reading the false positives, two general changes were made: findings need a classification confidence of 0.80 or more (below that the item belongs in the classification review queue), and cookies are reported under their own low severity type. The figures above are measured on the same estate that was used to look at those mistakes, so they are optimistic for unseen systems. Recall is not affected by either change.
+
+### Limits
+
+- The notice is parsed from Markdown or plain text; PDF and HTML notices are searchable in the knowledge base but not yet read by the rules (a `missing_evidence` finding is raised).
+- Notice wording is English. The claim patterns cover the sentences of the reference estate and similar common phrasing; unusual wording is missed, which is why the notice is also shown to a person.
+- Retention age uses the creation month of records, not the closure date, and compares only tables named in the retention sentence.
+- Vendor names are matched by whole words (`BrightLens` matches `BrightLens Agency`).
+- Self-approval is blocked by user, so an organisation needs two people with the right roles.
+
+### API
+
+| Route | Roles |
+|---|---|
+| `POST /systems/{id}/fusion`, `PATCH /findings/{id}` | admin, analyst |
+| `GET /findings` | all roles (owners see their systems) |
+| `POST /systems/{id}/record`, `PATCH /activities/{id}`, `POST /activities/{id}/submit` | admin, analyst |
+| `POST /activities/{id}/approve`, `/reject`, `/publish` | admin |
+| `GET /activities`, `/activities/{id}`, `/versions`, `/versions/{n}`, `/diff` | all roles (owners see their systems) |
+| `GET /review-queue` | admin, analyst |
+| `GET /exports/register.xlsx`, `/exports/register.pdf` | admin, analyst, viewer |

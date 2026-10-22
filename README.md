@@ -14,7 +14,9 @@ Generated legal or compliance documents are drafts for review by a qualified pri
 | 4 | REA integration and evidence extraction (`rea-runner/`, `backend/app/discovery/`) | Done |
 | 5 | Classification and the data element engine (`backend/app/classify/`) | Done |
 | 6 | Knowledge base and hybrid retrieval (`backend/app/knowledge/`) | Done |
-| 7 onwards | LLM router, fusion, assessments, requests, frontend | Planned |
+| 7 | LLM router, cache, budgets and call log (`backend/app/llm/`) | Done |
+| 8 | Fusion, findings, record generation, versions, exports (`backend/app/fusion/`, `backend/app/records/`) | Done |
+| 9 onwards | Assessments, requests, frontend | Planned |
 
 ## Quick start (backend)
 
@@ -68,4 +70,4 @@ The platform performs static or observational analysis of systems the organizati
 
 ## Project plan
 
-The phase by phase plan is in [PLAN_PRIVACY_OPS.md](PLAN_PRIVACY_OPS.md). Phases 1 to 6 are complete: database and tenancy, authentication and security baseline, the dataset with the reference estate, evidence extraction, classification, and the knowledge base with hybrid retrieval.
+The phase by phase plan is in [PLAN_PRIVACY_OPS.md](PLAN_PRIVACY_OPS.md). Phases 1 to 8 are complete: database and tenancy, authentication and security baseline, the dataset with the reference estate, evidence extraction, classification, the knowledge base with hybrid retrieval, the LLM router with budgets, and the comparison of questionnaire, notice and evidence with record generation and export.

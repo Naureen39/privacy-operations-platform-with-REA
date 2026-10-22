@@ -1,6 +1,6 @@
 import re
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -283,4 +283,149 @@ class IngestItemOut(BaseModel):
     title: str | None = None
     chunks: int = 0
     status: str
+    detail: str | None = None
+
+
+class LlmUsageRow(BaseModel):
+    key: str
+    calls: int
+    tokens_in: int
+    tokens_out: int
+    cached_tokens: int
+    errors: int
+
+
+class LlmProviderState(BaseModel):
+    provider: str
+    model: str
+    configured: bool
+    circuit: str
+
+
+class LlmUsageOut(BaseModel):
+    day: str
+    calls: int
+    cache_hits: int
+    failed_attempts: int
+    tokens_used: int
+    org_daily_budget: int
+    by_provider: list[LlmUsageRow]
+    by_task: list[LlmUsageRow]
+    providers: list[LlmProviderState]
+
+
+class LlmPingOut(BaseModel):
+    provider: str
+    model: str
+    ok: bool
+    latency_ms: int | None = None
+    error: str | None = None
+
+
+class FindingOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    system_id: uuid.UUID | None
+    activity_id: uuid.UUID | None
+    type: str
+    severity: str
+    title: str
+    description: str | None
+    evidence_refs: list[Any]
+    suggested_fix: str | None
+    status: str
+    created_at: datetime
+
+
+class FindingPatch(BaseModel):
+    status: Literal["open", "acknowledged", "resolved", "dismissed"]
+
+
+class FusionSummaryOut(BaseModel):
+    findings_open: int
+    by_type: dict[str, int]
+    adjudicated: int
+    adjudication_pending: int
+    tokens_used: int
+    status: str
+
+
+class ActivityOut(BaseModel):
+    id: uuid.UUID
+    name: str
+    status: str
+    current_version: int
+    system_ids: list[uuid.UUID]
+    owner_user_id: uuid.UUID | None
+    purposes: list[str]
+    data_subjects: list[str]
+    data_categories: list[str]
+    recipients: list[Any]
+    transfers: list[Any]
+    retention: str | None
+    security_measures: str | None
+    lawful_basis: str | None
+    special_category_condition: str | None
+    next_review_date: date | None
+    citations: dict[str, Any]
+    special_categories: list[str]
+    missing_fields: list[str]
+    summary: str
+
+
+class ActivityPatch(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    purposes: list[str] | None = Field(default=None, max_length=20)
+    data_subjects: list[str] | None = Field(default=None, max_length=20)
+    data_categories: list[str] | None = Field(default=None, max_length=60)
+    lawful_basis: str | None = Field(default=None, max_length=80)
+    special_category_condition: str | None = Field(default=None, max_length=200)
+    retention: str | None = Field(default=None, max_length=2000)
+    security_measures: str | None = Field(default=None, max_length=4000)
+    next_review_date: date | None = None
+
+
+class ActivityGenerateOut(BaseModel):
+    activity: ActivityOut
+    created: bool
+    changed: bool
+    suggestion_used: bool
+    tokens_used: int
+
+
+class VersionOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    version: int
+    change_summary: str | None
+    created_by: uuid.UUID | None
+    approved_by: uuid.UUID | None
+    created_at: datetime
+
+
+class VersionDetailOut(VersionOut):
+    snapshot: dict[str, Any]
+
+
+class DiffOut(BaseModel):
+    from_version: int
+    to_version: int
+    summary: str
+    changes: list[dict[str, Any]]
+
+
+class DecisionIn(BaseModel):
+    note: str | None = Field(default=None, max_length=1000)
+
+
+class ReviewItemOut(BaseModel):
+    kind: Literal["approval", "finding", "incomplete"]
+    title: str
+    severity: str
+    activity_id: uuid.UUID | None = None
+    finding_id: uuid.UUID | None = None
+    system_id: uuid.UUID | None = None
+    since: datetime | None = None
     detail: str | None = None

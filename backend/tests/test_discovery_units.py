@@ -529,3 +529,29 @@ def test_http_transport_talks_to_the_wrapper_service(tmp_path: Path) -> None:
         server.terminate()
         server.wait(timeout=10)
     _ = sys
+
+
+def test_sqlite_extraction_records_the_record_months_of_timestamp_columns(tmp_path: Path) -> None:
+    import sqlite3
+
+    from app.discovery.extractors.sqlite import extract_tables, tables_from_file
+
+    path = tmp_path / "snap.sqlite"
+    db = sqlite3.connect(path)
+    db.execute(
+        "CREATE TABLE conversations (id INTEGER PRIMARY KEY, created_at TEXT, closed_at TEXT, birth_date TEXT, note TEXT)"
+    )
+    rows = [
+        (i, f"2022-03-{i % 28 + 1:02d}T10:00:00", None, "1980-01-01", "x") for i in range(1, 40)
+    ]
+    rows += [(100, "2026-09-02T08:00:00", "2026-09-03", "1990-05-05", "y")]
+    db.executemany("INSERT INTO conversations VALUES (?, ?, ?, ?, ?)", rows)
+    db.commit()
+    db.close()
+    tables = tables_from_file(path, row_sample=5)  # the sample sees only the first rows
+    by_name = {c.name: c for c in extract_tables(tables)}
+    created = by_name["created_at"].context["record_months"]
+    assert created == {"oldest": "2022-03", "newest": "2026-09", "basis": "whole table"}
+    assert by_name["closed_at"].context["record_months"]["oldest"] == "2026-09"
+    assert "record_months" not in by_name["birth_date"].context  # birth dates are never summarised
+    assert "record_months" not in by_name["note"].context
