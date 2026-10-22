@@ -148,6 +148,29 @@ class TaskAwareProvider:
                 "basis_rationale": "The processing is needed to provide the service the person asked for.",
                 "needs_review": bool(user["special_categories"]),
             }
+        elif request.schema_name == "draft_dpia_sections":
+            ids = [p["id"] for p in user["passages"]]
+            if user["part"] == "description":
+                answer = {
+                    "description": f"{user['activity']['name']} processes personal data as described in the record. Drafted for review.",
+                    "necessity_and_proportionality": "The processing is limited to the purposes recorded. Drafted for review.",
+                    "risks": [],
+                }
+            else:
+                answer = {
+                    "description": "",
+                    "necessity_and_proportionality": "",
+                    "risks": [
+                        {
+                            "risk": f"People are put at risk because of {cid.replace('_', ' ')}",
+                            "likelihood": 3,
+                            "severity": 4,
+                            "mitigation": "Apply the measures the criterion calls for and review them regularly.",
+                            "cited_passage_ids": [ids[index % len(ids)]],
+                        }
+                        for index, cid in enumerate(user["criteria_met"][:4])
+                    ],
+                }
         else:
             ids = [p["id"] for p in user["passages"]][:1] if self.cite else []
             answer = {

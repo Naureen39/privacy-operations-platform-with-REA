@@ -24,7 +24,7 @@ def test_upgrade_downgrade_upgrade(admin_url: URL) -> None:
     assert _tables(url) == expected
 
     command.downgrade(config, "0001")  # removes the security objects, auth columns and later tables
-    assert _tables(url) == expected - {"taxonomy_entries"}
+    assert _tables(url) == expected - {"taxonomy_entries", "dpia_screenings"}
     engine = create_engine(url)
     with engine.connect() as conn:
         rls_on = conn.execute(

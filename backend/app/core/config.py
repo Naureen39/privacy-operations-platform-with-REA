@@ -89,6 +89,7 @@ class Settings(BaseSettings):
     llm_max_output_tokens: int = 800
     llm_attempts_per_provider: int = 2
     llm_onboarding_token_budget: int = 4000
+    llm_assessment_token_budget: int = 6000
 
     # REA discovery (the runner is rea-runner/wrapper.mjs, see docs/architecture.md)
     rea_enabled: bool = True

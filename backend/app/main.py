@@ -18,6 +18,7 @@ from app.api.routes import (
     auth,
     classification,
     discovery,
+    dpia,
     evidence,
     fusion,
     knowledge,
@@ -108,6 +109,7 @@ def create_app(
     app.include_router(evidence.router)
     app.include_router(discovery.router)
     app.include_router(classification.router)
+    app.include_router(dpia.router)
     app.include_router(fusion.router)
     app.include_router(knowledge.router)
     app.include_router(llm.router)

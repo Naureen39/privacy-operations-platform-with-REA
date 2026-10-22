@@ -431,3 +431,70 @@ The three reported pairs the dataset does not list: the newsletter and staff not
 | `GET /activities`, `/activities/{id}`, `/versions`, `/versions/{n}`, `/diff` | all roles (owners see their systems) |
 | `GET /review-queue` | admin, analyst |
 | `GET /exports/register.xlsx`, `/exports/register.pdf` | admin, analyst, viewer |
+
+## Impact assessments
+
+For each processing activity: screen it against the criteria, and for those that need one, draft an assessment with a risk register, review it, and approve it. Code: `backend/app/dpia/`.
+
+```
+record + discovered evidence + stated scale ── screening (9 criteria, no model) ── dpia_screenings (met / not met / unknown, with evidence)
+                                                       │ two or more met (or a reason given)
+                                                       ▼
+retrieved GDPR passages ── draft_dpia_sections x2 (description; risks) ── validated ── dpias + dpia_risks (5 x 5, mitigations, residual)
+risk catalogue + templates (fallback)   comparison findings (transfer, agreement gaps) ── risks with evidence
+                                                       ▼
+                    completeness check ── submit ── privacy officer opinion ── approve / reject ── PDF with the draft notice
+```
+
+### Screening
+
+The criteria are in `datasets/regulation/taxonomy/dpia_criteria.json` (the project's wording of the criteria discussed in the EDPB guidelines; check the current guidelines before relying on it). Two or more met means an assessment is likely required. A criterion is met, not met, or **unknown** when the evidence cannot say.
+
+| Criterion | Judged from |
+|---|---|
+| sensitive data | special category elements, or criminal data, national identifier, bank account |
+| vulnerable subjects | data subjects named patients, employees, staff, children, minors, elderly and similar |
+| systematic monitoring | location or browsing behaviour stored in a database column (data only passed to a third party does not count), or a monitoring purpose such as CCTV |
+| large scale | an estimate of 1,000 or more data subjects, or 3 or more countries (stated by an analyst, or "five countries" in the system description); **unknown** until one is given |
+| combining datasets | a recipient registered as an enrichment vendor, or text such as "added from business data sources" |
+| innovative technology | biometric or genetic data, or machine learning, facial recognition and similar in the purposes |
+| evaluation or scoring, automated decisions, blocks rights | keywords in the purposes and the notice sections on purposes ("we do not use profiling" does not count) |
+
+Scale is the one thing nothing in the evidence shows, so the screening asks for it (`needs` in the answer) and keeps what an analyst enters. The 1,000 person threshold is a round number chosen for the demonstration; the guidelines give none. Analysts can also state that a criterion applies; those are marked as stated, with no automatic evidence. An activity that is not required but has enough unknown criteria to reach the threshold is reported as `undecided`.
+
+### Assessment
+
+Fields: systematic description, necessity and proportionality, risk register (likelihood and severity 1 to 5; bands low up to 4, medium up to 9, high up to 15, very high above), mitigations, residual rating per risk and overall, privacy officer opinion, status (draft, in review, approved, rejected).
+
+Drafting makes two assistant calls (`draft_dpia_sections`, part `description` and part `risks`) with the activity facts as labels only (no values) and up to four retrieved GDPR passages that the answer must cite. The risk citation holds the passage citations (`reg:gdpr-art9-p1`) and, for gaps found by the comparison, the finding (`finding:<id>`): a transfer without a safeguard or a processor without an agreement becomes a risk with that evidence. If no provider answers, the descriptions come from templates and the risks from `risk_catalogue.json` (typical risks and measures per criterion with their articles), so a complete draft exists with no model. The model's risks are checked: each must cite passages it was given. Residual ratings are drafted one step lower in likelihood than the inherent rating and are for the privacy officer to change.
+
+An assessment can be submitted when it has a description, a necessity text, at least one risk and each risk has a mitigation, a citation and a residual rating. Approval also needs the officer's opinion (recorded by an admin only) and a decider who did not submit it. A rejected assessment can be edited and submitted again; an approved one is closed. Starting a new draft for unchanged facts costs no tokens (cache).
+
+### Measured (reference estate, `backend/tests/test_dpia_acceptance.py`)
+
+| Check | Result |
+|---|---|
+| Screening against the rubric (`datasets/expected/dpia_screening.json`) | 8 of 8 activities: the same criteria and the same required decision |
+| Assessments drafted (the 4 required) | all complete; every risk cites a resolvable article or finding |
+| Tokens per assessment (scripted model, high estimate) | 1,878 to 1,988 for two calls (limit 6,000) |
+| Repeat draft for the same facts | 0 tokens |
+
+The first screening run matched on 7 of 8 activities; the 8th reported "evaluation or scoring" because the word "profile" in "view their profile" matched the profiling keyword. The pattern was narrowed to "profiling". The people counts used as the scale are those of the synthetic people file; the rubric itself is never read by the platform.
+
+### Limits
+
+- Criteria that depend on judgment (evaluation, automated decisions, rights) are keyword based on the text of the purposes and the notice; wording that avoids the keywords is missed, so an analyst can state them.
+- The scale threshold is a convention. The assessment is a draft: likelihood and severity are starting points and the mitigation text is generic until the owner adds the specifics.
+- The EDPB guidance and national lists of processing that always need an assessment change; the criteria file records its version.
+- The PDF is a single document; there is no version history of assessments (a new draft replaces nothing, rejected ones stay).
+
+### API
+
+| Route | Roles |
+|---|---|
+| `POST /activities/{id}/dpia-screening` | admin, analyst |
+| `GET /activities/{id}/dpia-screening`, `GET /dpia-screenings` | all roles (owners see their systems) |
+| `POST /activities/{id}/dpia` (screening required, or a reason), `PATCH /dpias/{id}`, risk add, edit, delete, `POST /dpias/{id}/submit` | admin, analyst (the officer opinion: admin) |
+| `POST /dpias/{id}/approve`, `/reject` | admin |
+| `GET /dpias`, `GET /dpias/{id}` | all roles (owners see their systems) |
+| `GET /dpias/{id}/export.pdf` | admin, analyst, viewer |

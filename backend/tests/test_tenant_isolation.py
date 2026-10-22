@@ -24,6 +24,7 @@ from app.db.models import (
     Document,
     DocumentChunk,
     Dpia,
+    DpiaScreening,
     EvidenceItem,
     Finding,
     Lead,
@@ -98,6 +99,7 @@ def populate(factory: sessionmaker[TenantSession], org: OrgFixture, user_id: uui
         s.add(activity)
         s.flush()
         s.add(Dpia(activity_id=activity.id))
+        s.add(DpiaScreening(activity_id=activity.id, criteria_met=2, required=True))
         doc = Document(doc_type=DocumentType.POLICY, title="Policy", system_id=system.id)
         s.add(doc)
         s.flush()

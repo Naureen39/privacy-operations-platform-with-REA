@@ -47,6 +47,8 @@ class RecipientFact:
     country: str | None
     internal: bool
     ref: Ref
+    category: str | None = None  # vendor registry category, for example data_enrichment
+    purpose: str | None = None
 
     @property
     def key(self) -> str:

@@ -3,6 +3,7 @@ from datetime import date, datetime
 from typing import Any
 
 from sqlalchemy import (
+    Boolean,
     CheckConstraint,
     Date,
     DateTime,
@@ -101,6 +102,32 @@ class ActivitySystem(TenantMixin, Base):
     )
 
     __table_args__ = (PrimaryKeyConstraint("activity_id", "system_id"),)
+
+
+class DpiaScreening(UuidPkMixin, TimestampMixin, TenantMixin, Base):
+    """The result of scoring one processing activity against the assessment criteria."""
+
+    __tablename__ = "dpia_screenings"
+
+    activity_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("processing_activities.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
+    )
+    criteria: Mapped[list[Any]] = mapped_column(
+        JSONB, nullable=False, server_default=jsonb_default("[]")
+    )
+    criteria_met: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    criteria_unknown: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    threshold: Mapped[int] = mapped_column(Integer, nullable=False, server_default="2")
+    required: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))
+    inputs: Mapped[dict[str, Any]] = mapped_column(
+        JSONB, nullable=False, server_default=jsonb_default("{}")
+    )
+    criteria_version: Mapped[int] = mapped_column(Integer, nullable=False, server_default="1")
+    screened_by: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL")
+    )
 
 
 class Dpia(UuidPkMixin, TimestampMixin, TenantMixin, Base):

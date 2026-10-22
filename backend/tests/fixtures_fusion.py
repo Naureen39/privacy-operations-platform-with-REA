@@ -55,8 +55,14 @@ class FusionEstate:
         return list(response.json())
 
     def pairs(self) -> set[tuple[str, str]]:
+        """(estate system, type) of the open findings of the estate systems (copies made by other
+        tests in the same organisation are ignored)."""
         by_uuid = {v: k for k, v in self.systems.items()}
-        return {(by_uuid[f["system_id"]], f["type"]) for f in self.findings(status="open")}
+        return {
+            (by_uuid[f["system_id"]], f["type"])
+            for f in self.findings(status="open")
+            if f["system_id"] in by_uuid
+        }
 
 
 def upload_notice_and_questionnaire(client: TestClient, system_id: str, estate_id: str) -> None:
@@ -78,6 +84,7 @@ def fusion_estate(
     session_factory: sessionmaker[TenantSession],
     real_embedder: SentenceTransformerEmbedder,
     taxonomy_index: int,
+    regulation_index: int,
     tmp_path_factory: pytest.TempPathFactory,
 ) -> Iterator[FusionEstate]:
     base = tmp_path_factory.mktemp("fusion")
@@ -150,3 +157,21 @@ def fusion_estate(
 
 Factory = Callable[[Settings], FastAPI]
 __all__ = ["FusionEstate", "fusion_estate", "base64", "json"]
+
+
+@pytest.fixture(scope="session")
+def estate_generation(fusion_estate: FusionEstate) -> dict[str, dict[str, Any]]:
+    """The answer of the first record generation of every estate system."""
+    admin = fusion_estate.admin
+    out = {}
+    for estate_id, system_id in fusion_estate.systems.items():
+        response = admin.post(f"/api/v1/systems/{system_id}/record", headers=csrf(admin))
+        assert response.status_code == 200, response.text
+        out[estate_id] = response.json()
+    return out
+
+
+@pytest.fixture(scope="session")
+def estate_records(estate_generation: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """The generated record of every estate system."""
+    return {k: v["activity"] for k, v in estate_generation.items()}

@@ -18,15 +18,9 @@ from tests.test_fusion_acceptance import fuse, pipeline
 
 
 @pytest.fixture(scope="module")
-def records(fusion_estate: FusionEstate) -> dict[str, dict[str, Any]]:
-    """The generated record of every estate system."""
-    admin = fusion_estate.admin
-    out = {}
-    for estate_id, system_id in fusion_estate.systems.items():
-        response = admin.post(f"/api/v1/systems/{system_id}/record", headers=csrf(admin))
-        assert response.status_code == 200, response.text
-        out[estate_id] = response.json()
-    return out
+def records(estate_generation: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """The generated record of every estate system (the answer of the first generation)."""
+    return estate_generation
 
 
 def record_for(

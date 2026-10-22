@@ -51,7 +51,7 @@ def _protected_routes(app: FastAPI) -> list[tuple[str, APIRoute]]:
 
 def test_every_route_declares_its_roles(app: FastAPI) -> None:
     protected = _protected_routes(app)
-    assert len(protected) == 46
+    assert len(protected) == 60
     for method, route in protected:
         roles = [
             getattr(call, "allowed_roles", None)
@@ -328,6 +328,87 @@ def _matrix(
             "GET",
             "/exports/register.pdf",
             lambda c: c.get("/api/v1/exports/register.pdf"),
+            {Role.ADMIN, Role.ANALYST, Role.VIEWER},
+        ),
+        (
+            "POST",
+            "/dpia-screening",
+            lambda c: c.post(f"/api/v1/activities/{uuid.uuid4()}/dpia-screening", headers=csrf(c)),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "GET",
+            "/dpia-screening",
+            lambda c: c.get(f"/api/v1/activities/{uuid.uuid4()}/dpia-screening"),
+            ALL,
+        ),
+        ("GET", "/dpia-screenings", lambda c: c.get("/api/v1/dpia-screenings"), ALL),
+        (
+            "POST",
+            "/dpia",
+            lambda c: c.post(f"/api/v1/activities/{uuid.uuid4()}/dpia", json={}, headers=csrf(c)),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        ("GET", "/dpias", lambda c: c.get("/api/v1/dpias"), ALL),
+        ("GET", "/dpias/{id}", lambda c: c.get(f"/api/v1/dpias/{uuid.uuid4()}"), ALL),
+        (
+            "PATCH",
+            "/dpias/{id}",
+            lambda c: c.patch(
+                f"/api/v1/dpias/{uuid.uuid4()}", json={"description": "x"}, headers=csrf(c)
+            ),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "POST",
+            "/dpias/{id}/risks",
+            lambda c: c.post(
+                f"/api/v1/dpias/{uuid.uuid4()}/risks",
+                json={"title": "A risk", "likelihood": 2, "severity": 2},
+                headers=csrf(c),
+            ),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "PATCH",
+            "/dpias/{id}/risks/{rid}",
+            lambda c: c.patch(
+                f"/api/v1/dpias/{uuid.uuid4()}/risks/{uuid.uuid4()}",
+                json={"likelihood": 3},
+                headers=csrf(c),
+            ),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "DELETE",
+            "/dpias/{id}/risks/{rid}",
+            lambda c: c.delete(
+                f"/api/v1/dpias/{uuid.uuid4()}/risks/{uuid.uuid4()}", headers=csrf(c)
+            ),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "POST",
+            "/dpias/{id}/submit",
+            lambda c: c.post(f"/api/v1/dpias/{uuid.uuid4()}/submit", headers=csrf(c)),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "POST",
+            "/dpias/{id}/approve",
+            lambda c: c.post(f"/api/v1/dpias/{uuid.uuid4()}/approve", json={}, headers=csrf(c)),
+            {Role.ADMIN},
+        ),
+        (
+            "POST",
+            "/dpias/{id}/reject",
+            lambda c: c.post(f"/api/v1/dpias/{uuid.uuid4()}/reject", json={}, headers=csrf(c)),
+            {Role.ADMIN},
+        ),
+        (
+            "GET",
+            "/dpias/{id}/export.pdf",
+            lambda c: c.get(f"/api/v1/dpias/{uuid.uuid4()}/export.pdf"),
             {Role.ADMIN, Role.ANALYST, Role.VIEWER},
         ),
         (

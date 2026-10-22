@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "description": "Typical risks to people for each screening criterion, with usual measures and the GDPR articles that apply. Used when the assistant is not available and as a check on its answer. Likelihood and severity are starting points for the privacy officer (1 low to 5 high).",
+  "criteria": {
+    "evaluation_scoring": {
+      "title": "People are profiled or scored in ways they cannot see or challenge",
+      "likelihood": 3, "severity": 3,
+      "mitigation": "Document the logic, keep a person in the loop for effects on individuals, give a way to contest results and review accuracy regularly.",
+      "articles": [22, 5], "query": "profiling and automated individual decision making"
+    },
+    "automated_decisions": {
+      "title": "Automated decisions significantly affect people without meaningful human review",
+      "likelihood": 3, "severity": 4,
+      "mitigation": "Add human review before an adverse decision, explain the decision on request and test for errors and bias.",
+      "articles": [22], "query": "automated individual decision making including profiling"
+    },
+    "systematic_monitoring": {
+      "title": "Continuous monitoring or tracking intrudes on private life",
+      "likelihood": 3, "severity": 3,
+      "mitigation": "Limit what is recorded to what is needed, shorten retention, anonymise or aggregate where possible and tell people clearly what is monitored.",
+      "articles": [35, 5], "query": "systematic monitoring of a publicly accessible area on a large scale"
+    },
+    "sensitive_data": {
+      "title": "Disclosure or misuse of special category or highly personal data harms people seriously",
+      "likelihood": 3, "severity": 5,
+      "mitigation": "Record the Article 9 condition, restrict access to those who need it, encrypt at rest and in transit, log access and review it.",
+      "articles": [9, 32], "query": "processing of special categories of personal data"
+    },
+    "large_scale": {
+      "title": "A breach or error affects very many people",
+      "likelihood": 2, "severity": 4,
+      "mitigation": "Minimise the data held, segment access, keep tested backups and an incident plan, and set and enforce retention limits.",
+      "articles": [35, 32], "query": "processing on a large scale"
+    },
+    "combining_datasets": {
+      "title": "Combining data from different sources reveals more than people expect",
+      "likelihood": 3, "severity": 3,
+      "mitigation": "Document each source and purpose, check compatibility with the original purpose and tell people about the enrichment.",
+      "articles": [5, 14], "query": "purpose limitation compatible further processing"
+    },
+    "vulnerable_subjects": {
+      "title": "People who cannot freely refuse or object are affected, and consent is not freely given",
+      "likelihood": 3, "severity": 4,
+      "mitigation": "Do not rely on consent where there is an imbalance of power, offer clear information and a contact for questions, and involve representatives where appropriate.",
+      "articles": [7, 35], "query": "conditions for consent freely given imbalance"
+    },
+    "innovative_technology": {
+      "title": "New technology has consequences for privacy that are not yet understood",
+      "likelihood": 3, "severity": 4,
+      "mitigation": "Pilot on a small scale, test for accuracy and bias, apply data protection by design and review after launch.",
+      "articles": [25, 35], "query": "data protection by design and by default"
+    },
+    "prevents_exercise_of_rights": {
+      "title": "The outcome decides whether someone can use a service or exercise a right",
+      "likelihood": 2, "severity": 4,
+      "mitigation": "Provide a clear route to challenge the outcome, review decisions and keep records of how they were reached.",
+      "articles": [12, 22], "query": "transparent information and facilitating the exercise of data subject rights"
+    },
+    "transfer_gap": {
+      "title": "Personal data is sent outside the EEA without a recorded safeguard",
+      "likelihood": 4, "severity": 4,
+      "mitigation": "Put standard contractual clauses or another Article 46 mechanism in place, complete a transfer assessment, or stop the transfer.",
+      "articles": [46, 44], "query": "transfers subject to appropriate safeguards"
+    },
+    "agreement_gap": {
+      "title": "A processor handles data without a written agreement",
+      "likelihood": 4, "severity": 3,
+      "mitigation": "Sign an Article 28 data processing agreement and record it before further processing.",
+      "articles": [28], "query": "processor contract binding on the processor"
+    }
+  }
+}

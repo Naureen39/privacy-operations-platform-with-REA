@@ -429,3 +429,133 @@ class ReviewItemOut(BaseModel):
     system_id: uuid.UUID | None = None
     since: datetime | None = None
     detail: str | None = None
+
+
+CriterionId = Literal[
+    "evaluation_scoring",
+    "automated_decisions",
+    "systematic_monitoring",
+    "sensitive_data",
+    "large_scale",
+    "combining_datasets",
+    "vulnerable_subjects",
+    "innovative_technology",
+    "prevents_exercise_of_rights",
+]
+
+
+class ScaleIn(BaseModel):
+    """What the evidence cannot show: the number of people, the countries, and criteria an analyst
+    knows to apply."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    data_subjects_estimate: int | None = Field(default=None, ge=0, le=2_000_000_000)
+    countries: int | None = Field(default=None, ge=0, le=250)
+    flags: list[CriterionId] = Field(default_factory=list, max_length=9)
+
+
+class CriterionOut(BaseModel):
+    id: str
+    label: str
+    met: bool | None
+    basis: str
+    refs: list[Any]
+    needs: str | None = None
+
+
+class ScreeningOut(BaseModel):
+    activity_id: uuid.UUID
+    activity_name: str
+    criteria: list[CriterionOut]
+    criteria_met: int
+    criteria_unknown: int
+    threshold: int
+    required: bool
+    undecided: bool
+    inputs: dict[str, Any]
+    criteria_version: int
+    screened_at: datetime
+
+
+class RiskIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    title: str = Field(min_length=3, max_length=300)
+    description: str | None = Field(default=None, max_length=2000)
+    likelihood: int = Field(ge=1, le=5)
+    severity: int = Field(ge=1, le=5)
+    mitigation: str | None = Field(default=None, max_length=2000)
+    residual_likelihood: int | None = Field(default=None, ge=1, le=5)
+    residual_severity: int | None = Field(default=None, ge=1, le=5)
+    citation: str | None = Field(default=None, max_length=200)
+
+
+class RiskPatch(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    title: str | None = Field(default=None, min_length=3, max_length=300)
+    description: str | None = Field(default=None, max_length=2000)
+    likelihood: int | None = Field(default=None, ge=1, le=5)
+    severity: int | None = Field(default=None, ge=1, le=5)
+    mitigation: str | None = Field(default=None, max_length=2000)
+    residual_likelihood: int | None = Field(default=None, ge=1, le=5)
+    residual_severity: int | None = Field(default=None, ge=1, le=5)
+    citation: str | None = Field(default=None, max_length=200)
+
+
+class RiskOut(BaseModel):
+    id: uuid.UUID
+    title: str
+    description: str | None
+    likelihood: int
+    severity: int
+    inherent_level: str
+    mitigation: str | None
+    residual_likelihood: int | None
+    residual_severity: int | None
+    residual_level: str | None
+    citation: str | None
+
+
+class DpiaCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    reason: str | None = Field(default=None, max_length=1000)
+
+
+class DpiaPatch(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    description: str | None = Field(default=None, max_length=6000)
+    necessity_proportionality: str | None = Field(default=None, max_length=6000)
+    officer_opinion: str | None = Field(default=None, max_length=4000)
+
+
+class DpiaOut(BaseModel):
+    id: uuid.UUID
+    activity_id: uuid.UUID
+    activity_name: str
+    status: str
+    criteria_met: int
+    description: str | None
+    necessity_proportionality: str | None
+    residual_risk: str | None
+    officer_opinion: str | None
+    risks: list[RiskOut]
+    matrix: dict[str, list[list[int]]]
+    missing_fields: list[str]
+    drafting: dict[str, Any]
+    screening: dict[str, Any]
+    created_at: datetime
+
+
+class DpiaSummaryOut(BaseModel):
+    id: uuid.UUID
+    activity_id: uuid.UUID
+    activity_name: str
+    status: str
+    criteria_met: int
+    residual_risk: str | None
+    risks: int
+    created_at: datetime

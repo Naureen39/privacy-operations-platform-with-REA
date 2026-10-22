@@ -510,3 +510,8 @@ def export_pdf(
         media_type="application/pdf",
         headers={"Content-Disposition": 'attachment; filename="register-of-processing.pdf"'},
     )
+
+
+# Used by the impact assessment routes.
+load_activity = _load
+visible_activities = _visible

@@ -198,6 +198,8 @@ class FactsLoader:
                 role=r.role.value,
                 country=r.country,
                 internal=bool((r.context or {}).get("internal")),
+                category=r.category,
+                purpose=r.purpose,
                 ref=Ref(
                     "discovery",
                     str(r.evidence_id) if r.evidence_id else None,

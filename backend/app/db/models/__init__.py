@@ -33,6 +33,7 @@ from app.db.models.records import (
     ActivityVersion,
     Dpia,
     DpiaRisk,
+    DpiaScreening,
     ProcessingActivity,
 )
 from app.db.models.work import (
@@ -61,6 +62,7 @@ __all__ = [
     "DocumentChunk",
     "Dpia",
     "DpiaRisk",
+    "DpiaScreening",
     "EvidenceItem",
     "Finding",
     "Invoice",

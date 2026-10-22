@@ -113,7 +113,8 @@ def build_draft(
     transfer_refs: list[Ref] = []
     recipient_refs: list[Ref] = []
     seen: set[str] = set()
-    for r in facts.recipients:
+    # a stable order, so the same facts always give the same record (and no phantom version)
+    for r in sorted(facts.recipients, key=lambda x: (x.key, x.domain)):
         if r.internal or r.key in seen:
             continue
         seen.add(r.key)
