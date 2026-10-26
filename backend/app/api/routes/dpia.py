@@ -51,6 +51,7 @@ from app.llm.budget import JobBudget
 from app.llm.router import LLMRouter
 from app.llm.tasks import Scope
 from app.records.service import ActivityService
+from app.workflow.notify import approval_event
 
 router = APIRouter(prefix="/api/v1", tags=["impact-assessments"])
 
@@ -440,6 +441,7 @@ def _transition(
             service.decide(dpia, principal.user_id, action == "approve", note)
     except DpiaWorkflowError as exc:
         raise _workflow(exc) from exc
+    approval_event(db, "dpia", dpia.id, "Impact assessment", action, principal.user_id)
     write_audit(
         db,
         request,

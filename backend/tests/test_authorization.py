@@ -17,10 +17,18 @@ ALL = {Role.ADMIN, Role.ANALYST, Role.SYSTEM_OWNER, Role.VIEWER}
 PUBLIC_ROUTES = {
     ("GET", "/health"),
     ("GET", "/ready"),
+    ("POST", "/api/v1/public/leads"),
+    ("GET", "/api/v1/public/metrics"),
     ("POST", "/api/v1/auth/login"),
     ("POST", "/api/v1/auth/refresh"),
     ("POST", "/api/v1/auth/logout"),
 }
+
+
+@pytest.fixture(autouse=True)
+def no_background_dispatch(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The matrix asks for onboarding with every role; nothing may reach a queue."""
+    monkeypatch.setattr("app.api.routes.jobs.dispatch", lambda *args, **kwargs: None)
 
 
 def _dependency_calls(dependant: Any) -> list[Any]:
@@ -51,7 +59,7 @@ def _protected_routes(app: FastAPI) -> list[tuple[str, APIRoute]]:
 
 def test_every_route_declares_its_roles(app: FastAPI) -> None:
     protected = _protected_routes(app)
-    assert len(protected) == 60
+    assert len(protected) == 99
     for method, route in protected:
         roles = [
             getattr(call, "allowed_roles", None)
@@ -412,6 +420,290 @@ def _matrix(
             {Role.ADMIN, Role.ANALYST, Role.VIEWER},
         ),
         (
+            "POST",
+            "/access-requests",
+            lambda c: c.post(
+                "/api/v1/access-requests", json={"identifier": "a@b.example"}, headers=csrf(c)
+            ),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "GET",
+            "/access-requests",
+            lambda c: c.get("/api/v1/access-requests"),
+            {Role.ADMIN, Role.ANALYST, Role.VIEWER},
+        ),
+        (
+            "GET",
+            "/access-requests/reminders",
+            lambda c: c.get("/api/v1/access-requests/reminders"),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "GET",
+            "/access-requests/{id}",
+            lambda c: c.get(f"/api/v1/access-requests/{uuid.uuid4()}"),
+            {Role.ADMIN, Role.ANALYST, Role.VIEWER},
+        ),
+        (
+            "POST",
+            "/access-requests/{id}/identity",
+            lambda c: c.post(
+                f"/api/v1/access-requests/{uuid.uuid4()}/identity",
+                json={"checklist": {}},
+                headers=csrf(c),
+            ),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "POST",
+            "/access-requests/{id}/extension",
+            lambda c: c.post(
+                f"/api/v1/access-requests/{uuid.uuid4()}/extension",
+                json={"months": 1, "reason": "A sufficient reason."},
+                headers=csrf(c),
+            ),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "POST",
+            "/access-requests/{id}/search",
+            lambda c: c.post(
+                f"/api/v1/access-requests/{uuid.uuid4()}/search",
+                json={"identifier": "a@b.example"},
+                headers=csrf(c),
+            ),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "GET",
+            "/access-requests/{id}/results",
+            lambda c: c.get(f"/api/v1/access-requests/{uuid.uuid4()}/results"),
+            {Role.ADMIN, Role.ANALYST, Role.VIEWER},
+        ),
+        (
+            "POST",
+            "/access-requests/{id}/disclosure",
+            lambda c: c.post(
+                f"/api/v1/access-requests/{uuid.uuid4()}/disclosure",
+                json={"result_ids": []},
+                headers=csrf(c),
+            ),
+            {Role.ADMIN},
+        ),
+        (
+            "POST",
+            "/access-requests/{id}/disclosed-data",
+            lambda c: c.post(
+                f"/api/v1/access-requests/{uuid.uuid4()}/disclosed-data",
+                json={"identifier": "a@b.example"},
+                headers=csrf(c),
+            ),
+            {Role.ADMIN},
+        ),
+        (
+            "POST",
+            "/access-requests/{id}/response",
+            lambda c: c.post(
+                f"/api/v1/access-requests/{uuid.uuid4()}/response", json={}, headers=csrf(c)
+            ),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "GET",
+            "/access-requests/{id}/response",
+            lambda c: c.get(f"/api/v1/access-requests/{uuid.uuid4()}/response"),
+            {Role.ADMIN, Role.ANALYST, Role.VIEWER},
+        ),
+        (
+            "PATCH",
+            "/access-requests/{id}/response",
+            lambda c: c.patch(
+                f"/api/v1/access-requests/{uuid.uuid4()}/response",
+                json={"cover_note": "x"},
+                headers=csrf(c),
+            ),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "POST",
+            "/access-requests/{id}/submit",
+            lambda c: c.post(f"/api/v1/access-requests/{uuid.uuid4()}/submit", headers=csrf(c)),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "POST",
+            "/access-requests/{id}/approve",
+            lambda c: c.post(
+                f"/api/v1/access-requests/{uuid.uuid4()}/approve", json={}, headers=csrf(c)
+            ),
+            {Role.ADMIN},
+        ),
+        (
+            "POST",
+            "/access-requests/{id}/return",
+            lambda c: c.post(
+                f"/api/v1/access-requests/{uuid.uuid4()}/return", json={}, headers=csrf(c)
+            ),
+            {Role.ADMIN},
+        ),
+        (
+            "POST",
+            "/access-requests/{id}/respond",
+            lambda c: c.post(f"/api/v1/access-requests/{uuid.uuid4()}/respond", headers=csrf(c)),
+            {Role.ADMIN},
+        ),
+        (
+            "POST",
+            "/access-requests/{id}/close",
+            lambda c: c.post(f"/api/v1/access-requests/{uuid.uuid4()}/close", headers=csrf(c)),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "POST",
+            "/access-requests/{id}/reject",
+            lambda c: c.post(
+                f"/api/v1/access-requests/{uuid.uuid4()}/reject",
+                json={"reason": "A sufficient reason."},
+                headers=csrf(c),
+            ),
+            {Role.ADMIN},
+        ),
+        (
+            "POST",
+            "/onboard",
+            lambda c: c.post(f"/api/v1/systems/{sys_id}/onboard", headers=csrf(c)),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "GET",
+            "/jobs",
+            lambda c: c.get("/api/v1/jobs"),
+            ALL,
+        ),
+        (
+            "GET",
+            "/jobs/{id}",
+            lambda c: c.get(f"/api/v1/jobs/{uuid.uuid4()}"),
+            ALL,
+        ),
+        (
+            "GET",
+            "/jobs/{id}/log",
+            lambda c: c.get(f"/api/v1/jobs/{uuid.uuid4()}/log"),
+            ALL,
+        ),
+        (
+            "GET",
+            "/jobs/{id}/events",
+            lambda c: c.get(f"/api/v1/jobs/{uuid.uuid4()}/events"),
+            ALL,
+        ),
+        (
+            "POST",
+            "/jobs/{id}/cancel",
+            lambda c: c.post(f"/api/v1/jobs/{uuid.uuid4()}/cancel", headers=csrf(c)),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "POST",
+            "/tasks",
+            lambda c: c.post(
+                "/api/v1/tasks", json={"title": "A task for the matrix"}, headers=csrf(c)
+            ),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "GET",
+            "/tasks",
+            lambda c: c.get("/api/v1/tasks"),
+            ALL,
+        ),
+        (
+            "GET",
+            "/tasks/{id}",
+            lambda c: c.get(f"/api/v1/tasks/{uuid.uuid4()}"),
+            ALL,
+        ),
+        (
+            "PATCH",
+            "/tasks/{id}",
+            lambda c: c.patch(
+                f"/api/v1/tasks/{uuid.uuid4()}", json={"status": "done"}, headers=csrf(c)
+            ),
+            {Role.ADMIN, Role.ANALYST, Role.SYSTEM_OWNER},
+        ),
+        (
+            "POST",
+            "/findings/{id}/task",
+            lambda c: c.post(f"/api/v1/findings/{uuid.uuid4()}/task", headers=csrf(c)),
+            {Role.ADMIN, Role.ANALYST},
+        ),
+        (
+            "POST",
+            "/comments",
+            lambda c: c.post(
+                "/api/v1/comments",
+                json={"entity_type": "system", "entity_id": sys_id, "body": "A matrix comment"},
+                headers=csrf(c),
+            ),
+            {Role.ADMIN, Role.ANALYST, Role.SYSTEM_OWNER},
+        ),
+        (
+            "GET",
+            "/comments",
+            lambda c: c.get(
+                "/api/v1/comments", params={"entity_type": "system", "entity_id": sys_id}
+            ),
+            ALL,
+        ),
+        (
+            "GET",
+            "/notifications",
+            lambda c: c.get("/api/v1/notifications"),
+            ALL,
+        ),
+        (
+            "POST",
+            "/notifications/read-all",
+            lambda c: c.post("/api/v1/notifications/read-all", headers=csrf(c)),
+            ALL,
+        ),
+        (
+            "POST",
+            "/notifications/{id}/read",
+            lambda c: c.post(f"/api/v1/notifications/{uuid.uuid4()}/read", headers=csrf(c)),
+            ALL,
+        ),
+        (
+            "POST",
+            "/reminders/run",
+            lambda c: c.post("/api/v1/reminders/run", headers=csrf(c)),
+            {Role.ADMIN},
+        ),
+        (
+            "GET",
+            "/vendors",
+            lambda c: c.get("/api/v1/vendors"),
+            ALL,
+        ),
+        (
+            "POST",
+            "/chat",
+            lambda c: c.post(
+                "/api/v1/chat",
+                json={"question": "What is a record of processing?"},
+                headers=csrf(c),
+            ),
+            ALL,
+        ),
+        (
+            "GET",
+            "/leads",
+            lambda c: c.get("/api/v1/leads"),
+            {Role.ADMIN},
+        ),
+        (
             "GET",
             "/discovery-evidence/{id}",
             lambda c: c.get(f"/api/v1/discovery-evidence/{uuid.uuid4()}"),
@@ -432,6 +724,24 @@ def test_role_matrix(matrix_setup: dict[str, Any]) -> None:
                 ), f"{role} should reach {method} {path}: {status}"
             else:
                 assert status == 403, f"{role} must be refused {method} {path}: {status}"
+
+
+def test_the_matrix_exercises_every_protected_route(
+    app: FastAPI, matrix_setup: dict[str, Any]
+) -> None:
+    """A route that is added without a row in the role matrix fails here, so every route is
+    tested for every role."""
+    routes = _protected_routes(app)
+    wanted = {(method, route.path) for method, route in routes}
+    covered: set[tuple[str, str]] = set()
+    for _, _, call, _ in _matrix(matrix_setup["system_id"]):
+        response = call(matrix_setup["admin"])
+        sent_method, sent_path = response.request.method, response.request.url.path
+        for method, route in routes:
+            if method == sent_method and route.path_regex.match(sent_path):
+                covered.add((method, route.path))
+                break
+    assert covered == wanted, sorted(wanted - covered)
 
 
 # --- system owner scoping --------------------------------------------------------------------

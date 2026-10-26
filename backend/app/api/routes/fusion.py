@@ -1,8 +1,8 @@
 import dataclasses
 import uuid
-from datetime import UTC, date, datetime
+from datetime import UTC, datetime
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from sqlalchemy import Select, select
 
 from app.api.deps import (
@@ -13,19 +13,16 @@ from app.api.deps import (
     require_role,
     write_audit,
 )
+from app.api.pagination import Page, paged
 from app.api.schemas import FindingOut, FindingPatch, FusionSummaryOut
 from app.api.tenancy import get_tenant_db
-from app.classify.embedder import Embedder
-from app.classify.engine import Classifier
-from app.classify.index import PgMatcher
-from app.classify.knowledge import Knowledge
 from app.core.config import Settings
 from app.db.enums import FindingStatus, JobState, Role
 from app.db.models import Finding, System, TaxonomyEntry
 from app.db.session import TenantSession
-from app.fusion.loader import ClassifierCategorizer, FactsLoader
+from app.fusion.loader import FactsLoader
 from app.fusion.service import FusionService
-from app.services.evidence_store import EvidenceStore
+from app.services import pipeline
 
 router = APIRouter(prefix="/api/v1", tags=["fusion"])
 
@@ -43,16 +40,8 @@ READY_STATES = (
 def make_loader(
     request: Request, db: TenantSession, principal: Principal, settings: Settings
 ) -> FactsLoader:
-    knowledge: Knowledge = request.app.state.knowledge
-    embedder: Embedder = request.app.state.embedder
-    store: EvidenceStore = request.app.state.evidence_store
-    return FactsLoader(
-        db,
-        store,
-        ClassifierCategorizer(Classifier(knowledge, embedder, PgMatcher(db))),
-        principal.org_id,
-        settings.reference_date or date.today(),
-    )
+    """The facts loader for a request (kept for the routes that build one per call)."""
+    return pipeline.make_loader(request.app.state, db, principal.org_id)
 
 
 @router.post("/systems/{system_id}/fusion", response_model=FusionSummaryOut)
@@ -98,6 +87,7 @@ def _visible_findings(principal: Principal) -> Select[Finding]:
 
 @router.get("/findings", response_model=list[FindingOut])
 def list_findings(
+    response: Response,
     system_id: uuid.UUID | None = None,
     type: str | None = Query(None, max_length=80),
     severity: str | None = Query(None, max_length=20),
@@ -117,9 +107,8 @@ def list_findings(
         stmt = stmt.where(Finding.severity == severity)
     if status_filter:
         stmt = stmt.where(Finding.status == status_filter)
-    return list(
-        db.scalars(stmt.order_by(Finding.created_at.desc(), Finding.id).limit(limit).offset(offset))
-    )
+    stmt = stmt.order_by(Finding.created_at.desc(), Finding.id)
+    return paged(db, stmt, Page(limit, offset), response)
 
 
 @router.patch("/findings/{finding_id}", response_model=FindingOut)

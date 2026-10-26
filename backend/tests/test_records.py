@@ -536,3 +536,24 @@ def test_exports_are_audited(fusion_estate: FusionEstate) -> None:
     admin.get("/api/v1/exports/register.xlsx")
     entries = admin.get("/api/v1/audit-log", params={"action": "export.register"}).json()
     assert entries and entries[0]["details"]["format"] in {"xlsx", "pdf"}
+
+
+def test_the_review_date_can_be_edited(
+    fusion_estate: FusionEstate, records: dict[str, dict[str, Any]]
+) -> None:
+    """Regression: a parsed date used to be dropped, which cleared the review date."""
+    admin = fusion_estate.admin
+    _, activity = record_for(fusion_estate, admin, "crm", "CRM review date")
+    changed = admin.patch(
+        f"/api/v1/activities/{activity['id']}",
+        json={"next_review_date": "2027-02-03"},
+        headers=csrf(admin),
+    )
+    assert changed.status_code == 200 and changed.json()["next_review_date"] == "2027-02-03"
+    cleared = admin.patch(
+        f"/api/v1/activities/{activity['id']}", json={"next_review_date": None}, headers=csrf(admin)
+    )
+    assert (
+        cleared.json()["next_review_date"] is None
+        and "next_review_date" in cleared.json()["missing_fields"]
+    )

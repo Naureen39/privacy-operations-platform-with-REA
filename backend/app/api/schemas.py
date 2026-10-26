@@ -3,7 +3,7 @@ import uuid
 from datetime import date, datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator
 
 from app.db.enums import (
     DocumentType,
@@ -559,3 +559,440 @@ class DpiaSummaryOut(BaseModel):
     residual_risk: str | None
     risks: int
     created_at: datetime
+
+
+IdentifierType = Literal["email", "phone"]
+
+
+class RequestCreate(BaseModel):
+    """The identifier is a SecretStr so that it cannot end up in a log line through a repr."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    identifier_type: IdentifierType = "email"
+    identifier: SecretStr = Field(min_length=3, max_length=254)
+    received_date: date | None = None
+
+
+class IdentityIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    checklist: dict[str, bool]
+    note: str | None = Field(default=None, max_length=1000)
+
+
+class ExtensionIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    months: int = Field(ge=1, le=2)
+    reason: str = Field(min_length=10, max_length=2000)
+
+
+class SubjectIn(BaseModel):
+    """Used for the calls that need the raw identifier again (search, disclosed data)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    identifier: SecretStr = Field(min_length=3, max_length=254)
+
+
+class DisclosureIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    result_ids: list[uuid.UUID] = Field(max_length=500)
+
+
+class ResponseDraftIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    cover_note: bool = False
+
+
+class ResponseEdit(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    body: str | None = Field(default=None, min_length=20, max_length=20000)
+    cover_note: str | None = Field(default=None, max_length=1000)
+
+
+class RejectIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    reason: str = Field(min_length=10, max_length=2000)
+
+
+class RequestOut(BaseModel):
+    id: uuid.UUID
+    reference: str | None
+    identifier_type: str
+    status: str
+    received_date: date
+    original_deadline: date
+    deadline_date: date
+    extended: bool
+    extension_months: int
+    extension_reason: str | None
+    identity_verified: bool
+    identity_checklist: dict[str, Any]
+    days_remaining: int
+    overdue: bool
+    reminder: str
+    searched_at: datetime | None
+    responded_at: datetime | None
+    closed_at: datetime | None
+    rejection_reason: str | None
+    systems_matched: int
+    locations_matched: int
+    possible_duplicates: list[str] = Field(default_factory=list)
+
+
+class ResultOut(BaseModel):
+    id: uuid.UUID
+    system_id: uuid.UUID
+    system_name: str
+    table: str
+    column: str | None
+    category: str | None
+    match_count: int
+    disclosure_approved: bool
+
+
+class SearchOut(BaseModel):
+    results: list[ResultOut]
+    searched: list[str]
+    skipped: list[dict[str, str]]
+    systems_matched: int
+
+
+class RequestResponseOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    version: int
+    status: str
+    body: str
+    cover_note: str | None
+    created_at: datetime
+
+
+class DisclosedLocation(BaseModel):
+    system: str
+    table: str
+    column: str | None
+    columns: list[str]
+    rows: list[dict[str, Any]]
+
+
+# -- jobs, tasks, comments, notifications, platform ----------------------------------------------
+
+StageName = Literal["discover", "classify", "fuse", "record", "screen"]
+
+
+class OnboardIn(BaseModel):
+    """Run the onboarding stages for a system as a background job."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        json_schema_extra={
+            "examples": [
+                {
+                    "stages": ["discover", "classify", "fuse", "record", "screen"],
+                    "scale": {"data_subjects_estimate": 1200, "countries": 5},
+                }
+            ]
+        },
+    )
+
+    stages: list[StageName] | None = Field(default=None, max_length=5)
+    scale: ScaleIn | None = None
+
+
+class JobOut(BaseModel):
+    id: uuid.UUID
+    system_id: uuid.UUID
+    kind: str
+    state: str
+    stages: dict[str, Any]
+    result: dict[str, Any]
+    error: str | None
+    progress: dict[str, int]
+    created_at: datetime
+    started_at: datetime | None
+    finished_at: datetime | None
+
+
+class JobEventOut(BaseModel):
+    seq: int
+    job_id: uuid.UUID
+    stage: str | None
+    event: str
+    detail: dict[str, Any]
+    created_at: datetime
+
+
+class TaskCreate(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        json_schema_extra={
+            "examples": [
+                {
+                    "title": "Add the Article 9 condition to the clinic record",
+                    "description": "Agree the condition with the clinic director.",
+                    "due_date": "2026-11-15",
+                }
+            ]
+        },
+    )
+
+    title: str = Field(min_length=3, max_length=300)
+    description: str | None = Field(default=None, max_length=4000)
+    assignee_user_id: uuid.UUID | None = None
+    system_id: uuid.UUID | None = None
+    finding_id: uuid.UUID | None = None
+    due_date: date | None = None
+
+
+class TaskPatch(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid", json_schema_extra={"examples": [{"status": "in_progress"}]}
+    )
+
+    title: str | None = Field(default=None, min_length=3, max_length=300)
+    description: str | None = Field(default=None, max_length=4000)
+    assignee_user_id: uuid.UUID | None = None
+    due_date: date | None = None
+    status: Literal["open", "in_progress", "done", "cancelled"] | None = None
+
+
+class TaskOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    title: str
+    description: str | None
+    assignee_user_id: uuid.UUID | None
+    system_id: uuid.UUID | None
+    finding_id: uuid.UUID | None
+    status: str
+    due_date: date | None
+    created_at: datetime
+
+
+CommentEntity = Literal["system", "activity", "dpia", "finding"]
+
+
+class CommentCreate(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        json_schema_extra={
+            "examples": [
+                {
+                    "entity_type": "activity",
+                    "entity_id": "3f1c1d52-8f0a-4c52-9c83-0e5f2f2f7a10",
+                    "body": "Please confirm the retention period with finance.",
+                }
+            ]
+        },
+    )
+
+    entity_type: CommentEntity
+    entity_id: uuid.UUID
+    body: str = Field(min_length=1, max_length=4000)
+
+
+class CommentOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    entity_type: str
+    entity_id: uuid.UUID
+    author_user_id: uuid.UUID | None
+    body: str
+    created_at: datetime
+
+
+class NotificationOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    kind: str
+    title: str
+    body: str | None
+    entity_type: str | None
+    entity_id: uuid.UUID | None
+    read_at: datetime | None
+    created_at: datetime
+
+
+class ReminderSummaryOut(BaseModel):
+    records_due: int
+    records_overdue: int
+    tasks_created: int
+    notifications_created: int
+    requests_flagged: int
+
+
+class VendorOut(BaseModel):
+    key: str
+    name: str
+    role: str
+    country: str | None
+    category: str | None
+    domains: list[str]
+    systems: list[dict[str, Any]]
+    open_findings: list[str]
+
+
+class ChatIn(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        json_schema_extra={
+            "examples": [{"question": "How long may we keep customer data under our own policy?"}]
+        },
+    )
+
+    question: str = Field(min_length=3, max_length=500)
+    system_id: uuid.UUID | None = None
+
+
+class ChatOut(BaseModel):
+    answer: str
+    supported: bool
+    citations: list[PassageOut]
+    retrieved: int
+    tokens_used: int
+
+
+class LeadIn(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        json_schema_extra={
+            "examples": [
+                {
+                    "kind": "demo_request",
+                    "name": "Alex Example",
+                    "email": "alex@example.test",
+                    "company": "Example Ltd",
+                    "message": "We would like a demonstration.",
+                }
+            ]
+        },
+    )
+
+    kind: Literal["contact", "demo_request"]
+    name: str = Field(min_length=2, max_length=200)
+    email: str = Field(min_length=5, max_length=320, pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+    company: str | None = Field(default=None, max_length=200)
+    message: str | None = Field(default=None, max_length=4000)
+    website: str | None = Field(
+        default=None, max_length=200, description="Leave empty; bots fill it in"
+    )
+
+
+class LeadOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    kind: str
+    name: str
+    email: str
+    company: str | None
+    message: str | None
+    created_at: datetime
+
+
+class PublicMetricsOut(BaseModel):
+    as_of: date | None
+    accounts: int
+    systems: int
+    requests: int
+    cache_hits: int
+    failovers: int
+    regulation_passages: int
+    simulated: bool
+    note: str
+
+
+# -- OpenAPI examples ----------------------------------------------------------------------------
+# One place for the request examples shown at /docs. A test validates every one against its model,
+# so an example can never drift from what the API accepts.
+
+_ID = "3f1c1d52-8f0a-4c52-9c83-0e5f2f2f7a10"
+EXAMPLES: dict[type[BaseModel], list[dict[str, Any]]] = {
+    LoginRequest: [{"email": "analyst@example.test", "password": "a-long-passphrase-123"}],
+    SystemCreate: [
+        {"name": "Web shop", "description": "Online store for consumers", "owner_user_id": _ID}
+    ],
+    SystemUpdate: [{"description": "Online store for consumers in five countries"}],
+    ElementReview: [{"review_status": "overridden", "category": "contact_email"}],
+    ObservationUrlIn: [{"url": "https://shop.example.test/"}],
+    OrgSettings: [
+        {
+            "llm_provider_order": ["groq", "gemini"],
+            "daily_token_budget_org": 200000,
+            "daily_token_budget_system": 20000,
+            "evidence_retention_days": 365,
+        }
+    ],
+    KnowledgeSearchIn: [
+        {
+            "query": "When must a personal data breach be reported?",
+            "top_k": 5,
+            "sources": ["regulation"],
+        }
+    ],
+    FindingPatch: [{"status": "acknowledged"}],
+    ActivityPatch: [{"retention": "24 months after the last order", "lawful_basis": "contract"}],
+    DecisionIn: [{"note": "Reviewed and approved."}],
+    ScaleIn: [{"data_subjects_estimate": 1200, "countries": 5, "flags": ["automated_decisions"]}],
+    DpiaCreate: [{"reason": "Planned expansion to a new region"}],
+    DpiaPatch: [
+        {
+            "description": "The system collects ...",
+            "officer_opinion": "Proceed with the mitigations.",
+        }
+    ],
+    RiskIn: [
+        {
+            "title": "Visitor identifiers are shared with an agency",
+            "likelihood": 4,
+            "severity": 3,
+            "mitigation": "Remove the identifier from the report",
+            "citation": "reg:gdpr-art5-p1",
+        }
+    ],
+    RiskPatch: [{"residual_likelihood": 2, "residual_severity": 3}],
+    RequestCreate: [
+        {
+            "identifier_type": "email",
+            "identifier": "person@example.test",
+            "received_date": "2026-10-01",
+        }
+    ],
+    IdentityIn: [
+        {
+            "checklist": {
+                "name_matches_records": True,
+                "contact_details_confirmed": True,
+                "identity_document_seen": True,
+            },
+            "note": "Checked by phone.",
+        }
+    ],
+    ExtensionIn: [{"months": 2, "reason": "The request is complex and covers many systems."}],
+    SubjectIn: [{"identifier": "person@example.test"}],
+    DisclosureIn: [{"result_ids": [_ID]}],
+    ResponseDraftIn: [{"cover_note": True}],
+    ResponseEdit: [
+        {
+            "body": "Dear data subject, we received your request ...",
+            "cover_note": "Please find our response enclosed.",
+        }
+    ],
+    RejectIn: [{"reason": "Manifestly unfounded: no identity was given."}],
+}
+for _model, _examples in EXAMPLES.items():
+    _current = _model.model_config.get("json_schema_extra")
+    _extra: dict[str, Any] = dict(_current) if isinstance(_current, dict) else {}
+    _extra["examples"] = _examples
+    _model.model_config["json_schema_extra"] = _extra
+    _model.model_rebuild(force=True)

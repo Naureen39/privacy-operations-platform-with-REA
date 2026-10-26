@@ -3,10 +3,12 @@ from datetime import date, datetime
 from typing import Any
 
 from sqlalchemy import (
+    BigInteger,
     Boolean,
     Date,
     DateTime,
     ForeignKey,
+    Identity,
     Index,
     Integer,
     String,
@@ -29,6 +31,7 @@ from app.db.enums import (
     ApprovalStatus,
     FindingSeverity,
     FindingStatus,
+    JobStatus,
     RequestStatus,
     ResponseStatus,
     TaskStatus,
@@ -84,6 +87,80 @@ class Task(UuidPkMixin, TimestampMixin, TenantMixin, Base):
         enum_type(TaskStatus), nullable=False, server_default=TaskStatus.OPEN.value
     )
     due_date: Mapped[date | None] = mapped_column(Date)
+    dedupe_key: Mapped[str | None] = mapped_column(String(200))
+
+    __table_args__ = (UniqueConstraint("org_id", "dedupe_key"),)
+
+
+class Job(UuidPkMixin, TimestampMixin, TenantMixin, Base):
+    """A background run, for example the onboarding of a system through its stages."""
+
+    __tablename__ = "jobs"
+
+    system_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("systems.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    kind: Mapped[str] = mapped_column(String(40), nullable=False, server_default="onboarding")
+    state: Mapped[JobStatus] = mapped_column(
+        enum_type(JobStatus), nullable=False, server_default=JobStatus.QUEUED.value
+    )
+    stages: Mapped[dict[str, Any]] = mapped_column(
+        JSONB, nullable=False, server_default=jsonb_default("{}")
+    )
+    params: Mapped[dict[str, Any]] = mapped_column(
+        JSONB, nullable=False, server_default=jsonb_default("{}")
+    )
+    result: Mapped[dict[str, Any]] = mapped_column(
+        JSONB, nullable=False, server_default=jsonb_default("{}")
+    )
+    error: Mapped[str | None] = mapped_column(Text)
+    created_by: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL")
+    )
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class JobEvent(TenantMixin, Base):
+    """One transition of a job. `seq` orders events for the progress stream."""
+
+    __tablename__ = "job_events"
+
+    seq: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    job_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    system_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("systems.id", ondelete="CASCADE")
+    )
+    stage: Mapped[str | None] = mapped_column(String(40))
+    event: Mapped[str] = mapped_column(String(30), nullable=False)
+    detail: Mapped[dict[str, Any]] = mapped_column(
+        JSONB, nullable=False, server_default=jsonb_default("{}")
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=text("now()"), nullable=False
+    )
+
+
+class Notification(UuidPkMixin, TenantMixin, Base):
+    __tablename__ = "notifications"
+
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    kind: Mapped[str] = mapped_column(String(60), nullable=False)
+    title: Mapped[str] = mapped_column(String(300), nullable=False)
+    body: Mapped[str | None] = mapped_column(Text)
+    entity_type: Mapped[str | None] = mapped_column(String(80))
+    entity_id: Mapped[uuid.UUID | None] = mapped_column()
+    dedupe_key: Mapped[str | None] = mapped_column(String(200))
+    read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=text("now()"), nullable=False
+    )
+
+    __table_args__ = (UniqueConstraint("org_id", "user_id", "dedupe_key"),)
 
 
 class Approval(UuidPkMixin, TenantMixin, Base):
@@ -150,6 +227,18 @@ class AccessRequest(UuidPkMixin, TimestampMixin, TenantMixin, Base):
         ForeignKey("users.id", ondelete="SET NULL")
     )
     closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    identifier_type: Mapped[str] = mapped_column(
+        String(20), nullable=False, server_default=text("'email'")
+    )
+    reference: Mapped[str | None] = mapped_column(String(40))
+    identity_checklist: Mapped[dict[str, Any]] = mapped_column(
+        JSONB, nullable=False, server_default=jsonb_default("{}")
+    )
+    rejection_reason: Mapped[str | None] = mapped_column(Text)
+    searched_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    responded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    __table_args__ = (UniqueConstraint("org_id", "reference"),)
 
 
 class RequestResult(UuidPkMixin, TenantMixin, Base):

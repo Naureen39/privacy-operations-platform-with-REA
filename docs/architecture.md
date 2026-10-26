@@ -498,3 +498,128 @@ The first screening run matched on 7 of 8 activities; the 8th reported "evaluati
 | `POST /dpias/{id}/approve`, `/reject` | admin |
 | `GET /dpias`, `GET /dpias/{id}` | all roles (owners see their systems) |
 | `GET /dpias/{id}/export.pdf` | admin, analyst, viewer |
+
+## Access requests
+
+Handles a person's request for a copy of their data (Article 15): intake, deadline, identity check, a search of the data map, a drafted response and its approval. Code: `backend/app/dsar/`.
+
+```
+identifier (email or phone) ── normalise ── HMAC-SHA256(key, organisation + type + value) ── access_requests.subject_hash   (the raw value is not kept)
+                                                                                          deadline: 1 month, next working day
+identity checklist ── verified
+identifier sent again for the search ── checked against the hash ── bound parameter only
+      │
+      ▼ for each system: discovered identifier columns (category contact_email / contact_phone, location db_column)
+snapshot decrypted in memory ── read only, parameterised count per table and column ── request_results (counts, never content)
+      │                                            approved by the privacy officer ── content of those locations, for the copy, not stored
+      ▼
+letter from a template (systems, where found, kinds of data, purposes, recipients, retention from the records) + optional cover note (counts only)
+      ── submit ── approve (another person) ── respond ── close
+```
+
+### Identifiers
+
+An e-mail address is trimmed and lower-cased; a telephone number is reduced to digits. The hash is HMAC-SHA256 over `organisation : type : value` with a secret key (`SUBJECT_HASH_KEY`, or derived from the evidence encryption key), so the same person has different hashes in different organisations and a hash cannot be recomputed without the key. The raw value exists only in the call that carries it: the search and the disclosed data call send it again, it is checked against the stored hash (a different identifier is refused) and used only as a query parameter. It is a `SecretStr` in the request model, validation errors are returned without the submitted value, audit entries hold counts, and the cover note payload holds counts only (`days_taken`, `systems_found`). A test scans every table of the database, the logs, the output, the audit log, the request listings and every model request for the identifiers of three cases.
+
+### Deadlines
+
+The deadline is one month from receipt (the corresponding date, or the last day of the month when there is none), moved to the next working day when it falls on a weekend (Regulation 1182/71). Public holidays are not modelled. One extension of one or two further months is allowed for a complex or numerous request, with a recorded reason, and only within the first month. Reminders (`GET /access-requests/reminders`) list open requests that are overdue, due today or due within seven days (`REQUEST_REMINDER_DAYS`), most urgent first. Nothing is sent by e-mail: the platform has no mail transport.
+
+### Search
+
+Only columns that discovery found and classified as the identifier are queried, and the table and column names are checked against the snapshot's own schema before they are quoted. Telephone numbers match after punctuation is removed; a number written with its country code does not match the same number written without it. The result is a count per system, table and column. A system with no snapshot, or none with an identifier column, is listed as not covered and named in the letter. The content behind a location is returned only after an admin approves that location (`POST /{id}/disclosure`, `POST /{id}/disclosed-data`, at most 50 rows per table, nothing stored).
+
+### Workflow
+
+`received` then `identity_verification` (checklist incomplete) then `searching` (identity verified) then `drafting` (search done) then `awaiting_approval` then `responded` then `closed`; `rejected` from any open state with a recorded reason. Searching needs a verified identity, drafting needs a search, the person who submitted the response cannot approve it, and sending needs an approved response. The letter carries the draft notice and a placeholder for the privacy officer's contact details. Access requests are for the privacy team: admin and analyst work on them, viewers read, system owners have no access.
+
+### Measured (reference estate, `backend/tests/test_dsar_acceptance.py`)
+
+| Check | Result |
+|---|---|
+| Request cases RC01 to RC10 (expected system, table, column and row count) | 10 of 10 exact; 52 of 52 locations found, none extra; RC09 and RC10 return nothing |
+| Identifier in logs, database, audit log, model requests | none (checked for three cases) |
+| Cover note | 3 numbers and a tone; no name or identifier |
+
+### Limits
+
+- Only e-mail and telephone identifiers are supported. A name is not an identifier (too many people share one), so a person known only by a pseudonymous identifier (RC09) finds nothing.
+- Only data in the database snapshots is searched. Files, logs, backups and data held by processors are not, and the letter says which systems were not covered.
+- The identity check is a checklist; no identity document is stored.
+- Matching is exact on the normalised value. Misspellings, aliases and the same address with a plus tag are not found.
+- A "copy of the data" is a list of rows for approved locations, not a formatted export.
+
+### API
+
+| Route | Roles |
+|---|---|
+| `POST /access-requests`, `/{id}/identity`, `/{id}/extension`, `/{id}/search`, `/{id}/response`, `PATCH /{id}/response`, `/{id}/submit`, `/{id}/close`, `GET /reminders` | admin, analyst |
+| `POST /{id}/disclosure`, `/{id}/disclosed-data`, `/{id}/approve`, `/{id}/return`, `/{id}/respond`, `/{id}/reject` | admin |
+| `GET /access-requests`, `/{id}`, `/{id}/results`, `/{id}/response` | admin, analyst, viewer |
+
+## Background jobs, workflow and the API
+
+### Onboarding as a job
+
+`POST /systems/{id}/onboard` creates a job and queues the first stage; each stage is a Celery task (`onboarding.stage`, `backend/app/workers/tasks.py`) that runs one step and queues the next.
+
+```
+discover ──► classify ──► fuse ──► record ──► screen          (each: claim, work, record the result, queue the next)
+   │ every transition writes a row in job_events (queued, started, stage_started, retry, stage_succeeded, stage_failed, succeeded, failed, cancelled)
+   ▼
+GET /jobs/{id}/events   Server-Sent Events, resumable with Last-Event-ID, ends with an `end` event
+GET /jobs/{id}/log      the same events as JSON
+```
+
+- **Idempotent.** A stage that already succeeded is skipped when its message is delivered again; the stage functions themselves (`backend/app/services/pipeline.py`, shared with the API routes) change nothing when run again on unchanged evidence, and the model answers are cached, so a repeated onboarding costs no tokens.
+- **Retries.** Transient failures (database, network, no provider) are retried with a growing delay (`JOB_RETRY_SECONDS` times 1, 2, 4; `JOB_MAX_RETRIES` times), each retry is an event. Anything else fails the job at once: the stage and the job are marked failed, the system status becomes `FAILED`, and the person who started it and the admins get a notification. The next job can start again.
+- **One job per system** at a time; a job can be cancelled before its next stage.
+- **No worker needed to try it.** With `CELERY_EAGER=true` the stages run inside the request (tests, a laptop without Redis). In the real deployment the API only queues, `celery -A app.workers.celery_app worker` runs the stages, and an unreachable broker answers 503 and leaves no job waiting.
+- The job state is kept in PostgreSQL, not in Celery's result backend (task results are ignored), so the progress stream and the job list survive a broker restart.
+
+### Tasks, comments, notifications, reminders
+
+| Piece | What it does |
+|---|---|
+| Tasks (`/tasks`) | Work items with an assignee, a system, a due date and a status. A finding becomes one task for the owner of its system (`POST /findings/{id}/task`, asking again returns the same task). The person a task is assigned to can change its status. |
+| Comments (`/comments`) | On a system, a record, an assessment or a finding; visible only to people who can see the thing. The owner and earlier commenters are notified, never the author. |
+| Notifications (`/notifications`) | In-app, per person, created when a job finishes or fails, a task is assigned, someone comments, an approval is asked for (the admins) and when it is decided (the person who asked). `X-Unread-Count` tells how many are waiting. There is no e-mail transport. |
+| Approvals | Analysts submit, admins decide; the submitter cannot approve their own record, assessment or response. |
+| Review reminders (`POST /reminders/run`, daily in the worker) | Records past their review date, or within 14 days of it, get a task for the owner and a notification (the admins as well when overdue); access requests that are overdue or due within seven days notify the person handling them and the admins. Each reminder is created once per review date or deadline level. |
+
+### The API
+
+All routes are under `/api/v1`, documented at `/docs` and `/openapi.json`.
+
+- **One error format.** Every error keeps FastAPI's `detail` and adds `error`: `{"code", "message", "status", "request_id"}` (codes such as `not_found`, `forbidden`, `conflict`, `validation_error`, `rate_limited`, `unavailable`). A validation error names the field and never repeats the submitted value. The `X-Request-ID` response header carries the same id (a valid id sent by the client is kept), and an unexpected failure returns only that id; the log line has the id and the exception type.
+- **Paging.** Lists take `limit` (1 to 200) and `offset` and return the total in `X-Total-Count`.
+- **Examples.** Every JSON request body has an example (`backend/app/api/schemas.py`, `EXAMPLES`). A test validates each example against its model and sends each one to the running API; a schema error fails the test.
+- **Coverage.** `tests/test_authorization.py` holds a role matrix; one test fails when a route has no row in it, so every route is tested for every role.
+- **Vendors** (`GET /vendors`) lists the recipients of the systems you can see, one entry per vendor, with its systems and the open gaps (transfer safeguard, agreement, declaration).
+- **Chat** (`POST /chat`) retrieves passages from the GDPR and the organisation's documents, keeps those that match the question, and asks the model for an answer that cites them (at most 3,000 tokens). If nothing relevant is found the answer is "No supporting evidence found." and no model is called; without a provider the passages are returned without an answer.
+- **Public site.** `POST /public/leads` (no sign in, 5 per minute, a hidden `website` field catches bots; stored for the organisation named in `LEADS_ORG_ID`, read by its admins at `GET /leads`) and `GET /public/metrics` (the latest platform snapshot, marked simulated, and the size of the regulation text).
+- Billing and analytics routes belong to the next phase.
+
+### Running it
+
+```
+docker compose up -d redis                                        # the broker
+cd backend && uv run celery -A app.workers.celery_app worker -l INFO --pool=solo   # --pool=solo on Windows
+cd backend && uv run celery -A app.workers.celery_app beat -l INFO                 # the daily reminders
+```
+
+### Measured (`backend/tests/test_jobs.py`, `test_end_to_end_api.py`)
+
+| Check | Result |
+|---|---|
+| Full onboarding from API calls only (evidence upload to approved, published and exported record, assessment drafted) | passes, second run changes nothing |
+| Full access request from API calls only (intake to closed case) | passes |
+| A real Celery worker (in-memory broker) runs the stages from a queue | passes |
+| Retries, permanent failure, redelivery, cancel, unreachable broker, resumable stream | covered |
+
+### Limits
+
+- The in-memory broker test proves the task code and the queue path, not Redis itself; there is no test against a Redis server.
+- Notifications are polled (`GET /notifications`); only the job progress is pushed.
+- The progress stream polls the database every 0.4 seconds per connected client and closes after five minutes (the client reconnects with `Last-Event-ID`).
+- The worker and API images are not built yet; the compose file provides Redis only.

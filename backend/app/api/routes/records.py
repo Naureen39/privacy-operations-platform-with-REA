@@ -13,7 +13,7 @@ from app.api.deps import (
     require_role,
     write_audit,
 )
-from app.api.routes.fusion import READY_STATES, make_loader
+from app.api.pagination import Page, page_params_large, paged
 from app.api.schemas import (
     ActivityGenerateOut,
     ActivityOut,
@@ -30,15 +30,12 @@ from app.core.config import Settings
 from app.db.enums import ActivityStatus, FindingSeverity, FindingStatus, Role
 from app.db.models import ActivitySystem, Finding, ProcessingActivity, System
 from app.db.session import TenantSession
-from app.llm.budget import JobBudget
-from app.llm.errors import LLMError
-from app.llm.router import LLMRouter
-from app.llm.schemas import PurposeAndBasis
-from app.llm.tasks import Scope, suggest_purpose_and_basis
-from app.records.builder import build_draft, summary_text
+from app.records.builder import summary_text
 from app.records.diff import diff_snapshots, summarize
 from app.records.export import RegisterRow, to_pdf, to_xlsx
 from app.records.service import ActivityService, WorkflowError
+from app.services import pipeline
+from app.workflow.notify import approval_event
 
 router = APIRouter(prefix="/api/v1", tags=["records"])
 
@@ -133,59 +130,13 @@ def generate_record(
     Needs the comparison to have run. Purposes and a lawful basis are suggested by the assistant
     (one call, cached) and marked for review."""
     system = get_visible_system(db, principal, system_id)
-    if system.status not in READY_STATES or system.status.value in ("CLASSIFIED",):
-        raise HTTPException(
-            status.HTTP_409_CONFLICT, "Run the comparison before generating the record"
+    try:
+        outcome = pipeline.generate_record(
+            db, request.app.state, system, principal.org_id, principal.user_id
         )
-    loader = make_loader(request, db, principal, settings)
-    facts = loader.load(system)
-
-    suggestion: PurposeAndBasis | None = None
-    tokens = 0
-    llm: LLMRouter = request.app.state.llm_router
-    if llm.providers:
-        labels = _labels(request)
-        special = sorted(
-            {labels.get(e.category or "", e.name) for e in facts.elements if e.special}
-        )
-        try:
-            suggestion, result = suggest_purpose_and_basis(
-                llm,
-                Scope(
-                    principal.org_id,
-                    principal.user_id,
-                    system.id,
-                    job=JobBudget(settings.llm_onboarding_token_budget),
-                ),
-                name=facts.name,
-                description=system.description or "",
-                data_categories=sorted(
-                    {labels.get(e.category or "", "") for e in facts.elements if e.category} - {""}
-                ),
-                special_categories=special,
-                data_subjects=facts.questionnaire.data_subjects if facts.questionnaire else [],
-                recipients=[
-                    {"vendor": r.label, "role": r.role, "country": r.country or "unknown"}
-                    for r in facts.recipients
-                    if not r.internal
-                ],
-                declared_purposes=(
-                    [str(p) for p in (facts.questionnaire.answers.get("purposes") or [])]
-                    if facts.questionnaire
-                    else []
-                ),
-            )
-            tokens = result.tokens
-        except LLMError:
-            suggestion = None  # the record is still built from the answers; a person can edit it
-
-    draft = build_draft(
-        facts,
-        str(system.owner_user_id) if system.owner_user_id else None,
-        _labels(request),
-        suggestion,
-    )
-    result_ = ActivityService(db).generate(system, draft, principal.user_id)
+    except pipeline.StageError as exc:
+        raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
+    result_, suggestion, tokens = outcome.result, outcome.suggestion_used, outcome.tokens
     write_audit(
         db, request, "record.generate", principal=principal, entity_type="processing_activity",
         entity_id=result_.activity.id,
@@ -196,7 +147,7 @@ def generate_record(
         activity=_out(db, request, result_.activity),
         created=result_.created,
         changed=result_.changed,
-        suggestion_used=suggestion is not None,
+        suggestion_used=suggestion,
         tokens_used=tokens,
     )
 
@@ -207,6 +158,8 @@ def generate_record(
 @router.get("/activities", response_model=list[ActivityOut])
 def list_activities(
     request: Request,
+    response: Response,
+    page: Page = Depends(page_params_large),
     status_filter: ActivityStatus | None = Query(None, alias="status"),
     principal: Principal = Depends(require_role(*ALL_ROLES)),
     db: TenantSession = Depends(get_tenant_db),
@@ -214,7 +167,7 @@ def list_activities(
     stmt = _visible(principal).order_by(ProcessingActivity.name)
     if status_filter:
         stmt = stmt.where(ProcessingActivity.status == status_filter)
-    return [_out(db, request, a) for a in db.scalars(stmt.limit(500))]
+    return [_out(db, request, a) for a in paged(db, stmt, page, response)]
 
 
 @router.get("/activities/{activity_id}", response_model=ActivityOut)
@@ -320,6 +273,9 @@ def _transition(
             service.publish(activity)
     except WorkflowError as exc:
         raise _workflow(exc) from exc
+    approval_event(
+        db, "processing_activity", activity.id, f"Record {activity.name}", action, principal.user_id
+    )
     write_audit(
         db, request, f"record.{action}", principal=principal, entity_type="processing_activity",
         entity_id=activity.id, details={"version": activity.current_version, "note": note},

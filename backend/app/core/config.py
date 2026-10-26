@@ -1,5 +1,6 @@
 import base64
 import binascii
+import uuid
 from datetime import date
 from functools import lru_cache
 from pathlib import Path
@@ -67,6 +68,22 @@ class Settings(BaseSettings):
     chunk_max_chars: int = 900
     rerank_enabled: bool = False  # cross encoder over the top 10: better order, about 250 ms more
     rerank_model: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+
+    # Background jobs (Celery). `celery_eager` runs tasks inside the calling process, for tests and a
+    # laptop without Redis; the real deployment uses the worker service and Redis.
+    celery_broker_url: str = "redis://127.0.0.1:6380/0"
+    celery_result_backend: str | None = None
+    celery_eager: bool = False
+    job_max_retries: int = 3
+    lead_rate_limit: str = "5/minute"
+    job_retry_seconds: int = 5
+    # The organisation that owns the leads of the public site (its admins read them).
+    leads_org_id: uuid.UUID | None = None
+
+    # Access requests: key for the HMAC of subject identifiers. If unset it is derived from the
+    # evidence encryption key, so a hash can never be recomputed without a secret.
+    subject_hash_key: SecretStr | None = None
+    request_reminder_days: int = 7
 
     # Fusion: the date review and retention checks count from (default: today). The demonstration
     # estate was built for 2026-10-01.

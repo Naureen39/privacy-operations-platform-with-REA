@@ -17,7 +17,9 @@ Generated legal or compliance documents are drafts for review by a qualified pri
 | 7 | LLM router, cache, budgets and call log (`backend/app/llm/`) | Done |
 | 8 | Fusion, findings, record generation, versions, exports (`backend/app/fusion/`, `backend/app/records/`) | Done |
 | 9 | Impact assessments: screening, drafting, risk register, review (`backend/app/dpia/`) | Done |
-| 10 onwards | Access requests, workflow, frontend | Planned |
+| 10 | Access requests: intake, deadlines, search, response (`backend/app/dsar/`) | Done |
+| 11 | Background jobs, workflow and the API (`backend/app/workers/`, `backend/app/workflow/`) | Done |
+| 12 onwards | Billing and analytics, frontend | Planned |
 
 ## Quick start (backend)
 
@@ -71,4 +73,4 @@ The platform performs static or observational analysis of systems the organizati
 
 ## Project plan
 
-The phase by phase plan is in [PLAN_PRIVACY_OPS.md](PLAN_PRIVACY_OPS.md). Phases 1 to 9 are complete: database and tenancy, authentication and security baseline, the dataset with the reference estate, evidence extraction, classification, the knowledge base with hybrid retrieval, the LLM router with budgets, and the comparison of questionnaire, notice and evidence with record generation and export, and impact assessments.
+The phase by phase plan is in [PLAN_PRIVACY_OPS.md](PLAN_PRIVACY_OPS.md). Phases 1 to 11 are complete: database and tenancy, authentication and security baseline, the dataset with the reference estate, evidence extraction, classification, the knowledge base with hybrid retrieval, the LLM router with budgets, and the comparison of questionnaire, notice and evidence with record generation and export, impact assessments, access requests, and the background jobs, workflow and API.

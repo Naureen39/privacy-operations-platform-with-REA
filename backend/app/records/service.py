@@ -302,8 +302,8 @@ def _current_value(activity: ProcessingActivity, name: str) -> Any:
 
 
 def _set_value(activity: ProcessingActivity, name: str, value: Any) -> None:
-    if name == "next_review_date":
-        value = date.fromisoformat(value) if isinstance(value, str) and value else None
+    if name == "next_review_date" and isinstance(value, str):
+        value = date.fromisoformat(value) if value else None
     setattr(activity, name, value)
 
 

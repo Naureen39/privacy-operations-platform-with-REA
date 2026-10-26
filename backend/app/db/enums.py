@@ -124,6 +124,14 @@ class LlmCallStatus(StrEnum):
     BUDGET_BLOCKED = "budget_blocked"
 
 
+class JobStatus(StrEnum):
+    QUEUED = "queued"
+    RUNNING = "running"
+    SUCCEEDED = "succeeded"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
+
+
 class LeadKind(StrEnum):
     CONTACT = "contact"
     DEMO_REQUEST = "demo_request"

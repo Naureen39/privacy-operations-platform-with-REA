@@ -148,6 +148,15 @@ class TaskAwareProvider:
                 "basis_rationale": "The processing is needed to provide the service the person asked for.",
                 "needs_review": bool(user["special_categories"]),
             }
+        elif request.schema_name == "answer_question":
+            ids = [p["id"] for p in user["passages"]][:2]
+            answer = {
+                "answer": "Based on the retrieved passages: " + user["passages"][0]["text"][:120],
+                "supported": bool(ids),
+                "cited_passage_ids": ids,
+            }
+        elif request.schema_name == "draft_request_cover_note":
+            answer = {"note": "Please find enclosed our response to your request for access."}
         elif request.schema_name == "draft_dpia_sections":
             ids = [p["id"] for p in user["passages"]]
             if user["part"] == "description":

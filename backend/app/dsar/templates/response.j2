@@ -1,0 +1,41 @@
+Draft for review by a qualified privacy professional. Not legal advice.
+
+Reference: {{ reference }}
+Date: {{ date }}
+
+Subject: Your request for access to your personal data
+
+Dear data subject,
+
+We received your request on {{ received }}. {% if extended %}We extended the time to answer by {{ extension_months }} month{{ "s" if extension_months != 1 }} because {{ extension_reason }}. {% endif %}This letter answers it under Article 15 of the General Data Protection Regulation.
+
+{% if systems %}
+We hold personal data that matches the identifier you gave in {{ systems | length }} of our systems:
+
+{% for s in systems %}
+{{ loop.index }}. {{ s.name }}
+   Where we found it: {{ s.locations }}
+   Kinds of data held there: {{ s.categories | join(", ") if s.categories else "see the enclosed copy" }}
+{% if s.purposes %}
+   Why we use it: {{ s.purposes | join("; ") }}
+{% endif %}
+{% if s.recipients %}
+   Who receives it: {{ s.recipients | join(", ") }}
+{% endif %}
+{% if s.retention %}
+   How long we keep it: {{ s.retention }}
+{% endif %}
+
+{% endfor %}
+{% else %}
+We searched our systems for the identifier you gave and did not find personal data that matches it.
+{% endif %}
+{% if skipped %}
+We could not search the following systems with this identifier: {{ skipped | join("; ") }}. If you think they hold data about you, please tell us.
+
+{% endif %}
+You have the right to ask us to correct data that is wrong, to erase it or restrict its use in the cases the law provides, to object to processing based on our legitimate interests, and to receive the data you gave us in a portable format. If we did not collect the data from you, the source is stated above where we know it. We do not take decisions about you based only on automated processing that have legal or similarly significant effects, unless we say so above.
+
+If you are not satisfied with our answer you can complain to your data protection supervisory authority.
+
+{{ contact }}

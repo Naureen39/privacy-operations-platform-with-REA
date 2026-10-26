@@ -5,6 +5,7 @@ from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 
 from app.api.deps import ACCESS_COOKIE, CSRF_COOKIE, CSRF_HEADER, REFRESH_COOKIE
+from app.api.errors import error_body
 
 UNSAFE_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
 DOCS_PATHS = ("/docs", "/redoc", "/openapi.json")
@@ -29,7 +30,7 @@ async def csrf_protection(request: Request, call_next: Handler) -> Response:
         cookie = request.cookies.get(CSRF_COOKIE, "")
         header = request.headers.get(CSRF_HEADER, "")
         if not cookie or not header or not hmac.compare_digest(cookie, header):
-            return JSONResponse({"detail": "CSRF validation failed"}, status_code=403)
+            return JSONResponse(error_body(403, "CSRF validation failed", request), status_code=403)
     return await call_next(request)
 
 

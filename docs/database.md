@@ -21,6 +21,8 @@ Migrations:
 | 0005 | `taxonomy_entries`: the embedded taxonomy for the classifier (HNSW cosine index, read only for the application role) (Phase 5) |
 | 0006 | `regulation_chunks.chunk_key` (stable citation key), `documents.evidence_item_id`, full text vectors that include the heading or article title (Phase 6) |
 | 0007 | `dpia_screenings`: the result of scoring an activity against the impact assessment criteria (tenant table with Row Level Security) (Phase 9) |
+| 0008 | `access_requests`: `identifier_type`, `reference` (unique per organisation), `identity_checklist`, `rejection_reason`, `searched_at`, `responded_at` (Phase 10) |
+| 0009 | `jobs`, `job_events` (ordered by an identity column, for the progress stream), `notifications`, and `tasks.dedupe_key` (tenant tables with Row Level Security) (Phase 11) |
 
 Both directions are tested: upgrade, downgrade to 0001, downgrade to base, upgrade again, plus a check that the models and the migrated schema have no drift.
 

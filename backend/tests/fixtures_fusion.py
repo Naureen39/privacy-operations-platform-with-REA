@@ -88,6 +88,9 @@ def fusion_estate(
     tmp_path_factory: pytest.TempPathFactory,
 ) -> Iterator[FusionEstate]:
     base = tmp_path_factory.mktemp("fusion")
+    org_id = provisioning.create_organization(
+        owner_engine, "Northbridge", f"nb-{uuid.uuid4().hex[:8]}"
+    )
     settings = Settings(
         jwt_secret=SecretStr(JWT_SECRET),
         evidence_encryption_key=SecretStr(ENCRYPTION_KEY),
@@ -99,6 +102,8 @@ def fusion_estate(
         rea_input_dir=str(base / "stage"),
         embedding_local_files_only=True,
         reference_date=REFERENCE_DATE,
+        celery_eager=True,
+        leads_org_id=org_id,
         cors_allowed_origins=["https://app.example.test"],
         observation_allowed_hosts=["127.0.0.1"],
     )
@@ -112,9 +117,6 @@ def fusion_estate(
     )  # fmt: skip
     app = create_app(settings, session_factory, embedder=real_embedder, llm_router=router)
 
-    org_id = provisioning.create_organization(
-        owner_engine, "Northbridge", f"nb-{uuid.uuid4().hex[:8]}"
-    )
     users = {
         role.value: provisioning.create_user(
             owner_engine, org_id, f"{role.value}-{uuid.uuid4().hex[:6]}@nb.example", role.value.title(), PASSWORD, role

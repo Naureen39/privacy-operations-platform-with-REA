@@ -3,15 +3,24 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi.util import get_remote_address
 from sqlalchemy import text
 from sqlalchemy.orm import sessionmaker
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.api.deps import CSRF_HEADER
+from app.api.errors import (
+    http_exception_handler,
+    rate_limit_handler,
+    request_id_middleware,
+    unhandled_exception_handler,
+    validation_exception_handler,
+)
 from app.api.middleware import csrf_protection, security_headers
 from app.api.routes import (
     admin,
@@ -21,10 +30,14 @@ from app.api.routes import (
     dpia,
     evidence,
     fusion,
+    jobs,
     knowledge,
     llm,
+    platform,
     records,
+    requests,
     systems,
+    workflow,
 )
 from app.classify.embedder import Embedder, SentenceTransformerEmbedder
 from app.classify.knowledge import load_knowledge
@@ -79,12 +92,16 @@ def create_app(
     if session_factory is not None:
         app.state.session_factory = session_factory
 
-    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
+    app.add_exception_handler(RateLimitExceeded, rate_limit_handler)
+    app.add_exception_handler(RequestValidationError, validation_exception_handler)  # type: ignore[arg-type]
+    app.add_exception_handler(StarletteHTTPException, http_exception_handler)  # type: ignore[arg-type]
+    app.add_exception_handler(Exception, unhandled_exception_handler)
 
     # Added innermost first: security headers wrap CSRF, CORS wraps everything.
     app.add_middleware(SlowAPIMiddleware)
     app.middleware("http")(csrf_protection)
     app.middleware("http")(security_headers)
+    app.middleware("http")(request_id_middleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_allowed_origins,
@@ -114,5 +131,10 @@ def create_app(
     app.include_router(knowledge.router)
     app.include_router(llm.router)
     app.include_router(records.router)
+    app.include_router(jobs.router)
+    app.include_router(workflow.router)
+    app.include_router(platform.router)
+    app.include_router(platform.build_public_router(limiter, settings))
+    app.include_router(requests.router)
     app.include_router(admin.router)
     return app

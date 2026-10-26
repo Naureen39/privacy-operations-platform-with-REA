@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, timedelta
+from typing import Any
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -59,7 +60,12 @@ def test_failures_look_identical_for_unknown_and_known_accounts(
     unknown = login(client, "nobody@acme.example", PASSWORD)
     wrong = login(client, org.users["admin"].email, "wrong-password-xyz")
     assert unknown.status_code == wrong.status_code == 401
-    assert unknown.json() == wrong.json()
+
+    def same_but_for_the_request_id(body: dict[str, Any]) -> dict[str, Any]:
+        return {**body, "error": {**body["error"], "request_id": "-"}}
+
+    assert same_but_for_the_request_id(unknown.json()) == same_but_for_the_request_id(wrong.json())
+    assert unknown.headers["x-request-id"] != wrong.headers["x-request-id"]
     assert not set_cookie_headers(unknown) and not set_cookie_headers(wrong)
 
 

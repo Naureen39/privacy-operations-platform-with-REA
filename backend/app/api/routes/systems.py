@@ -10,6 +10,7 @@ from app.api.deps import (
     require_role,
     write_audit,
 )
+from app.api.pagination import Page, paged
 from app.api.schemas import SystemCreate, SystemOut, SystemUpdate, slugify
 from app.api.tenancy import get_tenant_db
 from app.db.enums import Role
@@ -37,15 +38,16 @@ def _check_owner(db: TenantSession, principal: Principal, owner_id: uuid.UUID | 
 
 @router.get("", response_model=list[SystemOut])
 def list_systems(
+    response: Response,
     limit: int = Query(100, ge=1, le=200),
     offset: int = Query(0, ge=0),
     principal: Principal = Depends(require_role(*ALL_ROLES)),
     db: TenantSession = Depends(get_tenant_db),
 ) -> list[System]:
-    stmt = select(System).order_by(System.name).limit(limit).offset(offset)
+    stmt = select(System).order_by(System.name)
     if principal.role is Role.SYSTEM_OWNER:
         stmt = stmt.where(System.owner_user_id == principal.user_id)
-    return list(db.scalars(stmt))
+    return paged(db, stmt, Page(limit, offset), response)
 
 
 @router.post("", response_model=SystemOut, status_code=status.HTTP_201_CREATED)
