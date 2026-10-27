@@ -213,3 +213,40 @@ def review_reminders_all() -> int:
     for org_id in org_ids:
         review_reminders.delay(org_id)
     return len(org_ids)
+
+
+def _owner_engine(rt: Runtime) -> Any:
+    from sqlalchemy import create_engine
+
+    return create_engine(rt.settings.migration_database_url)
+
+
+@celery_app.task(name="analytics.nightly")
+def analytics_nightly(days: int = 3) -> dict[str, int]:
+    """Write the compliance and platform snapshots (reads every organisation, so it connects as
+    the database owner; the numbers it stores are aggregates, no tenant rows leave the database)."""
+    from app.analytics import nightly
+
+    rt = get_runtime()
+    owner = _owner_engine(rt)
+    try:
+        summary = nightly.run_nightly(
+            owner, rt.session_factory, pipeline.today_of(rt.settings), days
+        )
+    finally:
+        owner.dispose()
+    return asdict(summary)
+
+
+@celery_app.task(name="billing.invoice_run_all")
+def billing_invoice_run_all() -> dict[str, int]:
+    """On the first of the month: invoice the month that ended, for every organisation."""
+    from app.analytics import nightly
+
+    rt = get_runtime()
+    owner = _owner_engine(rt)
+    try:
+        summary = nightly.run_invoices(owner, rt.session_factory, pipeline.today_of(rt.settings))
+    finally:
+        owner.dispose()
+    return asdict(summary)

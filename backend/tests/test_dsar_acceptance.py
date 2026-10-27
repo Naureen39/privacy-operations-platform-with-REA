@@ -521,6 +521,8 @@ def test_an_access_request_goes_from_intake_to_a_closed_case(
         and sent.json()["responded_at"]
     )
     assert admin.get(f"{BASE}/{rid}/response").json()["status"] == "sent"
+    metered = admin.get("/api/v1/billing/usage", params={"month": "2026-10"}).json()
+    assert metered["requests"] >= 1  # answering a request is metered for the invoice
     assert admin.get(f"{BASE}/{rid}").json()["reminder"] == "none"
     closed = analyst.post(f"{BASE}/{rid}/close", headers=csrf(analyst))
     assert (

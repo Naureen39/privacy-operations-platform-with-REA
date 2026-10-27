@@ -103,7 +103,10 @@ class Invoice(UuidPkMixin, TimestampMixin, TenantMixin, Base):
         Boolean, nullable=False, server_default=text("false")
     )
 
-    __table_args__ = (UniqueConstraint("org_id", "number"),)
+    __table_args__ = (
+        UniqueConstraint("org_id", "number"),
+        Index("ix_invoices_org_id_period_start", "org_id", "period_start"),
+    )
 
 
 class InvoiceLine(UuidPkMixin, TenantMixin, Base):
@@ -148,6 +151,11 @@ class DailyMetric(Base):
     is_simulated: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default=text("false")
     )
+    paying_accounts: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    arpa_cents: Mapped[int] = mapped_column(BigInteger, nullable=False, server_default="0")
+    # Trailing twelve months net revenue retention and the month's gross churn, in basis points.
+    nrr_bp: Mapped[int | None] = mapped_column(Integer)
+    gross_churn_bp: Mapped[int | None] = mapped_column(Integer)
 
 
 class ComplianceDailyMetric(UuidPkMixin, TenantMixin, Base):

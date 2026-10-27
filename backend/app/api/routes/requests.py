@@ -24,9 +24,10 @@ from app.api.schemas import (
     SubjectIn,
 )
 from app.api.tenancy import get_tenant_db
+from app.billing.usage import event_time, record_usage
 from app.classify.knowledge import Knowledge
 from app.core.config import Settings
-from app.db.enums import RequestStatus, Role
+from app.db.enums import RequestStatus, Role, UsageKind
 from app.db.models import AccessRequest, RequestResponse, RequestResult, System
 from app.db.session import TenantSession
 from app.dsar import deadline
@@ -521,6 +522,7 @@ def _step(
             service.decide(item, principal.user_id, action == "approve", kw.get("note"))
         elif action == "respond":
             service.respond(item)
+            record_usage(db, UsageKind.REQUESTS_PROCESSED, at=event_time(settings.reference_date))
         elif action == "close":
             service.close(item)
         elif action == "reject":

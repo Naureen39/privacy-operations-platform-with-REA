@@ -19,7 +19,8 @@ Generated legal or compliance documents are drafts for review by a qualified pri
 | 9 | Impact assessments: screening, drafting, risk register, review (`backend/app/dpia/`) | Done |
 | 10 | Access requests: intake, deadlines, search, response (`backend/app/dsar/`) | Done |
 | 11 | Background jobs, workflow and the API (`backend/app/workers/`, `backend/app/workflow/`) | Done |
-| 12 onwards | Billing and analytics, frontend | Planned |
+| 12 | Billing, metrics and analytics APIs (`backend/app/billing/`, `backend/app/analytics/`, `backend/app/seeding/`) | Done |
+| 13 onwards | Frontend | Planned |
 
 ## Quick start (backend)
 
@@ -73,4 +74,4 @@ The platform performs static or observational analysis of systems the organizati
 
 ## Project plan
 
-The phase by phase plan is in [PLAN_PRIVACY_OPS.md](PLAN_PRIVACY_OPS.md). Phases 1 to 11 are complete: database and tenancy, authentication and security baseline, the dataset with the reference estate, evidence extraction, classification, the knowledge base with hybrid retrieval, the LLM router with budgets, and the comparison of questionnaire, notice and evidence with record generation and export, impact assessments, access requests, and the background jobs, workflow and API.
+The phase by phase plan is in [PLAN_PRIVACY_OPS.md](PLAN_PRIVACY_OPS.md). Phases 1 to 12 are complete: database and tenancy, authentication and security baseline, the dataset with the reference estate, evidence extraction, classification, the knowledge base with hybrid retrieval, the LLM router with budgets, and the comparison of questionnaire, notice and evidence with record generation and export, impact assessments, access requests, the background jobs, workflow and API, and billing with metrics and analytics. Revenue figures are simulated: there are no real customers.

@@ -5,6 +5,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator
 
+from app.api.schemas_billing import InvoiceRunIn, SubscriptionIn
 from app.db.enums import (
     DocumentType,
     EvidenceKind,
@@ -919,6 +920,8 @@ class PublicMetricsOut(BaseModel):
 _ID = "3f1c1d52-8f0a-4c52-9c83-0e5f2f2f7a10"
 EXAMPLES: dict[type[BaseModel], list[dict[str, Any]]] = {
     LoginRequest: [{"email": "analyst@example.test", "password": "a-long-passphrase-123"}],
+    SubscriptionIn: [{"plan": "professional"}],
+    InvoiceRunIn: [{"month": "2026-09"}, {}],
     SystemCreate: [
         {"name": "Web shop", "description": "Online store for consumers", "owner_user_id": _ID}
     ],

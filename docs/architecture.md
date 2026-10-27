@@ -598,7 +598,7 @@ All routes are under `/api/v1`, documented at `/docs` and `/openapi.json`.
 - **Vendors** (`GET /vendors`) lists the recipients of the systems you can see, one entry per vendor, with its systems and the open gaps (transfer safeguard, agreement, declaration).
 - **Chat** (`POST /chat`) retrieves passages from the GDPR and the organisation's documents, keeps those that match the question, and asks the model for an answer that cites them (at most 3,000 tokens). If nothing relevant is found the answer is "No supporting evidence found." and no model is called; without a provider the passages are returned without an answer.
 - **Public site.** `POST /public/leads` (no sign in, 5 per minute, a hidden `website` field catches bots; stored for the organisation named in `LEADS_ORG_ID`, read by its admins at `GET /leads`) and `GET /public/metrics` (the latest platform snapshot, marked simulated, and the size of the regulation text).
-- Billing and analytics routes belong to the next phase.
+- Billing and analytics routes are described in the next section.
 
 ### Running it
 
@@ -623,3 +623,69 @@ cd backend && uv run celery -A app.workers.celery_app beat -l INFO              
 - Notifications are polled (`GET /notifications`); only the job progress is pushed.
 - The progress stream polls the database every 0.4 seconds per connected client and closes after five minutes (the client reconnects with `Last-Event-ID`).
 - The worker and API images are not built yet; the compose file provides Redis only.
+
+## Billing, metrics and analytics (Phase 12)
+
+**Revenue figures are simulated.** There are no real customers and no payment processor. The seeded organisations, subscriptions, invoices and payments carry `is_simulated = true`, the metrics endpoints return `simulated: true` with a note, and the public metrics endpoint carries the same note (the interface footnote comes with the frontend phase). The calculations are real: every number is computed from the tables, never typed in.
+
+### Plans and metering
+
+| Plan | Base fee | Systems included | Requests included | Per extra system | Per extra request |
+|---|---|---|---|---|---|
+| Starter | free | 3 | 5 a month | not billed | not billed |
+| Professional | $399 a month | 25 | 50 | $15 | $8 |
+| Enterprise | $1,800 a month | 150 | 500 | $6 | $4 |
+
+Usage events (`usage_events`) record active systems (a count at the end of each month), requests processed (written when a response is sent), assessments generated (written when one is drafted) and tokens used (summed per provider from the call log when a month is invoiced). Starter has no price for extras, so overage is shown in the usage report but not invoiced.
+
+`billing.invoice_run_all` runs on the first of each month and invoices the month that ended, for the plan in force on its last day: a base line (the fee of the subscription, so a price change never rewrites history) plus a line for systems and one for requests beyond the allowance. Running a month twice returns the same invoice, and a month that has not ended is refused. Payment states (`paid`, `open`, `overdue`, `void`) come from the seed or from a deterministic stand-in (`settle_simulated`): about 90 percent of invoices are paid 3 to 25 days after the month ends, a few stay open or become overdue, and a few are voided.
+
+### Metric definitions
+
+Amounts are integer cents. A subscription is in force from its start date up to, but not including, its end date.
+
+| Metric | Definition |
+|---|---|
+| MRR | Sum of the base fees of the subscriptions in force. Usage revenue is tracked separately and is not part of MRR. |
+| New MRR | Fee of a subscription that starts for an organisation with none ending that day. |
+| Expansion MRR | Increase when an organisation's subscription is replaced by a dearer one the same day. |
+| Contraction MRR | Decrease when it is replaced by a cheaper one. |
+| Churned MRR | Fee of a subscription that ends for an organisation with none starting that day. |
+| Net new MRR | New + expansion - contraction - churned. It equals MRR today minus MRR yesterday, which a test checks for every day of a random history. |
+| Net revenue retention | MRR today of the organisations that were paying 365 days ago, divided by their MRR then (stored in basis points). |
+| Gross churn | Churned MRR of the month so far divided by MRR at the end of the previous month (basis points). |
+| ARPA | MRR divided by the accounts that pay (a fee above zero). |
+| Usage revenue | Sum of the extra-system and extra-request invoice lines (not voided) of the month, reported on the last day of the month. |
+
+The pure functions are in `backend/app/analytics/definitions.py`; each has unit tests.
+
+### Snapshots and endpoints
+
+- `daily_metrics` (platform wide) and `compliance_daily_metrics` (one row per organisation and day) are written by the `analytics.nightly` job, which rebuilds the last three days each night. The platform snapshot reads every organisation, so the job connects with the database owner connection (`MIGRATION_DATABASE_URL`); the compliance rows are written through each organisation's own tenant session, so Row Level Security still applies. The API only reads.
+- The compliance snapshot is rebuilt from timestamps (findings opened and resolved, approvals and their dates, the review date in the version in force, requests received and answered), so a past day shows what was known then.
+- Billing: `GET /billing/plans`, `GET` and `PUT /billing/subscription`, `GET /billing/usage`, `GET /billing/invoices`, `GET /billing/invoices/{id}`, `POST /billing/invoice-run`, `POST /billing/invoices/{id}/pay` (organisation admins; the price list is open to every role).
+- Analytics: `GET /analytics/revenue` and `GET /analytics/platform` (admins of the host organisation, `LEADS_ORG_ID`, only), `GET /analytics/compliance` (admin, analyst, viewer of the caller's organisation), `POST /analytics/refresh` (host admins; rebuilds the latest snapshots and drops the cache).
+- Query parameters: `start`, `end` (default: the last 90 days), `granularity` (`day`, `week`, `month`), `compare=true` (adds the previous period of equal length with absolute and percent change) and `format=csv`. Flows (new MRR, requests) are summed over a period; stocks (MRR, accounts, open findings) take the last day of the period. CSV cells that start with `=`, `+`, `-` or `@` are prefixed with an apostrophe so a spreadsheet does not run them.
+- Responses are cached for 60 seconds, in Redis when `CACHE_URL` is set and in memory otherwise; a cache that cannot be reached is a miss, not an error. `X-Cache` says `hit` or `miss`.
+
+### Demonstration history
+
+`scripts/seed_billing_history.py` (seed 42) writes 24 months for about 120 fictional organisations across five industries and four regions: sign-ups on an S shaped curve, a plan mix, churn that is higher on Starter than on Enterprise, expansion through added systems and upgrades, usage, invoices and payments, then rebuilds the daily metrics. `scripts/seed_compliance_history.py` (seed 42) writes 12 months of findings opened and closed, record approvals and reviews, assessments and access requests with realistic response times for the demonstration organisation, and the daily snapshots derived from them. Both are deterministic for a seed and accept `--reset`. In a Makefile shell: `make seed-billing RESET=--reset`.
+
+### Reconciliation (`backend/tests/test_billing_db.py`)
+
+| Check | Result |
+|---|---|
+| Net new MRR equals the change in MRR, every day and every month of a seeded history | passes |
+| Base lines billed for a month equal the MRR on its last day (all invoices, including voided ones) | passes |
+| Extra lines of non-voided invoices equal the usage revenue shown | passes |
+| Invoice total equals the sum of its lines, for every invoice | passes |
+| The same seed gives the same history; running the invoice run or the nightly job twice changes nothing | passes |
+| Revenue endpoints refuse non-host users; compliance figures never include another organisation | passes |
+
+### Limits
+
+- The reconciliation is run on a smaller history (16 organisations, 8 months) for speed; the full 120 organisation, 24 month seed uses the same code but is not run in the test suite.
+- Failovers and cache hits for seeded days are simulated figures proportional to requests, because the seed has no real call log.
+- The stand-in payment outcome means no real money is involved; marking an invoice paid through the API only records the payment.
+- There is no test against a real Redis server for the cache; the in-memory implementation and the key and version logic are tested.

@@ -29,6 +29,7 @@ PUBLIC_ROUTES = {
 def no_background_dispatch(monkeypatch: pytest.MonkeyPatch) -> None:
     """The matrix asks for onboarding with every role; nothing may reach a queue."""
     monkeypatch.setattr("app.api.routes.jobs.dispatch", lambda *args, **kwargs: None)
+    monkeypatch.setattr("app.workers.tasks.analytics_nightly.delay", lambda *args, **kwargs: None)
 
 
 def _dependency_calls(dependant: Any) -> list[Any]:
@@ -59,7 +60,7 @@ def _protected_routes(app: FastAPI) -> list[tuple[str, APIRoute]]:
 
 def test_every_route_declares_its_roles(app: FastAPI) -> None:
     protected = _protected_routes(app)
-    assert len(protected) == 99
+    assert len(protected) == 111
     for method, route in protected:
         roles = [
             getattr(call, "allowed_roles", None)
@@ -91,6 +92,7 @@ def _upload(c: TestClient, system_id: str) -> Any:
 
 @pytest.fixture
 def matrix_setup(app: FastAPI, org: Org) -> dict[str, Any]:
+    app.state.settings.leads_org_id = org.id  # the matrix organisation plays the host
     admin = client_for(app, org.users["admin"])
     owned = admin.post(
         "/api/v1/systems",
@@ -708,6 +710,55 @@ def _matrix(
             "/discovery-evidence/{id}",
             lambda c: c.get(f"/api/v1/discovery-evidence/{uuid.uuid4()}"),
             {Role.ADMIN, Role.ANALYST},
+        ),
+        ("GET", "/billing/plans", lambda c: c.get("/api/v1/billing/plans"), ALL),
+        (
+            "GET",
+            "/billing/subscription",
+            lambda c: c.get("/api/v1/billing/subscription"),
+            {Role.ADMIN},
+        ),
+        (
+            "PUT",
+            "/billing/subscription",
+            lambda c: c.put(
+                "/api/v1/billing/subscription", json={"plan": "starter"}, headers=csrf(c)
+            ),
+            {Role.ADMIN},
+        ),
+        ("GET", "/billing/usage", lambda c: c.get("/api/v1/billing/usage"), {Role.ADMIN}),
+        ("GET", "/billing/invoices", lambda c: c.get("/api/v1/billing/invoices"), {Role.ADMIN}),
+        (
+            "GET",
+            "/billing/invoices/{id}",
+            lambda c: c.get(f"/api/v1/billing/invoices/{uuid.uuid4()}"),
+            {Role.ADMIN},
+        ),
+        (
+            "POST",
+            "/billing/invoice-run",
+            lambda c: c.post("/api/v1/billing/invoice-run", json={}, headers=csrf(c)),
+            {Role.ADMIN},
+        ),
+        (
+            "POST",
+            "/billing/invoices/{id}/pay",
+            lambda c: c.post(f"/api/v1/billing/invoices/{uuid.uuid4()}/pay", headers=csrf(c)),
+            {Role.ADMIN},
+        ),
+        ("GET", "/analytics/revenue", lambda c: c.get("/api/v1/analytics/revenue"), {Role.ADMIN}),
+        ("GET", "/analytics/platform", lambda c: c.get("/api/v1/analytics/platform"), {Role.ADMIN}),
+        (
+            "GET",
+            "/analytics/compliance",
+            lambda c: c.get("/api/v1/analytics/compliance"),
+            {Role.ADMIN, Role.ANALYST, Role.VIEWER},
+        ),
+        (
+            "POST",
+            "/analytics/refresh",
+            lambda c: c.post("/api/v1/analytics/refresh", headers=csrf(c)),
+            {Role.ADMIN},
         ),
     ]
 

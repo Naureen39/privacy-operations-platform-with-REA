@@ -80,6 +80,9 @@ class Settings(BaseSettings):
     # The organisation that owns the leads of the public site (its admins read them).
     leads_org_id: uuid.UUID | None = None
 
+    # Analytics responses are cached for 60 seconds: in Redis if set, else in the process.
+    cache_url: str | None = None
+
     # Access requests: key for the HMAC of subject identifiers. If unset it is derived from the
     # evidence encryption key, so a hash can never be recomputed without a secret.
     subject_hash_key: SecretStr | None = None

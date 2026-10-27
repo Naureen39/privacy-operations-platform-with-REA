@@ -36,7 +36,15 @@ def configure(settings: Settings | None = None) -> Celery:
             "review-reminders-daily": {
                 "task": "workflow.review_reminders_all",
                 "schedule": crontab(hour=6, minute=0),
-            }
+            },
+            "analytics-nightly": {
+                "task": "analytics.nightly",
+                "schedule": crontab(hour=1, minute=30),
+            },
+            "billing-monthly-invoices": {
+                "task": "billing.invoice_run_all",
+                "schedule": crontab(day_of_month=1, hour=2, minute=0),
+            },
         },
     )
     return celery_app

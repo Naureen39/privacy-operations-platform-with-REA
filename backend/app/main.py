@@ -13,6 +13,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import sessionmaker
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from app.analytics.cache import build_cache
 from app.api.deps import CSRF_HEADER
 from app.api.errors import (
     http_exception_handler,
@@ -24,7 +25,9 @@ from app.api.errors import (
 from app.api.middleware import csrf_protection, security_headers
 from app.api.routes import (
     admin,
+    analytics,
     auth,
+    billing,
     classification,
     discovery,
     dpia,
@@ -73,6 +76,7 @@ def create_app(
     app = FastAPI(title="ProcessLedger API", version="0.1.0", lifespan=lifespan)
     app.state.settings = settings
     app.state.limiter = limiter
+    app.state.cache = build_cache(settings)
     app.state.evidence_store = EvidenceStore(
         Path(settings.upload_dir), settings.encryption_key_bytes()
     )
@@ -136,5 +140,7 @@ def create_app(
     app.include_router(platform.router)
     app.include_router(platform.build_public_router(limiter, settings))
     app.include_router(requests.router)
+    app.include_router(billing.router)
+    app.include_router(analytics.router)
     app.include_router(admin.router)
     return app

@@ -2,7 +2,7 @@
 
 UV := cd backend && uv run python
 
-.PHONY: taxonomy regulation worker beat tune-classifier datasets datasets-regulation datasets-estate datasets-verify test lint runner-install runner-test runner-images
+.PHONY: seed-billing seed-compliance taxonomy regulation worker beat tune-classifier datasets datasets-regulation datasets-estate datasets-verify test lint runner-install runner-test runner-images
 
 # Rebuild the whole dataset. Needs the network only if gdpr_articles.json is missing.
 datasets:
@@ -17,6 +17,13 @@ datasets-estate:
 
 datasets-verify:
 	$(UV) ../datasets/scripts/run.py verify
+
+# Simulated demonstration history (needs the migrated database; RESET=--reset replaces a run).
+seed-billing:
+	cd backend && uv run python ../scripts/seed_billing_history.py $(RESET)
+
+seed-compliance:
+	cd backend && uv run python ../scripts/seed_compliance_history.py $(RESET)
 
 # Embed the personal data taxonomy into PostgreSQL (needs the database and the embedding model).
 taxonomy:

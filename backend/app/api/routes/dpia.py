@@ -22,10 +22,11 @@ from app.api.schemas import (
     ScreeningOut,
 )
 from app.api.tenancy import get_tenant_db
+from app.billing.usage import event_time, record_usage
 from app.classify.embedder import Embedder
 from app.classify.knowledge import Knowledge
 from app.core.config import Settings
-from app.db.enums import DpiaStatus, FindingStatus, Role
+from app.db.enums import DpiaStatus, FindingStatus, Role, UsageKind
 from app.db.models import (
     Dpia,
     DpiaRisk,
@@ -235,6 +236,7 @@ def create_assessment(
         dpia = service.create(activity, screening, principal.user_id, body.reason)
     except DpiaWorkflowError as exc:
         raise _workflow(exc) from exc
+    record_usage(db, UsageKind.ASSESSMENTS_GENERATED, at=event_time(settings.reference_date))
     db.commit()  # the call log refers to the assessment, so it must exist before the model is asked
 
     systems = service.systems_of(activity.id)

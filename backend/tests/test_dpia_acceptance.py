@@ -652,3 +652,10 @@ def test_unknown_assessments_and_risks_are_404(fusion_estate: FusionEstate) -> N
         == 404
     )
     assert isinstance(admin, TestClient)
+
+
+def test_each_assessment_drafted_is_metered_for_the_invoice(
+    fusion_estate: FusionEstate, assessments: dict[str, dict[str, Any]]
+) -> None:
+    usage = fusion_estate.admin.get("/api/v1/billing/usage", params={"month": "2026-10"}).json()
+    assert usage["assessments"] >= len(assessments)
