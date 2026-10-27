@@ -2,7 +2,7 @@
 
 UV := cd backend && uv run python
 
-.PHONY: seed-billing seed-compliance taxonomy regulation worker beat tune-classifier datasets datasets-regulation datasets-estate datasets-verify test lint runner-install runner-test runner-images
+.PHONY: frontend frontend-test frontend-e2e seed-billing seed-compliance taxonomy regulation worker beat tune-classifier datasets datasets-regulation datasets-estate datasets-verify test lint runner-install runner-test runner-images
 
 # Rebuild the whole dataset. Needs the network only if gdpr_articles.json is missing.
 datasets:
@@ -17,6 +17,16 @@ datasets-estate:
 
 datasets-verify:
 	$(UV) ../datasets/scripts/run.py verify
+
+# Public site and sign in page (Node.js 24 or newer).
+frontend:
+	cd frontend && npm run dev
+
+frontend-test:
+	cd frontend && npm test && npm run lint && npm run typecheck && npm run check:dash
+
+frontend-e2e:
+	cd frontend && npm run build && npm run e2e
 
 # Simulated demonstration history (needs the migrated database; RESET=--reset replaces a run).
 seed-billing:

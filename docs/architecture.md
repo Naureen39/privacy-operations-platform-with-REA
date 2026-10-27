@@ -597,7 +597,7 @@ All routes are under `/api/v1`, documented at `/docs` and `/openapi.json`.
 - **Coverage.** `tests/test_authorization.py` holds a role matrix; one test fails when a route has no row in it, so every route is tested for every role.
 - **Vendors** (`GET /vendors`) lists the recipients of the systems you can see, one entry per vendor, with its systems and the open gaps (transfer safeguard, agreement, declaration).
 - **Chat** (`POST /chat`) retrieves passages from the GDPR and the organisation's documents, keeps those that match the question, and asks the model for an answer that cites them (at most 3,000 tokens). If nothing relevant is found the answer is "No supporting evidence found." and no model is called; without a provider the passages are returned without an answer.
-- **Public site.** `POST /public/leads` (no sign in, 5 per minute, a hidden `website` field catches bots; stored for the organisation named in `LEADS_ORG_ID`, read by its admins at `GET /leads`) and `GET /public/metrics` (the latest platform snapshot, marked simulated, and the size of the regulation text).
+- **Public site.** `POST /public/leads` (no sign in, 5 per minute, a hidden `website` field catches bots; stored for the organisation named in `LEADS_ORG_ID`, read by its admins at `GET /leads`) and `GET /public/metrics` (the latest platform snapshot, marked simulated, and the size of the regulation text) and `GET /public/plans` (the price list, for the pricing page).
 - Billing and analytics routes are described in the next section.
 
 ### Running it
@@ -689,3 +689,65 @@ The pure functions are in `backend/app/analytics/definitions.py`; each has unit 
 - Failovers and cache hits for seeded days are simulated figures proportional to requests, because the seed has no real call log.
 - The stand-in payment outcome means no real money is involved; marking an invoice paid through the API only records the payment.
 - There is no test against a real Redis server for the cache; the in-memory implementation and the key and version logic are tested.
+
+## Frontend foundation and public site (Phase 13)
+
+`frontend/` is a React 18 and TypeScript (strict) single page application built with Vite. It holds the public marketing site and the sign in page. The authenticated console is the next phase; `/app` is a placeholder that confirms the session and signs out.
+
+### Stack and structure
+
+React Router 7, TanStack Query, React Hook Form with Zod, Tailwind CSS with shadcn/ui style components over Radix primitives, Apache ECharts (only the line chart module, loaded on the pricing page), react-markdown (loaded on documentation pages), Framer Motion, Lucide icons and a self hosted Inter typeface. Only free and open source packages are used.
+
+| Path | Contents |
+|---|---|
+| `src/styles/tokens.css` | The one token file: colors, radii, shadows (light theme, plus a dark theme for the console). Tailwind reads every value from it. |
+| `src/components/ui/` | Button, input, label, card, badge, accordion, sheet (mobile drawer), tabs and a field wrapper that wires labels, hints and errors for screen readers. |
+| `src/site/` | Layout (utility bar, mega menus, sticky header that condenses on scroll, mobile drawer, footer), pages, sections, content and the illustrations. |
+| `src/lib/` | The API client (cookies, CSRF header, the error envelope), the price list and cost formula, and the queries. |
+| `src/charts/` | Charts, each loaded on demand. |
+| `e2e/` | Playwright tests against the production build with the API replaced by route mocks. |
+
+Palette: navy `#0B1F3A`, primary blue `#0F62FE`, teal `#00A3A3` (decoration and text on navy only: it does not reach 4.5:1 on white), a neutral scale and status colors. Badge and link colors were darkened after the browser accessibility run found tinted backgrounds under 4.5:1.
+
+### Pages
+
+Home (hero, six capability cards, an animated figures band from `GET /public/metrics`, how it works, industry tiles, an interactive tour, trust summary, sample scenarios, FAQ), Platform, Solutions (an index and one page per industry), Regulations (supported and planned, labeled), Pricing (plans from the new `GET /public/plans`, a comparison table and a cost calculator with a chart), Security (implemented practices and a list of what is planned; no certification is claimed), Resources (the project documentation, read from `docs/` at build time and rendered as Markdown, three technical articles and a link to the API reference), Company, Contact (contact and demo request, stored in `leads`), Legal (sample privacy policy and terms), Status (live checks of `/health` and `/ready`), Sign in and a not found page.
+
+Sign in posts to `/api/v1/auth/login` and sends each role to its console area. Registration is disabled and password reset is a labeled placeholder. In development Vite proxies `/api` to the API, so the cookies and the CSRF header work without CORS.
+
+### Imagery
+
+No third party photographs are used (the plan allowed licensed photography; original SVG avoids licensing and download steps). Logos, the Open Graph image, favicons, the pipeline diagram, industry tiles and the product illustrations are drawn in the repository and labeled as illustrations. `frontend/public/images/ATTRIBUTION.md` lists the third party assets that ship (the Inter typeface and the Lucide icons). Product screenshots from the running console come with the console phase.
+
+### Measured
+
+| Check | Result |
+|---|---|
+| Unit and component tests (`npm test`): price formula against the backend numbers, API client, forms, sign in, every page rendered with structural accessibility rules | 54 passed |
+| Browser tests (`npm run e2e`, Chromium, production build): every page at 360, 768, 1280 and 1920 px has one h1, no horizontal scroll and no console error | 96 of 96 |
+| Same pages checked with axe-core for WCAG 2.1 A and AA, including color contrast | 24 of 24 clean |
+| Every internal link on every page leads to a real page, and every `#anchor` target exists | passes |
+| Layout shift while loading and scrolling the home page | below 0.1 |
+| Home page does not download the chart or Markdown code | passes |
+| Lighthouse 12, desktop preset, local production preview, home / pricing / platform / resources | performance 100 / 99 / 100 / 99, accessibility 100 on all four, best practices 96 / 96 / 100 / 100, SEO 100 on all four (home was 91 until the generic "Learn more" links got descriptive text) |
+| `npm audit --omit=dev` | 0 vulnerabilities |
+| ESLint (with the accessibility rules), `tsc --noEmit` strict, Prettier, long dash check (`npm run check:dash`) | clean |
+
+### Limits
+
+- Lighthouse was run against a local preview with no API behind it and without compression or a CDN, so a hosted result will differ. The interface text was only checked on Chromium.
+- The tour and the hero show illustrations drawn with markup, not screenshots, and say so in a caption.
+- The browser tests replace the API with mocks. The calls the site makes (`public/plans`, `public/metrics`, `public/leads`, `auth/login`, `auth/me`, `/health`, `/ready`) are covered by the backend tests, but no test drives the browser against a running API.
+- The API reference link points at `/docs` of the API; it works when the site and the API share an origin (or the proxy forwards it).
+- `/app` is a placeholder until the console is built.
+
+### Running it
+
+```
+cd frontend
+npm ci
+npm run dev        # http://localhost:5173, proxies /api to http://127.0.0.1:8000
+npm test           # Vitest
+npm run build && npm run e2e
+npm run images     # rebuild favicons and the Open Graph image from the SVG sources
+```

@@ -20,7 +20,8 @@ Generated legal or compliance documents are drafts for review by a qualified pri
 | 10 | Access requests: intake, deadlines, search, response (`backend/app/dsar/`) | Done |
 | 11 | Background jobs, workflow and the API (`backend/app/workers/`, `backend/app/workflow/`) | Done |
 | 12 | Billing, metrics and analytics APIs (`backend/app/billing/`, `backend/app/analytics/`, `backend/app/seeding/`) | Done |
-| 13 onwards | Frontend | Planned |
+| 13 | Frontend foundation and the public site (`frontend/`) | Done |
+| 14 onwards | Authenticated console, evaluation, release | Planned |
 
 ## Quick start (backend)
 
@@ -54,6 +55,20 @@ Runner tests (Node 24.15 or newer): `cd rea-runner && npm test`. Container image
 
 Use `127.0.0.1` rather than `localhost` in database URLs; `localhost` can resolve to IPv6 first and stall on some machines.
 
+## Quick start (frontend)
+
+Prerequisites: Node.js 24 or newer. With the API running on port 8000:
+
+```
+cd frontend
+npm ci
+npm run dev          # http://localhost:5173, /api is proxied to the API
+npm test             # unit and component tests
+npm run build && npm run e2e   # browser tests (first run: npx playwright install chromium)
+```
+
+The public site works without the API (it falls back to the default price list and hides the figures band); the contact forms and sign in need it.
+
 ## Dataset
 
 `datasets/` holds the GDPR text, taxonomies, vendor registry and a fictional company with eight systems, 2,000 synthetic people and 19 seeded privacy problems. Rebuild it with `make datasets`, or `cd backend && uv run python ../datasets/scripts/run.py all`. See [datasets/README.md](datasets/README.md) for provenance, licenses and what is modeled.
@@ -62,6 +77,7 @@ Use `127.0.0.1` rather than `localhost` in database URLs; `localhost` can resolv
 
 - [docs/architecture.md](docs/architecture.md): evidence discovery with REA, the runner, commands and fallbacks.
 - [docs/database.md](docs/database.md): schema, migrations and the tenancy model.
+- Frontend, design system and measured accessibility and performance: the last section of [docs/architecture.md](docs/architecture.md).
 - [docs/security.md](docs/security.md): authentication, authorization, uploads, request forgery protection and runner isolation.
 
 ## Demo accounts
@@ -74,4 +90,4 @@ The platform performs static or observational analysis of systems the organizati
 
 ## Project plan
 
-The phase by phase plan is in [PLAN_PRIVACY_OPS.md](PLAN_PRIVACY_OPS.md). Phases 1 to 12 are complete: database and tenancy, authentication and security baseline, the dataset with the reference estate, evidence extraction, classification, the knowledge base with hybrid retrieval, the LLM router with budgets, and the comparison of questionnaire, notice and evidence with record generation and export, impact assessments, access requests, the background jobs, workflow and API, and billing with metrics and analytics. Revenue figures are simulated: there are no real customers.
+The phase by phase plan is in [PLAN_PRIVACY_OPS.md](PLAN_PRIVACY_OPS.md). Phases 1 to 13 are complete: database and tenancy, authentication and security baseline, the dataset with the reference estate, evidence extraction, classification, the knowledge base with hybrid retrieval, the LLM router with budgets, and the comparison of questionnaire, notice and evidence with record generation and export, impact assessments, access requests, the background jobs, workflow and API, billing with metrics and analytics, and the frontend foundation with the public site. Revenue figures are simulated: there are no real customers.

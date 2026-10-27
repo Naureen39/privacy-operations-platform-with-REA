@@ -1,0 +1,56 @@
+/* The single token file: colors, radii, shadows and spacing. Components never use raw values.
+   Colors are space separated RGB so Tailwind can apply opacity. */
+:root {
+  --navy: 11 31 58; /* #0B1F3A */
+  --navy-soft: 22 46 82;
+  --primary: 15 98 254; /* #0F62FE */
+  --primary-hover: 0 67 206;
+  --primary-foreground: 255 255 255;
+  --accent: 0 163 163; /* #00A3A3 */
+  --accent-foreground: 255 255 255;
+
+  --background: 255 255 255;
+  --foreground: 22 30 45;
+  --surface: 244 247 251;
+  --card: 255 255 255;
+  --card-foreground: 22 30 45;
+  --muted: 238 242 247;
+  --muted-foreground: 82 94 113; /* 5.9:1 on white */
+  --border: 217 224 234;
+  --input: 160 172 190;
+  --ring: 15 98 254;
+
+  --success: 14 124 66;
+  --warning: 154 91 0;
+  --danger: 200 30 45;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  --shadow-card: 0 1px 2px rgb(11 31 58 / 0.06), 0 4px 16px rgb(11 31 58 / 0.06);
+  --shadow-pop: 0 12px 40px rgb(11 31 58 / 0.18);
+  --shadow-header: 0 1px 0 rgb(11 31 58 / 0.08), 0 8px 24px rgb(11 31 58 / 0.06);
+}
+
+/* The console (a later phase) offers a dark theme; the public site stays light. */
+.dark {
+  --background: 11 20 36;
+  --foreground: 232 237 245;
+  --surface: 15 27 46;
+  --card: 18 32 54;
+  --card-foreground: 232 237 245;
+  --muted: 24 40 66;
+  --muted-foreground: 165 178 198;
+  --border: 40 58 88;
+  --input: 80 98 128;
+  --primary: 77 143 255;
+  --primary-hover: 120 169 255;
+  --primary-foreground: 6 14 28;
+  --accent: 45 196 196;
+  --accent-foreground: 6 14 28;
+  --success: 72 200 130;
+  --warning: 240 175 70;
+  --danger: 255 120 120;
+}

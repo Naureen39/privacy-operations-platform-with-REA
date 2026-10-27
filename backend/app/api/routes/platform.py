@@ -16,10 +16,19 @@ from app.api.schemas import (
     PublicMetricsOut,
     VendorOut,
 )
+from app.api.schemas_billing import PlanOut
 from app.api.tenancy import get_tenant_db
 from app.core.config import Settings
 from app.db.enums import FindingStatus, LeadKind, Role
-from app.db.models import DailyMetric, Finding, Lead, Recipient, RegulationChunk, System
+from app.db.models import (
+    DailyMetric,
+    Finding,
+    Lead,
+    Plan,
+    Recipient,
+    RegulationChunk,
+    System,
+)
 from app.db.session import TenantContext, TenantSession, tenant_session
 from app.fusion.facts import slug
 from app.knowledge.retrieval import Filters, HybridRetriever, Passage
@@ -246,6 +255,24 @@ def build_public_router(limiter: Limiter, settings: Settings) -> APIRouter:
             simulated=True if latest is None else latest.is_simulated,
             note="Figures marked simulated are generated for the demonstration; there are no real customers.",
         )  # fmt: skip
+
+    @public.get("/plans", response_model=list[PlanOut])
+    @limiter.limit(settings.default_rate_limit)
+    def public_plans(request: Request) -> list[PlanOut]:
+        """The price list for the pricing page. Prices are illustrative; billing is simulated."""
+        with request.app.state.session_factory() as db:
+            plans = db.scalars(
+                select(Plan).where(Plan.is_active.is_(True)).order_by(Plan.monthly_fee_cents)
+            )
+            return [
+                PlanOut(
+                    code=p.code, name=p.name, monthly_fee_cents=p.monthly_fee_cents,
+                    included_systems=p.included_systems, included_requests=p.included_requests,
+                    extra_system_cents=p.extra_system_cents,
+                    extra_request_cents=p.extra_request_cents,
+                )
+                for p in plans
+            ]  # fmt: skip
 
     return public
 

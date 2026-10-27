@@ -116,6 +116,14 @@ def test_the_price_list_is_seeded_by_the_migration(env: Env) -> None:
     assert [p["monthly_fee_cents"] for p in plans] == [0, 39_900, 180_000]
 
 
+def test_the_price_list_is_public_for_the_pricing_page(env: Env) -> None:
+    anonymous = TestClient(env.app, base_url="https://testserver")
+    plans = anonymous.get("/api/v1/public/plans")
+    assert plans.status_code == 200
+    assert [p["code"] for p in plans.json()] == ["starter", "professional", "enterprise"]
+    assert plans.json()[1]["included_systems"] == 25
+
+
 @pytest.fixture
 def fresh_org(env: Env) -> Iterator[uuid.UUID]:
     """An organisation of its own that is removed afterwards, so its subscriptions never reach the
@@ -491,7 +499,14 @@ def test_compliance_figures_belong_to_the_organisation(env: Env) -> None:
     # the host's rows are its own: nothing of the customer leaks into them
     with env.session(env.customer_id) as db:
         db.add(
-            Finding(type="t", severity=FindingSeverity.HIGH, title="visible only to the customer")
+            Finding(
+                type="t",
+                severity=FindingSeverity.HIGH,
+                title="visible only to the customer",
+                created_at=datetime(
+                    2026, 10, 20, 9, 0, tzinfo=UTC
+                ),  # not the wall clock: TODAY is pinned
+            )
         )
     nightly.run_nightly(env.owner, env.factory, TODAY, days=1)
     customer = admin.get(

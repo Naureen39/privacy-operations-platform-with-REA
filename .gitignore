@@ -10,3 +10,6 @@ dist/
 *.egg-info/
 data/
 datasets/_build/
+frontend/test-results/
+frontend/playwright-report/
+frontend/.env.local

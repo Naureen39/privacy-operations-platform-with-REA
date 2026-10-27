@@ -19,6 +19,7 @@ PUBLIC_ROUTES = {
     ("GET", "/ready"),
     ("POST", "/api/v1/public/leads"),
     ("GET", "/api/v1/public/metrics"),
+    ("GET", "/api/v1/public/plans"),
     ("POST", "/api/v1/auth/login"),
     ("POST", "/api/v1/auth/refresh"),
     ("POST", "/api/v1/auth/logout"),
