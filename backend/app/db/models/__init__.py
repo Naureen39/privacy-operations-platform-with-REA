@@ -6,6 +6,7 @@ from app.db.models.billing import (
     Invoice,
     InvoiceLine,
     Plan,
+    RevenueBreakdown,
     Subscription,
     UsageEvent,
 )
@@ -58,6 +59,7 @@ __all__ = [
     "Comment",
     "ComplianceDailyMetric",
     "DailyMetric",
+    "RevenueBreakdown",
     "DataElement",
     "DiscoveryEvidence",
     "DiscoveryRun",

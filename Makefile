@@ -2,7 +2,7 @@
 
 UV := cd backend && uv run python
 
-.PHONY: frontend frontend-test frontend-e2e seed-billing seed-compliance taxonomy regulation worker beat tune-classifier datasets datasets-regulation datasets-estate datasets-verify test lint runner-install runner-test runner-images
+.PHONY: eval coverage audit e2e-stack e2e-stack-down frontend-e2e-live frontend frontend-test frontend-e2e seed-billing seed-compliance taxonomy regulation worker beat tune-classifier datasets datasets-regulation datasets-estate datasets-verify test lint runner-install runner-test runner-images
 
 # Rebuild the whole dataset. Needs the network only if gdpr_articles.json is missing.
 datasets:
@@ -17,6 +17,16 @@ datasets-estate:
 
 datasets-verify:
 	$(UV) ../datasets/scripts/run.py verify
+
+# The whole application for the browser tests: database, seeds and API (Docker, uv, embedding model).
+e2e-stack:
+	python scripts/e2e_stack.py up && python scripts/e2e_stack.py api
+
+e2e-stack-down:
+	python scripts/e2e_stack.py down
+
+frontend-e2e-live:
+	cd frontend && npm run build && npm run e2e:live
 
 # Public site and sign in page (Node.js 24 or newer).
 frontend:
@@ -71,3 +81,15 @@ test:
 
 lint:
 	cd backend && uv run ruff check . ../datasets ../scripts --config pyproject.toml && uv run black --check --config pyproject.toml . ../datasets ../scripts && uv run mypy
+
+# Phase 15: evaluation, load check and scans (the scans need Docker)
+eval:
+	cd backend && uv run python ../scripts/eval_run.py
+
+coverage:
+	cd backend && uv run coverage run -m pytest -q && uv run coverage report --include="app/discovery/*,app/classify/*,app/fusion/*,app/records/*,app/dpia/*,app/dsar/*,app/llm/*,app/core/*" --fail-under=80
+
+audit:
+	cd backend && uv export --frozen --no-hashes --no-emit-project > ../.audit-requirements.txt && uvx pip-audit -r ../.audit-requirements.txt --disable-pip --no-deps
+	cd frontend && npm audit --omit=dev --audit-level=high
+	cd rea-runner && npm audit --omit=dev --audit-level=high

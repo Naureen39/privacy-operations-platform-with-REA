@@ -1,0 +1,8 @@
+# Secret scanning configuration. The default rules apply; the allowlist below holds the one known
+# false positive: a made-up password in an OpenAPI request example.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Documented fake values"
+regexes = ['''a-long-passphrase-123''']

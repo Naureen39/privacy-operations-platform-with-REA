@@ -22,7 +22,10 @@ RUN apt-get update \
 
 WORKDIR /opt/rea-runner
 COPY package.json package-lock.json .npmrc ./
-RUN npm ci --omit=dev --ignore-scripts --no-audit --no-fund
+# The package manager is only needed to install; removing it keeps its bundled copies of other
+# libraries (which the runner never loads) out of the image.
+RUN npm ci --omit=dev --ignore-scripts --no-audit --no-fund \
+ && rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack /root/.npm
 COPY wrapper.mjs ./
 COPY lib ./lib
 

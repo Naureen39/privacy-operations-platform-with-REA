@@ -148,7 +148,7 @@ def rebuild(
     updates = ", ".join(f"{c} = EXCLUDED.{c}" for c in COLUMNS if c != "metric_date")
     # the column list is the module constant above, never user input
     sql = text(
-        f"INSERT INTO daily_metrics ({names}) VALUES ({values}) ON CONFLICT (metric_date) DO UPDATE SET {updates}"  # noqa: S608
+        f"INSERT INTO daily_metrics ({names}) VALUES ({values}) ON CONFLICT (metric_date) DO UPDATE SET {updates}"  # noqa: S608  # nosec B608
     )
     with engine.begin() as conn:
         for row in rows:

@@ -30,7 +30,7 @@ export async function a11yViolations(container: HTMLElement): Promise<string[]> 
 export function mockFetch(routes: Record<string, { status?: number; body?: unknown }>) {
   const fn = vi.fn(async (input: RequestInfo | URL, _init?: RequestInit) => {
     const url = typeof input === "string" ? input : input.toString();
-    const hit = routes[url];
+    const hit = routes[url] ?? routes[url.split("?")[0] ?? url];
     if (!hit) throw new TypeError("network down");
     return new Response(hit.status === 204 ? null : JSON.stringify(hit.body ?? {}), {
       status: hit.status ?? 200,

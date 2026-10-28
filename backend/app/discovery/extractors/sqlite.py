@@ -122,7 +122,10 @@ def tables_from_file(path: Path, row_sample: int = ROW_SAMPLE) -> list[TableInfo
                 name=name,
                 columns=[ColumnInfo(r[1], r[2] or None, bool(r[5]), bool(r[3])) for r in info_rows],
             )
-            cursor = db.execute(f"SELECT * FROM {quoted} LIMIT ?", [row_sample])  # noqa: S608
+            cursor = db.execute(
+                f"SELECT * FROM {quoted} LIMIT ?",  # noqa: S608  # nosec B608
+                [row_sample],
+            )
             info.sample_columns = [d[0] for d in cursor.description]
             info.sample_rows = [
                 [v if not isinstance(v, bytes) else None for v in row] for row in cursor.fetchall()
@@ -133,7 +136,7 @@ def tables_from_file(path: Path, row_sample: int = ROW_SAMPLE) -> list[TableInfo
                     continue
                 col = '"' + column.name.replace('"', '""') + '"'
                 low, high = db.execute(
-                    f"SELECT min(substr({col}, 1, 7)), max(substr({col}, 1, 7)) FROM {quoted} "  # noqa: S608
+                    f"SELECT min(substr({col}, 1, 7)), max(substr({col}, 1, 7)) FROM {quoted} "  # noqa: S608  # nosec B608
                     f"WHERE {col} GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]*'"
                 ).fetchone()
                 if low:

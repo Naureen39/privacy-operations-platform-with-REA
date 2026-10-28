@@ -24,7 +24,7 @@ MAX_RISKS = 7
 _env = Environment(
     loader=FileSystemLoader(HERE / "templates"),
     undefined=StrictUndefined,
-    autoescape=False,  # noqa: S701  (plain text stored in the database and exported to PDF)
+    autoescape=False,  # noqa: S701  # nosec B701
     trim_blocks=True,
     lstrip_blocks=True,
 )

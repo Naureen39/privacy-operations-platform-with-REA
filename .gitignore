@@ -13,3 +13,10 @@ datasets/_build/
 frontend/test-results/
 frontend/playwright-report/
 frontend/.env.local
+.e2e/
+
+# Evaluation output and coverage data
+backend/.eval/
+backend/.coverage
+backend/coverage.xml
+.audit-requirements.txt

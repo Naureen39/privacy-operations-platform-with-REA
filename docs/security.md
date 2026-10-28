@@ -84,3 +84,5 @@ Written in the same transaction as the action. Currently recorded: login (succes
 - Access tokens cannot be revoked before they expire (15 minutes), but the database check on every request makes membership and account changes immediate.
 - The JWT secret is symmetric. Rotation requires a restart and signs everyone out.
 - The password policy is length only, as specified. There is no breached password check.
+
+The verification status of each control, the scan results and the open items are in [security-review.md](security-review.md).

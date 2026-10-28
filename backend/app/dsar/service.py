@@ -39,7 +39,7 @@ CONTACT = "[Contact details of the privacy officer to be added before sending.]"
 _env = Environment(
     loader=FileSystemLoader(TEMPLATES),
     undefined=StrictUndefined,
-    autoescape=False,  # noqa: S701  (a plain text letter)
+    autoescape=False,  # noqa: S701  # nosec B701
     trim_blocks=True,
     lstrip_blocks=True,
 )

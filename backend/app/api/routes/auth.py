@@ -17,6 +17,8 @@ from app.api.deps import (
     write_audit,
 )
 from app.api.schemas import LoginRequest, MembershipOut, MeOut, SessionOut, UserOut
+from app.api.schemas_console import OrganizationChoice, SwitchIn
+from app.api.tenancy import get_tenant_db
 from app.core.config import Settings
 from app.core.security import (
     DUMMY_PASSWORD_HASH,
@@ -26,7 +28,7 @@ from app.core.security import (
     verify_password,
 )
 from app.db.enums import Role
-from app.db.models import Membership, RefreshToken, User
+from app.db.models import Membership, Organization, RefreshToken, User
 from app.db.repositories import UserRepository
 from app.db.session import TenantContext, TenantSession, set_tenant, tenant_session
 
@@ -251,6 +253,73 @@ def build_router(limiter: Limiter, settings: Settings) -> APIRouter:
             ),
             org_id=principal.org_id,
             role=principal.role,
+            is_host=settings.leads_org_id is not None and principal.org_id == settings.leads_org_id,
         )
+
+    @router.get("/organizations", response_model=list[OrganizationChoice])
+    def organizations(
+        principal: Principal = Depends(require_role(*ALL_ROLES)),
+        s: TenantSession = Depends(get_tenant_db),
+    ) -> list[OrganizationChoice]:
+        """The organizations this person belongs to, for the organization switcher."""
+        memberships = list(
+            s.scalars(
+                select(Membership)
+                .where(Membership.user_id == principal.user_id)
+                .order_by(Membership.created_at, Membership.org_id)
+            )
+        )
+        choices = []
+        for m in memberships:
+            set_tenant(s, TenantContext(m.org_id, principal.user_id))
+            name = s.scalar(select(Organization.name).where(Organization.id == m.org_id))
+            choices.append(
+                OrganizationChoice(
+                    org_id=m.org_id, name=name or "Organization", role=m.role,
+                    current=m.org_id == principal.org_id,
+                )  # fmt: skip
+            )
+        set_tenant(s, TenantContext(principal.org_id, principal.user_id))
+        return choices
+
+    @router.post("/switch", response_model=SessionOut)
+    def switch(
+        request: Request,
+        response: Response,
+        body: SwitchIn,
+        principal: Principal = Depends(require_role(*ALL_ROLES)),
+        s: TenantSession = Depends(get_tenant_db),
+    ) -> SessionOut:
+        """Continue the session in another organization the person belongs to. The previous
+        session's tokens are revoked and a new family is started."""
+        memberships = list(
+            s.scalars(select(Membership).where(Membership.user_id == principal.user_id))
+        )
+        chosen = next((m for m in memberships if m.org_id == body.org_id), None)
+        if chosen is None:
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "No access to this organization")
+        old = request.cookies.get(REFRESH_COOKIE)
+        if old:
+            row = s.scalar(select(RefreshToken).where(RefreshToken.token_hash == hash_token(old)))
+            if row is not None and row.user_id == principal.user_id:
+                _revoke_family(s, row.family_id)
+        set_tenant(s, TenantContext(chosen.org_id, principal.user_id))
+        user = s.get(User, principal.user_id)
+        assert user is not None  # noqa: S101
+        write_audit(
+            s, request, "auth.switch_organization",
+            principal=Principal(user.id, chosen.org_id, chosen.role, user.email, user.full_name),
+            entity_type="organization", entity_id=chosen.org_id,
+        )  # fmt: skip
+        refresh = _issue_refresh(s, settings, user.id, chosen.org_id, uuid.uuid4())
+        s.commit()
+        _set_cookies(
+            response, settings, _access(settings, user.id, chosen.org_id, chosen.role), refresh
+        )
+        return SessionOut(
+            user=UserOut(id=user.id, email=user.email, full_name=user.full_name),
+            org_id=chosen.org_id, role=chosen.role,
+            memberships=[MembershipOut(org_id=m.org_id, role=m.role) for m in memberships],
+        )  # fmt: skip
 
     return router

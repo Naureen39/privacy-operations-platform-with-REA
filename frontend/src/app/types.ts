@@ -1,0 +1,45 @@
+import type { components } from "@/api/schema";
+
+type Schemas = components["schemas"];
+
+export type Activity = Schemas["ActivityOut"];
+export type AuditEntry = Schemas["AuditEntryOut"];
+export type DataElement = Schemas["DataElementOut"];
+export type DiscoveryEvidence = Schemas["DiscoveryEvidenceOut"];
+export type DiscoveryRun = Schemas["DiscoveryRunOut"];
+export type Dpia = Schemas["DpiaOut"];
+export type DpiaSummary = Schemas["DpiaSummaryOut"];
+export type Evidence = Schemas["EvidenceOut"];
+export type Finding = Schemas["FindingOut"];
+export type Invoice = Schemas["InvoiceOut"];
+export type InvoiceSummary = Schemas["InvoiceSummaryOut"];
+export type Job = Schemas["JobOut"];
+export type JobEvent = Schemas["JobEventOut"];
+export type Notification = Schemas["NotificationOut"];
+export type OrganizationChoice = Schemas["OrganizationChoice"];
+export type OrgSettings = Schemas["OrgSettings"];
+export type Plan = Schemas["PlanOut"];
+export type Recipient = Schemas["RecipientOut"];
+export type RequestItem = Schemas["RequestOut"];
+export type RequestResponse = Schemas["RequestResponseOut"];
+export type RequestResult = Schemas["ResultOut"];
+export type ReviewItem = Schemas["ReviewItemOut"];
+export type Risk = Schemas["RiskOut"];
+export type Screening = Schemas["ScreeningOut"];
+export type Subscription = Schemas["SubscriptionOut"];
+export type System = Schemas["SystemOut"];
+export type Task = Schemas["TaskOut"];
+export type TeamMember = Schemas["TeamMemberOut"];
+export type Usage = Schemas["UsageOut"];
+export type Vendor = Schemas["VendorOut"];
+export type Version = Schemas["VersionOut"];
+export type VersionDetail = Schemas["VersionDetailOut"];
+export type LlmUsage = Schemas["LlmUsageOut"];
+export type ChatAnswer = Schemas["ChatOut"];
+export type Passage = Schemas["PassageOut"];
+export type TaxonomyCategory = Schemas["TaxonomyCategoryOut"];
+export type Technology = Schemas["TechnologyOut"];
+export type Comment = Schemas["CommentOut"];
+export type Diff = Schemas["DiffOut"];
+
+export type Severity = "low" | "medium" | "high" | "critical";

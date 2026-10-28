@@ -46,6 +46,7 @@ NON_TENANT_TABLES = {
     "plans",
     "regulation_chunks",
     "daily_metrics",
+    "revenue_breakdowns",
     "taxonomy_entries",
 }
 VECTOR = [0.1] * 384

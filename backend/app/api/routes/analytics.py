@@ -9,14 +9,14 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from sqlalchemy import inspect, select
 
-from app.analytics import series
+from app.analytics import breakdown, series
 from app.analytics.cache import Cache, cache_key
 from app.analytics.csvout import to_csv
 from app.api.deps import Principal, app_settings, require_role
 from app.api.tenancy import get_tenant_db
 from app.core.config import Settings
 from app.db.enums import Role
-from app.db.models import ComplianceDailyMetric, DailyMetric
+from app.db.models import ComplianceDailyMetric, DailyMetric, RevenueBreakdown
 from app.db.session import TenantSession
 from app.services.pipeline import today_of
 
@@ -268,3 +268,42 @@ def refresh(
         ) from exc
     request.app.state.cache.bump()
     return {"status": "queued"}
+
+
+@router.get("/compliance/breakdown")
+def compliance_breakdown(
+    response: Response,
+    window: Window = Depends(),
+    principal: Principal = Depends(require_role(*ANALYSTS)),
+    db: TenantSession = Depends(get_tenant_db),
+    settings: Settings = Depends(app_settings),
+) -> Any:
+    """The figures behind the dashboard charts that a daily snapshot cannot give: findings opened and
+    closed, lawful bases, data categories by system, the flow from systems to vendors to countries,
+    request volume and response times, freshness, discovery confidence and operations."""
+    key = cache_key(window.cache, str(principal.org_id), "compliance-breakdown", window.params())
+    hit = window.cache.get(key)
+    if hit is not None:
+        response.headers["X-Cache"] = "hit"
+        return json.loads(hit)
+    body = _jsonable(
+        breakdown.compute(db, window.start, window.end, window.granularity, today_of(settings))
+    )
+    window.cache.set(key, json.dumps(body).encode())
+    response.headers["X-Cache"] = "miss"
+    return body
+
+
+@router.get("/revenue/breakdown")
+def revenue_breakdown(
+    principal: Principal = Depends(host_admin),
+    db: TenantSession = Depends(get_tenant_db),
+) -> Any:
+    """MRR by plan, industry and region, subscription against usage revenue, customers and ARPA,
+    unit economics, cohort retention and the top customers, as of the latest nightly run."""
+    row = db.scalars(
+        select(RevenueBreakdown).order_by(RevenueBreakdown.as_of.desc()).limit(1)
+    ).first()
+    if row is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No revenue breakdown has been computed yet")
+    return {**row.payload, "simulated": row.is_simulated, "note": SIMULATED_NOTE}

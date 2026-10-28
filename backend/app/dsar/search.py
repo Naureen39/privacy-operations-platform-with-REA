@@ -139,7 +139,7 @@ class SnapshotSearcher:
                     if column not in schema.get(table, set()):
                         continue  # the snapshot changed since discovery
                     count = connection.execute(
-                        f"SELECT count(*) FROM {quote(table)} WHERE {match_expression(identifier_type, column)} = ?",  # noqa: S608
+                        f"SELECT count(*) FROM {quote(table)} WHERE {match_expression(identifier_type, column)} = ?",  # noqa: S608  # nosec B608
                         [value],
                     ).fetchone()[0]
                     if count:
@@ -164,7 +164,7 @@ class SnapshotSearcher:
             if column not in schema.get(table, set()):
                 return None
             cursor = connection.execute(
-                f"SELECT * FROM {quote(table)} WHERE {match_expression(identifier_type, column)} = ? LIMIT ?",  # noqa: S608
+                f"SELECT * FROM {quote(table)} WHERE {match_expression(identifier_type, column)} = ? LIMIT ?",  # noqa: S608  # nosec B608
                 [value, MAX_ROWS_PER_TABLE],
             )
             names = [d[0] for d in cursor.description]

@@ -9,7 +9,7 @@ from datetime import date, timedelta
 from sqlalchemy import Engine, text
 from sqlalchemy.orm import sessionmaker
 
-from app.analytics import compliance, daily
+from app.analytics import compliance, daily, revenue_breakdown
 from app.billing import pricing, service
 from app.db.session import TenantContext, TenantSession, tenant_session
 
@@ -46,6 +46,7 @@ def run_nightly(
             for day in window:
                 compliance.store(db, day)
     rows = daily.rebuild(owner, window[0], window[-1])
+    revenue_breakdown.rebuild(owner, today)
     return NightlySummary(len(orgs), len(window), rows)
 
 

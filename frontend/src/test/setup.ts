@@ -29,3 +29,9 @@ class NoopObserver {
 (globalThis as unknown as { IntersectionObserver: unknown }).IntersectionObserver = NoopObserver;
 (globalThis as unknown as { ResizeObserver: unknown }).ResizeObserver = NoopObserver;
 window.scrollTo = () => undefined;
+
+// Radix menus and dialogs call these browser APIs, which jsdom does not implement.
+Element.prototype.hasPointerCapture = () => false;
+Element.prototype.setPointerCapture = () => undefined;
+Element.prototype.releasePointerCapture = () => undefined;
+Element.prototype.scrollIntoView = () => undefined;

@@ -30,6 +30,7 @@ def test_upgrade_downgrade_upgrade(admin_url: URL) -> None:
         "jobs",
         "job_events",
         "notifications",
+        "revenue_breakdowns",
     }
     engine = create_engine(url)
     with engine.connect() as conn:

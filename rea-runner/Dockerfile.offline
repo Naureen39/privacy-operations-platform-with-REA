@@ -22,7 +22,10 @@ RUN apt-get update \
 WORKDIR /opt/rea-runner
 COPY package.json package-lock.json .npmrc ./
 # The lock file pins rea-agents; install scripts are disabled so nothing is downloaded at build time.
+# The package manager is only needed to install; removing it keeps its bundled copies of other
+# libraries (which the runner never loads) out of the image.
 RUN npm ci --omit=dev --ignore-scripts --no-audit --no-fund \
+ && rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack /root/.npm \
  && node -e "const v=process.versions.node.split('.').map(Number); if (v[0]<24 || (v[0]===24 && v[1]<15)) process.exit(1)"
 COPY wrapper.mjs ./
 COPY lib ./lib

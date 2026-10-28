@@ -17,7 +17,7 @@ from datetime import UTC, date, datetime, time, timedelta
 from sqlalchemy import Engine, text
 from sqlalchemy.orm import sessionmaker
 
-from app.analytics import daily
+from app.analytics import daily, revenue_breakdown
 from app.billing import pricing, service, usage
 from app.db.enums import UsageKind
 from app.db.session import TenantContext, TenantSession, tenant_session
@@ -158,6 +158,7 @@ SIMULATED_DELETES = (
     "(SELECT id FROM organizations WHERE is_simulated)",
     "DELETE FROM organizations WHERE is_simulated",
     "DELETE FROM daily_metrics",
+    "DELETE FROM revenue_breakdowns",
 )
 
 
@@ -263,6 +264,7 @@ def seed_billing_history(
             service.settle_simulated(db, as_of)
     overlay = _operations_overlay(rng, summary.requests_by_day)
     summary.metric_rows = daily.rebuild(owner, first_month, as_of, overlay)
+    revenue_breakdown.rebuild(owner, as_of, simulated=True)
     return summary
 
 

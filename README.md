@@ -21,7 +21,9 @@ Generated legal or compliance documents are drafts for review by a qualified pri
 | 11 | Background jobs, workflow and the API (`backend/app/workers/`, `backend/app/workflow/`) | Done |
 | 12 | Billing, metrics and analytics APIs (`backend/app/billing/`, `backend/app/analytics/`, `backend/app/seeding/`) | Done |
 | 13 | Frontend foundation and the public site (`frontend/`) | Done |
-| 14 onwards | Authenticated console, evaluation, release | Planned |
+| 14 | Authenticated console: layout, every page, the Add System wizard, both dashboards (`frontend/src/app/`) | Done |
+| 15 | Evaluation, testing and hardening: [evaluation](docs/evaluation.md), [security review](docs/security-review.md), coverage, injection tests, scans, load check | Done |
+| 16 onwards | Documentation and release | Planned |
 
 ## Quick start (backend)
 
@@ -67,7 +69,7 @@ npm test             # unit and component tests
 npm run build && npm run e2e   # browser tests (first run: npx playwright install chromium)
 ```
 
-The public site works without the API (it falls back to the default price list and hides the figures band); the contact forms and sign in need it.
+The console needs the API and a seeded database: `python scripts/e2e_stack.py up` then `python scripts/e2e_stack.py api` start both (Docker, uv and the embedding model needed), and `npm run e2e:live` drives the real application in a browser. The public site works without the API (it falls back to the default price list and hides the figures band); the contact forms and sign in need it.
 
 ## Dataset
 
@@ -90,4 +92,4 @@ The platform performs static or observational analysis of systems the organizati
 
 ## Project plan
 
-The phase by phase plan is in [PLAN_PRIVACY_OPS.md](PLAN_PRIVACY_OPS.md). Phases 1 to 13 are complete: database and tenancy, authentication and security baseline, the dataset with the reference estate, evidence extraction, classification, the knowledge base with hybrid retrieval, the LLM router with budgets, and the comparison of questionnaire, notice and evidence with record generation and export, impact assessments, access requests, the background jobs, workflow and API, billing with metrics and analytics, and the frontend foundation with the public site. Revenue figures are simulated: there are no real customers.
+The phase by phase plan is in [PLAN_PRIVACY_OPS.md](PLAN_PRIVACY_OPS.md). Phases 1 to 15 are complete: database and tenancy, authentication and security baseline, the dataset with the reference estate, evidence extraction, classification, the knowledge base with hybrid retrieval, the LLM router with budgets, and the comparison of questionnaire, notice and evidence with record generation and export, impact assessments, access requests, the background jobs, workflow and API, billing with metrics and analytics, the frontend foundation with the public site, the authenticated console with its two dashboards, and the evaluation and hardening pass (`make eval`, `make coverage`, `make audit`). Revenue figures are simulated: there are no real customers.

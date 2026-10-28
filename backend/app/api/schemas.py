@@ -6,6 +6,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator
 
 from app.api.schemas_billing import InvoiceRunIn, SubscriptionIn
+from app.api.schemas_console import SwitchIn, TeamRoleIn
 from app.db.enums import (
     DocumentType,
     EvidenceKind,
@@ -45,6 +46,7 @@ class MeOut(BaseModel):
     user: UserOut
     org_id: uuid.UUID
     role: Role
+    is_host: bool = False  # the host organization sees platform wide revenue figures
 
 
 class SystemCreate(BaseModel):
@@ -922,6 +924,8 @@ EXAMPLES: dict[type[BaseModel], list[dict[str, Any]]] = {
     LoginRequest: [{"email": "analyst@example.test", "password": "a-long-passphrase-123"}],
     SubscriptionIn: [{"plan": "professional"}],
     InvoiceRunIn: [{"month": "2026-09"}, {}],
+    SwitchIn: [{"org_id": _ID}],
+    TeamRoleIn: [{"role": "analyst"}],
     SystemCreate: [
         {"name": "Web shop", "description": "Online store for consumers", "owner_user_id": _ID}
     ],

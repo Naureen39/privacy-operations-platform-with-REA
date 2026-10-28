@@ -24,6 +24,7 @@ Migrations:
 | 0008 | `access_requests`: `identifier_type`, `reference` (unique per organisation), `identity_checklist`, `rejection_reason`, `searched_at`, `responded_at` (Phase 10) |
 | 0009 | `jobs`, `job_events` (ordered by an identity column, for the progress stream), `notifications`, and `tasks.dedupe_key` (tenant tables with Row Level Security) (Phase 11) |
 | 0010 | Seeds the three plans; adds `paying_accounts`, `arpa_cents`, `nrr_bp`, `gross_churn_bp` to `daily_metrics` and an index on `invoices (org_id, period_start)` (Phase 12) |
+| 0011 | `revenue_breakdowns` (platform wide breakdowns by plan, industry, region, cohort and customer, written nightly with the owner connection; read only for the application role) (Phase 14) |
 
 Both directions are tested: upgrade, downgrade to 0001, downgrade to base, upgrade again, plus a check that the models and the migrated schema have no drift.
 

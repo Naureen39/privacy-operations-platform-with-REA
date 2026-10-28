@@ -1,0 +1,38 @@
+# Install with `pip install pre-commit && pre-commit install`. The hooks run the same checks as CI
+# on the files being committed, plus the rule against the long dash character.
+repos:
+  - repo: local
+    hooks:
+      - id: ruff
+        name: ruff
+        entry: bash -c 'cd backend && uv run ruff check --fix --config pyproject.toml "${@/#backend\//}"' --
+        language: system
+        files: ^(backend|scripts)/.*\.py$
+      - id: black
+        name: black
+        entry: bash -c 'cd backend && uv run black --config pyproject.toml "${@/#backend\//}"' --
+        language: system
+        files: ^(backend|scripts)/.*\.py$
+      - id: mypy
+        name: mypy (backend/app, strict)
+        entry: bash -c 'cd backend && uv run mypy app'
+        language: system
+        pass_filenames: false
+        files: ^backend/app/.*\.py$
+      - id: bandit
+        name: bandit
+        entry: bash -c 'cd backend && uv run bandit -q -r app -c pyproject.toml -ll'
+        language: system
+        pass_filenames: false
+        files: ^backend/app/.*\.py$
+      - id: prettier-eslint
+        name: prettier and eslint (frontend)
+        entry: bash -c 'cd frontend && npx prettier --check . && npx eslint src e2e e2e-live'
+        language: system
+        pass_filenames: false
+        files: ^frontend/
+      - id: no-long-dash
+        name: reject the long dash character
+        entry: python scripts/check_dash.py
+        language: system
+        types: [text]

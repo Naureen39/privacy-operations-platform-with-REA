@@ -751,3 +751,89 @@ npm test           # Vitest
 npm run build && npm run e2e
 npm run images     # rebuild favicons and the Open Graph image from the SVG sources
 ```
+
+## Authenticated console (Phase 14)
+
+The console lives in `frontend/src/app/` and is served under `/app`. Everything in it talks to the API described above; the types come from the API's own OpenAPI document (`scripts/export_openapi.py` writes `frontend/src/api/openapi.json`, `npm run api:types` turns it into `schema.d.ts`), so a changed response shape fails the type check.
+
+### Layout and behaviour
+
+A collapsible sidebar (the choice is remembered), a top bar with the organization switcher, a command palette (Ctrl K) for pages, systems and records, notifications with an unread count, a user menu, breadcrumbs, skeleton loaders, empty states, an error boundary around every page and toasts for every change. The menu is built from the role: a viewer sees no Billing, Team or Settings, a system owner sees only systems, findings, records, vendors and the library. A page a role may not open says so instead of showing an empty screen; the API enforces the same rules.
+
+Signing in sends each role to its own area. Switching organization (`POST /auth/switch`) revokes the previous session's tokens and starts a new family.
+
+### Pages
+
+| Page | What it does |
+|---|---|
+| Overview | Counts of approved and stale records, open findings and requests due, from the live lists; tasks, recent findings, requests near their deadline, a quick start. |
+| Systems, system detail | Inventory with owner, stage, last discovery, record and open findings. Tabs: Overview, Evidence (upload or an allowlisted address), Data elements (accept or override, with the extractor output in a drawer), Recipients, Findings, Activity. |
+| Add System wizard | Seven steps: register and assign an owner, attach evidence, discovery and classification with live progress, review elements, compare sources, generate the record, complete missing fields and submit. The address names the system, so a reload resumes. |
+| Records | Register with export to spreadsheet and PDF; a record with edit, version history and a comparison of two versions, submit, approve or send back, publish. |
+| Impact assessments | Screening results; an editor with description, necessity, a risk register with likelihood, severity, mitigation and residual risk, a 5 by 5 matrix (the band is written in each cell, so colour is not the only signal), submit, approve, PDF. |
+| Findings | Filter by severity, status, type and system; evidence and suggested fix; acknowledge, resolve, dismiss, create a task. |
+| Access requests | Log, verify identity, search every system, approve what is disclosed, draft, submit, approve, send, close; deadline timers and extension. |
+| Vendors and transfers | One row per vendor with systems, country and open gaps. |
+| Regulation library | Search the GDPR and your documents; ask a question answered only from them, with the sources shown. |
+| Analytics, Revenue | See below. |
+| Billing, Team, Audit log, Settings | Plan and invoices; roles and removal (never the last administrator, never yourself); the append only log; provider order, token budgets, a connection test and retention. |
+
+### Dashboards
+
+Controls: presets (30 days, 90 days, 12 months, custom), day, week or month, comparison with the previous period, CSV export and a print layout. Each chart is an ECharts canvas loaded on demand (the chart code is a 158 kB chunk that other pages never fetch) with a sentence written from the same data under it, a loading state, an empty state and exact values in the tooltip. One color per series everywhere (`src/app/charts/theme.ts`). The option builders are pure functions with unit tests.
+
+- **Analytics** (admin, analyst, viewer): KPIs with sparklines (record coverage, stale records, open findings, discovery confidence, requests on time); findings opened and closed with a net line; open findings by severity and type; lawful basis donut; data categories by system heatmap; a Sankey of systems to vendors to countries with transfers without a safeguard in red; request volume and median days to respond; assessment pipeline; record freshness; confidence distribution; operations (tokens per system by provider, cache hit rate, failovers, REA time by evidence type, extractor mix). The breakdowns come from `GET /analytics/compliance/breakdown`, computed live inside the organization's tenant session.
+- **Revenue** (administrators of the host organization): MRR, ARR, net new MRR, net revenue retention, gross churn, ARPA, paying accounts and usage revenue with sparklines and deltas; MRR with a dashed straight line projection labelled as a projection, MRR movement as stacked bars or a waterfall, MRR by plan, industry and region, subscription against usage revenue, cohort retention, customers with ARPA, unit economics, the top ten customers with sparklines and an invoices table with search and paging. The breakdowns come from `GET /analytics/revenue/breakdown`, a platform wide snapshot (`revenue_breakdowns`, migration 0011) that the nightly job writes with the owner connection, because a tenant session cannot see other organizations. A footnote says the history is simulated.
+
+### Added to the API for the console
+
+`GET /auth/organizations` and `POST /auth/switch`; `is_host` on `GET /auth/me`; `GET`, `PATCH` and `DELETE /team` (administrators); `GET /analytics/compliance/breakdown`; `GET /analytics/revenue/breakdown`. The role matrix covers all of them (118 protected routes).
+
+### Measured
+
+| Check | Result |
+|---|---|
+| Unit and component tests (`npm test`): permissions per role, every chart builder, the date presets, the console with each role (menus, restricted pages, tables, filters, palette, wizard step, structural accessibility) | 100 passed (public site and console, 8 files) |
+| Backend tests for the new routes and the breakdowns (`tests/test_console_api.py`, `test_billing_db.py`, `test_authorization.py`) | passed; the revenue breakdown adds up by plan, industry and region to the daily MRR |
+| Browser tests against the real stack (`npm run e2e:live`: the seeded database, the API, the built site) | 34 passed |
+| Browser tests of the public site (`npm run e2e`, the API mocked) | 129 passed (unchanged) |
+
+Browser tests against the real stack (`frontend/e2e-live/`):
+
+| Area | Covered |
+|---|---|
+| Sign in | each of the four roles signs in, sees its own menu and signs out; the session is gone afterwards; a wrong password gets one message |
+| Role restrictions | a viewer, an analyst and a system owner are told a page is not available, and the matching API calls answer 403 |
+| Add System wizard | register with an owner, attach six evidence files, run discovery and classification with progress, review elements with the evidence drawer, compare the sources, generate the record, complete the missing fields, submit for approval |
+| Access request | log, verify identity, search (the person is found in the system just onboarded), approve the disclosure, draft, submit as an analyst, approve as the administrator, send, close |
+| Dashboards | analytics and revenue render their figures and charts from the seeded history (60 simulated customers, a year of compliance history); waterfall toggle, CSV download, top customers and invoices tables |
+| Accessibility | 16 console pages checked with axe-core for WCAG 2.1 A and AA including color contrast, in a real browser |
+
+### Limits
+
+- The browser tests run one at a time against a database that they change, and need Docker, uv and the embedding model: `python scripts/e2e_stack.py up`, then `... api`, then `npm run e2e:live`. They are not in a continuous integration job yet.
+- The stack runs with the built in evidence parsers (`REA_ENABLED=false`), background jobs inside the API process and no language model provider, so the record's purpose and lawful basis are written by the person completing the wizard, and the assistant based features (the cover note, adjudication, the question answering model call) are not exercised.
+- Account invitations are not part of the console: registration is disabled by design, so the Team page changes roles and removes access but does not create accounts.
+- Records, requests and the other lists load up to 200 rows and sort, search and page in the browser.
+- The 5 by 5 matrix and the charts were checked for structure and contrast, not with a screen reader.
+- Only Chromium was used.
+
+### Running it
+
+```
+python scripts/e2e_stack.py up      # database, migrations, seeds; first run takes a few minutes
+python scripts/e2e_stack.py api     # the API on port 8000
+cd frontend && npm run build && npm run e2e:live
+python scripts/e2e_stack.py down
+```
+
+Accounts created by the seed: `admin@`, `analyst@`, `owner@` and `auditor@northbridge.example` (password in `scripts/e2e_stack.py`, local use only).
+
+## Evaluation and hardening (Phase 15)
+
+- `backend/tests/test_evaluation.py` runs the reference estate end to end, measures discovery, classification, recipients, contradictions, records, impact assessment screening, access request search, retrieval, chat, cost and the ablations, and writes `backend/.eval/results.json`. `scripts/eval_run.py` renders it to [evaluation.md](evaluation.md) and runs `scripts/load_check.py` (a 50 MB capture under a memory limit). The model is a scripted double, so token and answer figures describe the pipeline, not a hosted model.
+- `backend/tests/test_prompt_injection.py` plants hostile text in a policy and in an evidence file and checks that the output, the record and the model input are unaffected. `backend/tests/test_log_hygiene.py` checks the logs for personal data, passwords and tokens.
+- Coverage is measured with `coverage run -m pytest`; CI fails below 80 percent on the core packages.
+- Scans and the checklist are in [security-review.md](security-review.md). The runner images remove the package manager after installing, so its bundled libraries are not shipped.
+- CI (`.github/workflows/ci.yml`), pre-commit (`.pre-commit-config.yaml`) and the secrets allowlist (`.gitleaks.toml`) were added. CI has not yet run on GitHub.
+

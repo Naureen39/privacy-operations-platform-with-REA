@@ -30,9 +30,10 @@ function messageOf(body: ErrorBody | null, fallback: string): string {
   return fallback;
 }
 
-export async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
+export async function raw(method: string, path: string, body?: unknown): Promise<Response> {
   const headers: Record<string, string> = { Accept: "application/json" };
-  if (body !== undefined) headers["Content-Type"] = "application/json";
+  const isForm = typeof FormData !== "undefined" && body instanceof FormData;
+  if (body !== undefined && !isForm) headers["Content-Type"] = "application/json";
   if (method !== "GET") headers["X-CSRF-Token"] = csrfToken();
   let response: Response;
   try {
@@ -40,7 +41,7 @@ export async function request<T>(method: string, path: string, body?: unknown): 
       method,
       headers,
       credentials: "include",
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: body === undefined ? undefined : isForm ? (body as FormData) : JSON.stringify(body),
     });
   } catch {
     throw new ApiError("The service cannot be reached right now. Please try again shortly.", 0);
@@ -58,13 +59,42 @@ export async function request<T>(method: string, path: string, body?: unknown): 
       parsed?.error?.request_id ?? response.headers.get("X-Request-ID"),
     );
   }
+  return response;
+}
+
+export async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
+  const response = await raw(method, path, body);
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
 }
 
+/** Query string from an object; empty values are left out. */
+export function qs(params?: Record<string, string | number | boolean | null | undefined>): string {
+  if (!params) return "";
+  const entries = Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== "");
+  return entries.length === 0 ? "" : `?${new URLSearchParams(entries.map(([k, v]) => [k, String(v)])).toString()}`;
+}
+
 export const api = {
-  get: <T>(path: string) => request<T>("GET", path),
+  get: <T>(path: string, params?: Record<string, string | number | boolean | null | undefined>) =>
+    request<T>("GET", path + qs(params)),
   post: <T>(path: string, body?: unknown) => request<T>("POST", path, body),
+  put: <T>(path: string, body?: unknown) => request<T>("PUT", path, body),
+  patch: <T>(path: string, body?: unknown) => request<T>("PATCH", path, body),
+  del: <T = void>(path: string) => request<T>("DELETE", path),
+  /** A GET that also returns the paging headers. */
+  page: async <T>(path: string, params?: Record<string, string | number | boolean | null | undefined>) => {
+    const response = await raw("GET", path + qs(params));
+    return { items: (await response.json()) as T[], total: Number(response.headers.get("X-Total-Count") ?? 0) };
+  },
+  /** Download a file (exports) as a blob. */
+  blob: async (path: string, params?: Record<string, string | number | boolean | null | undefined>) => {
+    const response = await raw("GET", path + qs(params));
+    return {
+      blob: await response.blob(),
+      filename: /filename="?([^";]+)"?/.exec(response.headers.get("Content-Disposition") ?? "")?.[1],
+    };
+  },
 };
 
 export type Role = "admin" | "analyst" | "system_owner" | "viewer";

@@ -14,6 +14,7 @@ from sqlalchemy import (
     Numeric,
     String,
     UniqueConstraint,
+    func,
     text,
 )
 from sqlalchemy.dialects.postgresql import JSONB
@@ -179,3 +180,19 @@ class ComplianceDailyMetric(UuidPkMixin, TenantMixin, Base):
     )
 
     __table_args__ = (UniqueConstraint("org_id", "metric_date"),)
+
+
+class RevenueBreakdown(Base):
+    """Platform wide breakdowns (by plan, industry, region, cohort, customer) as of one day. Not
+    tenant scoped; the application role can only read it."""
+
+    __tablename__ = "revenue_breakdowns"
+
+    as_of: Mapped[date] = mapped_column(Date, primary_key=True)
+    payload: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
+    is_simulated: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("false")
+    )
+    computed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )

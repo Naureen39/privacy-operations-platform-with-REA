@@ -11,10 +11,17 @@ export default defineConfig({
   server: {
     port: 5173,
     // Same origin in development, so cookies and the CSRF header work without CORS.
-    proxy: { "/api": { target: apiTarget, changeOrigin: false } },
+    proxy: {
+      "/api": { target: apiTarget, changeOrigin: false },
+      "/health": { target: apiTarget },
+      "/ready": { target: apiTarget },
+    },
     fs: { allow: [".."] },
   },
-  preview: { port: 4173, proxy: { "/api": { target: apiTarget } } },
+  preview: {
+    port: 4173,
+    proxy: { "/api": { target: apiTarget }, "/health": { target: apiTarget }, "/ready": { target: apiTarget } },
+  },
   build: {
     target: "es2022",
     sourcemap: false,

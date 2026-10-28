@@ -61,7 +61,7 @@ def _protected_routes(app: FastAPI) -> list[tuple[str, APIRoute]]:
 
 def test_every_route_declares_its_roles(app: FastAPI) -> None:
     protected = _protected_routes(app)
-    assert len(protected) == 111
+    assert len(protected) == 118
     for method, route in protected:
         roles = [
             getattr(call, "allowed_roles", None)
@@ -760,6 +760,44 @@ def _matrix(
             "/analytics/refresh",
             lambda c: c.post("/api/v1/analytics/refresh", headers=csrf(c)),
             {Role.ADMIN},
+        ),
+        (
+            "GET",
+            "/analytics/compliance/breakdown",
+            lambda c: c.get("/api/v1/analytics/compliance/breakdown"),
+            {Role.ADMIN, Role.ANALYST, Role.VIEWER},
+        ),
+        (
+            "GET",
+            "/analytics/revenue/breakdown",
+            lambda c: c.get("/api/v1/analytics/revenue/breakdown"),
+            {Role.ADMIN},
+        ),
+        ("GET", "/team", lambda c: c.get("/api/v1/team"), {Role.ADMIN}),
+        (
+            "PATCH",
+            "/team/{id}",
+            lambda c: c.patch(
+                f"/api/v1/team/{uuid.uuid4()}", json={"role": "viewer"}, headers=csrf(c)
+            ),
+            {Role.ADMIN},
+        ),
+        (
+            "DELETE",
+            "/team/{id}",
+            lambda c: c.delete(f"/api/v1/team/{uuid.uuid4()}", headers=csrf(c)),
+            {Role.ADMIN},
+        ),
+        ("GET", "/auth/organizations", lambda c: c.get("/api/v1/auth/organizations"), ALL),
+        (
+            "POST",
+            "/auth/switch",
+            lambda c: c.post(
+                "/api/v1/auth/switch",
+                json={"org_id": c.get("/api/v1/auth/me").json()["org_id"]},
+                headers=csrf(c),
+            ),
+            ALL,
         ),
     ]
 

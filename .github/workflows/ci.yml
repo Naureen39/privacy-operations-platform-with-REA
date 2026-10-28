@@ -1,0 +1,165 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rules:
+    name: Wording rules
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: No long dash characters anywhere
+        run: python scripts/check_dash.py
+
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-bge-small-v1.5
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run black --check .
+      - run: uv run mypy app
+      - run: uv run bandit -q -r app -c pyproject.toml -ll
+      - name: Embedding model and the pinned REA release
+        run: |
+          uv run python ../scripts/download_embedding_model.py
+          npm ci --prefix ../rea-runner
+      - name: Tests with coverage (they start their own PostgreSQL containers)
+        run: uv run coverage run -m pytest -q
+      - name: Coverage of at least 80 percent on the core packages
+        run: |
+          uv run coverage xml
+          uv run coverage report --fail-under=80 \
+            --include="app/discovery/*,app/classify/*,app/fusion/*,app/records/*,app/dpia/*,app/dsar/*,app/llm/*,app/core/*"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: backend/coverage.xml
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npx prettier --check .
+      - run: npm test
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Browser tests of the public site (the API is mocked)
+        run: npm run e2e
+
+  live:
+    name: Browser tests against the real application
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-bge-small-v1.5
+      - run: uv sync --frozen
+        working-directory: backend
+      - run: uv run python ../scripts/download_embedding_model.py
+        working-directory: backend
+      - run: |
+          python scripts/e2e_stack.py up
+          python scripts/e2e_stack.py api
+      - run: npm ci
+        working-directory: frontend
+      - run: npx playwright install --with-deps chromium
+        working-directory: frontend
+      - run: npm run build && npm run e2e:live
+        working-directory: frontend
+
+  security:
+    name: Dependency, secret and image scans
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Python dependencies (pip-audit)
+        working-directory: backend
+        run: |
+          uv export --frozen --no-hashes --no-emit-project > /tmp/requirements.txt
+          uvx pip-audit -r /tmp/requirements.txt --disable-pip --no-deps
+      - name: Frontend dependencies (npm audit, production)
+        working-directory: frontend
+        run: npm audit --omit=dev --audit-level=high
+      - name: REA runner dependencies (npm audit)
+        working-directory: rea-runner
+        run: npm audit --omit=dev --audit-level=high
+      - name: Secrets in the history
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build the runner images
+        run: |
+          docker build -f rea-runner/Dockerfile.offline -t processledger/rea-offline:ci rea-runner
+          docker build -f rea-runner/Dockerfile.browser -t processledger/rea-browser:ci rea-runner
+      - name: Trivy on the repository (vulnerabilities, secrets, misconfiguration)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: vuln,secret,misconfig
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+      - name: Trivy on the runner images
+        run: |
+          for image in rea-offline rea-browser; do
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:0.57.1 \
+              image --severity HIGH,CRITICAL --exit-code 1 --ignore-unfixed processledger/$image:ci
+          done

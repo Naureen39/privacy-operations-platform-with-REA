@@ -40,6 +40,7 @@ from app.api.routes import (
     records,
     requests,
     systems,
+    team,
     workflow,
 )
 from app.classify.embedder import Embedder, SentenceTransformerEmbedder
@@ -142,5 +143,6 @@ def create_app(
     app.include_router(requests.router)
     app.include_router(billing.router)
     app.include_router(analytics.router)
+    app.include_router(team.router)
     app.include_router(admin.router)
     return app

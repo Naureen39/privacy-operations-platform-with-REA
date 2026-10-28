@@ -43,6 +43,8 @@ dev = [
     "types-pyyaml>=6.0.12.20260906",
     "types-reportlab>=5.0.0.20261008",
     "types-openpyxl>=3.1.5.20261017",
+    "psutil>=7.2.2",
+    "pytest-cov>=7.1.0",
 ]
 
 [tool.uv]
@@ -90,3 +92,10 @@ exclude_dirs = ["tests", ".venv"]
 testpaths = ["tests"]
 pythonpath = ["."]
 addopts = "-ra -p tests.fixtures_api -p tests.fixtures_classify -p tests.fixtures_knowledge -p tests.fixtures_fusion"
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["app/__init__.py"]
+
+[tool.coverage.report]
+exclude_lines = ['pragma: no cover', 'if TYPE_CHECKING:', 'raise NotImplementedError', '^\s*\.\.\.$']

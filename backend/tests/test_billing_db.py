@@ -620,3 +620,24 @@ def test_metric_snapshot_rebuild_is_idempotent(env: Env) -> None:
     rebuild(env.owner, TODAY - timedelta(days=30), TODAY)
     assert _seeded(env, sql) == before
     assert pricing.parse_month("2026-09")[1] < TODAY
+
+
+def test_the_revenue_breakdown_reconciles_with_the_daily_snapshot(env: Env) -> None:
+    host = env.client("host_admin")
+    body = host.get("/api/v1/analytics/revenue/breakdown")
+    assert body.status_code == 200
+    data = body.json()
+    assert data["simulated"] is True and len(data["months"]) == 24 and data["as_of"] == str(TODAY)
+    mrr_now = _seeded(env, "SELECT mrr_cents FROM daily_metrics WHERE metric_date = :d", d=TODAY)[
+        0
+    ][0]
+    for cut in ("mrr_by_plan", "mrr_by_industry", "mrr_by_region"):
+        assert sum(v[-1] for v in data[cut].values()) == mrr_now, cut
+    assert data["subscription_revenue_cents"][-1] == mrr_now
+    top = data["top_customers"]
+    assert 0 < len(top) <= 10 and [t["mrr_cents"] for t in top] == sorted(
+        (t["mrr_cents"] for t in top), reverse=True
+    )
+    assert all(row[0] == 100 for row in data["cohorts"]["retention"])
+    for who in ("host_viewer", "admin"):
+        assert env.client(who).get("/api/v1/analytics/revenue/breakdown").status_code == 403
